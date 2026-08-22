@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/*
+ * CRISTIAN BARBOSA UNIVERSE — design tokens
+ *
+ * Palette (named, not generic Tailwind defaults):
+ *   ink    — near-black background, gym-floor rubber, not pure #000
+ *   chalk  — off-white foreground, gymnast's chalk dust
+ *   ember  — signature accent: effort, heat, stage light
+ *   rust   — pressed/hover state of ember, darker ember
+ *   steel  — muted neutral for secondary text, borders, dividers
+ */
+:root {
+  --color-ink: #0b0d0c;
+  --color-ink-raised: #141715;
+  --color-chalk: #f3f1ea;
+  --color-ember: #ff5a1f;
+  --color-rust: #c8420f;
+  --color-steel: #8a9089;
+  --color-steel-dim: #565b54;
+}
+
+@theme inline {
+  --color-ink: var(--color-ink);
+  --color-ink-raised: var(--color-ink-raised);
+  --color-chalk: var(--color-chalk);
+  --color-ember: var(--color-ember);
+  --color-rust: var(--color-rust);
+  --color-steel: var(--color-steel);
+  --color-steel-dim: var(--color-steel-dim);
+
+  --font-display: var(--font-big-shoulders), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-chalk);
+  font-family: var(--font-sans);
+}
+
+/* Signature element: the pillar ticker. Pure CSS, no JS, disabled for
+   reduced-motion users per WCAG 2.3.3. */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  animation: ticker-scroll 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+}
