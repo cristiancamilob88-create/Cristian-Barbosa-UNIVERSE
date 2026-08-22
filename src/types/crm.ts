@@ -1,17 +1,23 @@
 /**
- * Conceptual CRM data model for the Cristian Barbosa Universe.
+ * Application-facing CRM types for the Cristian Barbosa Universe.
  *
- * These are TypeScript types only — there is no database behind them yet.
- * They exist so that (a) every route/lib in this foundation block agrees
- * on the shape of a contact/lead/interaction before any backend is built,
- * and (b) the next block (CRM data layer) has an already-reviewed contract
- * to turn into real tables instead of inventing one from scratch.
+ * As of Block 02 the real source of truth is the Postgres schema in
+ * supabase/migrations/ (see docs/DATABASE.md) — these types exist for
+ * code that wants a plain, DB-client-agnostic shape (e.g. lib/attribution.ts,
+ * which has no business importing `pg`). Repository return types in
+ * src/server/db/repositories/* are the literal row shapes; this file is
+ * the conceptual layer they map onto.
  *
  * Design decision (documented per the "no inventar tablas innecesarias"
  * instruction): a single CONTACT can accumulate multiple SOURCEs,
  * INTERESTs, and INTERACTIONs over time — this is a many-to-many journey
  * model, not a one-row-per-form-submission model. See docs/DATA_MODEL.md
- * for the full rationale and the recommended storage engine.
+ * for the full rationale.
+ *
+ * `EventEntity` from Block 01 was retired here: its purpose (a show, a QR
+ * scan location, a school visit) is fully covered by `Campaign` +
+ * `QrSource` and would have duplicated them — see docs/DATA_MODEL.md §
+ * "INTERACTION vs JOURNEY_EVENT" for the same reasoning applied to events.
  */
 
 /** How a contact is known to the system before/without a login. */
@@ -35,12 +41,36 @@ export interface SourceRef {
   utmCampaign: string | null;
   utmContent: string | null;
   utmTerm: string | null;
+  /** The qr_source.slug from a scanned QR, when present. See docs/ATTRIBUTION.md. */
+  qrSlug: string | null;
   /** e.g. "qr", "referral", "direct", "organic_search", "organic_social" */
   channel: string | null;
   /** The first landing path of this touch, e.g. "/entrenar". */
   landingPath: string | null;
   referrer: string | null;
   capturedAt: string;
+}
+
+/** A registered QR code — an acquisition instrument, not just an image. */
+export interface QrSource {
+  id: string;
+  slug: string;
+  campaignSlug: string | null;
+  sourceSlug: string | null;
+  destinationPath: string;
+  active: boolean;
+}
+
+/** A canonical outbound social/community link — the single source of truth for /redes. */
+export interface SocialProfile {
+  id: string;
+  slug: string;
+  platform: string;
+  label: string;
+  url: string;
+  active: boolean;
+  displayOrder: number;
+  category: string | null;
 }
 
 /** A named acquisition campaign, so multiple touches can roll up to one effort. */
@@ -99,15 +129,6 @@ export interface Subscription {
   status: "active" | "paused" | "canceled";
   startedAt: string;
   canceledAt: string | null;
-}
-
-/** A live/physical touchpoint: a show, a QR scan location, a school visit. */
-export interface EventEntity {
-  id: string;
-  name: string;
-  kind: "show" | "qr_campaign" | "community_event";
-  occursAt: string | null;
-  location: string | null;
 }
 
 /** A single logged touch — the append-only journal a Contact is built from. */

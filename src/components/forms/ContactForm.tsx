@@ -5,7 +5,8 @@ import { z } from "zod";
 import { track } from "@/lib/analytics";
 
 const topics = [
-  { value: "entrenar", label: "Entrenamiento / coaching" },
+  { value: "entrenar", label: "Entrenamiento" },
+  { value: "coaching", label: "Coaching personalizado" },
   { value: "shows", label: "Shows" },
   { value: "marcas", label: "Marcas y partnerships" },
   { value: "musica", label: "Música" },

@@ -1,24 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import { visitorCookieOptions, VISITOR_COOKIE } from "@/lib/attribution";
+import { withTransaction } from "@/server/db/transaction";
+import { resolveVisitorContext } from "@/server/db/visitorContext";
+import { resolveInterestId } from "@/server/db/repositories/reference";
+import { findOrCreateContact, assignInterest } from "@/server/db/repositories/contact";
+import { linkVisitorToContact } from "@/server/db/repositories/visitor";
+import { createLead } from "@/server/db/repositories/lead";
+import { recordInteraction } from "@/server/db/repositories/interaction";
 
 /**
- * Lead intake endpoint for the /contacto form.
+ * Lead intake endpoint for the /contacto form. Persists the full flow
+ * documented in docs/CRM.md:
  *
- * Foundation-stage scope: validates and rate-limits the request, then
- * returns success. It does NOT persist to a database or CRM yet — there
- * is no data store in this block (see docs/DATA_MODEL.md). Wiring this
- * to actually create a Contact/Lead row is the first task of the CRM
- * data layer block; the request/response contract here is designed to
- * stay stable when that lands.
+ * validate -> resolve attribution -> find-or-create contact -> preserve
+ * first touch / update last touch -> assign interest if resolvable ->
+ * create lead -> record a `lead_submitted` interaction -> respond.
  *
- * Security:
- * - All input is validated with zod; invalid input is rejected with 400
- *   and never reaches application logic.
- * - A simple in-memory sliding-window rate limit caps abuse per IP.
- *   Decision: in-memory is enough for a single-instance foundation
- *   deploy; it resets on redeploy and does not coordinate across
- *   instances. Replace with a shared store (e.g. Upstash Redis) before
- *   running more than one instance behind a load balancer.
+ * Security: all input is validated with zod before touching application
+ * logic; a honeypot field and an in-memory sliding-window rate limit
+ * guard the endpoint (documented limitation: in-memory state doesn't
+ * survive a redeploy or coordinate across instances — see docs/SECURITY.md).
+ * No database credential or row is ever returned to the client.
  */
 
 const leadSchema = z.object({
@@ -26,9 +29,23 @@ const leadSchema = z.object({
   email: z.string().trim().email().max(200),
   topic: z.enum(["entrenar", "coaching", "shows", "marcas", "musica", "productos", "general"]),
   message: z.string().trim().max(2000).optional().default(""),
-  // Honeypot: real users never fill this hidden field.
-  company: z.string().max(0).optional().default(""),
+  // Honeypot: real users never fill this hidden field. Bounded but NOT
+  // max(0) — a filled value must reach the `if (parsed.data.company)`
+  // check below to be silently dropped; rejecting it at the schema level
+  // with a 400 would tell a bot exactly which field to leave empty.
+  company: z.string().max(200).optional().default(""),
 });
+
+/** Maps the contact form's topic values to the canonical interest dictionary (supabase seed.sql). */
+const TOPIC_TO_INTEREST_SLUG: Record<string, string | undefined> = {
+  entrenar: "training",
+  coaching: "coaching",
+  shows: "shows",
+  marcas: "brands",
+  musica: "music",
+  productos: "products",
+  // "general" intentionally maps to no specific interest.
+};
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 5;
@@ -70,16 +87,62 @@ export async function POST(request: NextRequest) {
   }
 
   if (parsed.data.company) {
-    // Honeypot tripped — pretend success, drop silently.
+    // Honeypot tripped — pretend success, drop silently, no DB write.
     return NextResponse.json({ ok: true });
   }
 
-  // TODO(CRM block): persist as Contact + Lead (src/types/crm.ts) instead of logging.
-  console.info("[lead]", {
-    name: parsed.data.name,
-    topic: parsed.data.topic,
-    hasMessage: parsed.data.message.length > 0,
-  });
+  const { name, email, topic, message } = parsed.data;
 
-  return NextResponse.json({ ok: true });
+  try {
+    const { visitorId, isNewVisitorId } = await withTransaction(async (client) => {
+      const visitorCtx = await resolveVisitorContext(client, request);
+
+      const { contact } = await findOrCreateContact(
+        client,
+        { email, phone: null, name },
+        visitorCtx.visitor,
+      );
+      await linkVisitorToContact(client, visitorCtx.visitorId, contact.id);
+
+      const interestSlug = TOPIC_TO_INTEREST_SLUG[topic];
+      const interestId = await resolveInterestId(client, interestSlug ?? null);
+      if (interestId) {
+        await assignInterest(client, contact.id, interestId);
+      }
+
+      const lead = await createLead(client, {
+        contactId: contact.id,
+        interestId,
+        topicRaw: topic,
+        message: message || null,
+        touch: visitorCtx.touch,
+      });
+
+      await recordInteraction(client, {
+        visitorId: visitorCtx.visitorId,
+        contactId: contact.id,
+        eventName: "lead_submitted",
+        route: "/contacto",
+        touch: visitorCtx.touch,
+        metadata: { topic, leadId: lead.id },
+      });
+
+      return {
+        visitorId: visitorCtx.visitorId,
+        isNewVisitorId: visitorCtx.isNewVisitorId,
+      };
+    });
+
+    const response = NextResponse.json({ ok: true });
+    if (isNewVisitorId) {
+      response.cookies.set(VISITOR_COOKIE, visitorId, visitorCookieOptions);
+    }
+    return response;
+  } catch (err) {
+    console.error("[lead] failed to persist", err);
+    return NextResponse.json(
+      { ok: false, error: "No pudimos guardar tu mensaje. Intenta de nuevo." },
+      { status: 500 },
+    );
+  }
 }

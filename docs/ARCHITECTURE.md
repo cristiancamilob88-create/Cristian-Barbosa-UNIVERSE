@@ -1,8 +1,14 @@
 # ARCHITECTURE.md — Cristian Barbosa Universe
 
 Technical architecture for the digital core of the Cristian Barbosa personal
-brand ecosystem. This document is the record of **Block 01 — Repository
-Audit + Technical Foundation** and the reference for every block after it.
+brand ecosystem. This document was written for **Block 01 — Repository
+Audit + Technical Foundation** and is kept current through every block
+after it — **Block 02 — CRM + Data + Attribution + Social Routing +
+Audience Journey** landed the database, the CRM write path, and outbound
+social routing described in §4–§7 below; see docs/DATABASE.md,
+docs/CRM.md, docs/ATTRIBUTION.md, docs/SOCIAL_ROUTING.md, and
+docs/AUDIENCE_JOURNEY.md for the block-specific detail this file only
+summarizes.
 
 ## 1. Audit — state before this block
 
@@ -46,7 +52,8 @@ approval to integrate either).
 | Styling | **Tailwind CSS v4** (CSS-first `@theme`, no `tailwind.config.js`) | Fast to build consistent, on-brand UI across nine+ routes without hand-rolling a component library this early. |
 | Package manager | **npm** | Already present in the environment; no reason to add a second toolchain. |
 | Validation | **zod** | Both server (`/api/lead`) and client (`ContactForm`) validate against the same rules by hand-mirrored schemas today; once forms multiply, share one schema module instead of duplicating (see Roadmap). |
-| Testing | **Vitest** | Fast, zero-config for a Next+TS project, no jsdom needed yet since only `lib/` pure functions are tested. |
+| Testing | **Vitest**, two configs | `vitest.config.mts` (fast, no-DB unit tests) + `vitest.integration.config.mts` (DB-backed, `npm run test:integration`) — split so `npm test` never silently requires a live database. |
+| Data layer | **Postgres** (local dev/CI, Supabase in production) | See §4 — implemented in Block 02. |
 | Deployment target | **Vercel** (recommended, not yet wired) | Native Next.js support (Edge Middleware, ISR, image optimization), first-party env var management per environment, zero-config preview deployments per PR — the least operational overhead for a single Next app. No account/project was created in this block; this is a documented decision, not an implemented integration. |
 
 ## 3. Folder structure
@@ -54,34 +61,48 @@ approval to integrate either).
 ```
 src/
   app/                    routes — one folder per pillar, App Router convention
-    entrenar/ comunidad/ musica/ productos/ shows/ marcas/ eventos/ about/ contacto/
-    api/lead/route.ts     lead intake endpoint (validation + rate limit, no DB yet)
+    entrenar/ comunidad/ musica/ productos/ shows/ marcas/ eventos/ about/ contacto/ redes/
+    api/lead/route.ts     lead intake — validation, rate limit, full CRM persistence (docs/CRM.md)
+    api/track/route.ts    persistence sink for a subset of client analytics events
+    go/[slug]/route.ts    outbound social redirect + server-side click tracking (docs/SOCIAL_ROUTING.md)
     layout.tsx            shared shell: fonts, <Header/>, <Footer/>, Person JSON-LD
     sitemap.ts robots.ts  SEO file conventions
   components/
     layout/               Header, Footer, PageHero (shared route hero shell)
-    ui/                   Container, TrackedLink (analytics-instrumented link)
+    ui/                   Container, TrackedLink (internal CTA tracking), GoLink (outbound routing)
     forms/                ContactForm (client component)
   lib/
     attribution.ts         UTM/QR/referral parsing — pure functions, unit tested
-    analytics.ts            event taxonomy + pluggable sink
+    analytics.ts            client event taxonomy + pluggable sink (console + /api/track)
     seo.ts                   per-route Metadata builder
-    env.ts                   validated env access
-  proxy.ts                  edge attribution capture (first-touch/last-touch cookies)
-  types/crm.ts              conceptual CRM entities (types only, no DB)
-  config/site.ts             nav items, brand copy, social links — single source of truth
-docs/                       this file + DATA_MODEL, ANALYTICS, ROADMAP
+    env.ts                   validated client-safe (NEXT_PUBLIC_*) env access
+  server/
+    env.ts                   validated server-only env access (DATABASE_URL)
+    db/pool.ts               server-only pg Pool singleton
+    db/transaction.ts        withTransaction() helper
+    db/visitorContext.ts     resolveVisitorContext() — the entry point every DB route calls first
+    db/repositories/         one file per entity: reference, visitor, contact, interaction, lead, socialProfile
+  proxy.ts                  edge cookie assignment: cb_visitor + first/last-touch (no DB access — docs/ATTRIBUTION.md)
+  types/crm.ts              application-facing CRM types (the DB migrations are now the literal source of truth)
+  config/site.ts             nav items, brand copy, /go/ slugs — single source of truth
+supabase/
+  migrations/                versioned schema SQL (docs/DATABASE.md)
+  seed.sql                   safe development seed data
+scripts/db/                  migrate.mjs, seed.mjs, setup-test-db.mjs, test-auth-shim.sql (local/CI only)
+docs/                        this file + DATA_MODEL, ANALYTICS, CRM, ATTRIBUTION, DATABASE, SECURITY, SOCIAL_ROUTING, AUDIENCE_JOURNEY
 ```
 
 Rationale: routes stay thin (hero + a data-driven grid), shared logic lives
-in `lib/`, and `config/site.ts` is the one place a new route or nav label
-gets added — nothing else hardcodes the route list (nav, footer, sitemap
-all read from it).
+in `lib/`, all database access is isolated under `src/server/db/` (never
+imported by a client component — see docs/SECURITY.md), and
+`config/site.ts` is the one place a new route or nav label gets added —
+nothing else hardcodes the route list (nav, footer, sitemap all read from
+it).
 
-## 4. Data strategy (proposed, not implemented)
+## 4. Data strategy — implemented in Block 02
 
-**Decision: Postgres via Supabase**, when a data layer block is
-authorized. Reasoning, weighed against the CRM's actual shape (Section 5):
+**Decision (made in Block 01, executed in Block 02): Postgres via
+Supabase.** Reasoning, weighed against the CRM's actual shape (§5):
 
 - The CRM model is relational (a Contact has many Interactions, Interests,
   Orders) — a document store would just reinvent joins in application code.
@@ -89,55 +110,65 @@ authorized. Reasoning, weighed against the CRM's actual shape (Section 5):
   matches the later roadmap items (user accounts, membership, file
   uploads for coaching) without adding a second vendor per feature.
 - It already appears as researched-but-not-vendorized in the skills
-  library (`docs/supabase-skills-research.md`), so tooling exists for a
-  future block to draw on without starting research from zero.
+  library (`docs/supabase-skills-research.md`), so tooling exists to draw
+  on without starting research from zero.
 
-**Not implemented in this block, on purpose:** no tables, no migrations,
-no ORM. The instruction is explicit — propose the strategy, don't invent
-the schema before it's needed. `src/types/crm.ts` is the reviewed contract
-the first data-layer block will turn into real tables.
+What exists now: a full versioned schema (`supabase/migrations/`, 17
+tables), RLS policies, a migration runner (`npm run db:migrate`), safe
+seed data (`npm run db:seed`), and a server-only repository layer
+(`src/server/db/`) every DB-backed route goes through. Full detail in
+docs/DATABASE.md. **Not connected to any real Supabase project** in this
+block — every migration/test ran against a disposable local/CI Postgres
+("do not connect to or modify production Supabase unless explicitly
+authorized").
 
-## 5. CRM strategy
+## 5. CRM strategy — implemented in Block 02
 
-See `docs/DATA_MODEL.md` for the full entity rationale. Summary: one
-`Contact` accumulates many `Interest`, `Interaction`, `Lead`, `Order`, and
-`Subscription` rows over time (many-to-many journey, not one row per form).
-`SourceRef` (first-touch/last-touch) is embedded rather than a separate
-join table, because it's written once per touch and never queried
-independently of its owning record.
+See docs/DATA_MODEL.md for the full entity rationale and docs/CRM.md for
+the write-path walkthrough. Summary: one `contact` accumulates many
+`interest`, `interaction`, `lead`, and (schema-ready, not yet written to)
+`orders`/`subscription` rows over time — many-to-many journey, not one
+row per form. First/last-touch attribution is captured at the `visitor`
+level (pre-identification) and copied onto `contact` once a visitor is
+identified — see docs/ATTRIBUTION.md for exactly when each is written.
 
-## 6. Analytics strategy
+## 6. Analytics strategy — partially implemented in Block 02
 
-See `docs/ANALYTICS.md` for the event taxonomy. Summary: page code never
-calls a vendor SDK directly — everything goes through `track()` in
-`lib/analytics.ts`, which today only logs to the console in development.
-Swapping in GA4/Meta Pixel/PostHog/a first-party `/api/events` endpoint
-later is a one-file change, not a per-page rewrite.
+See docs/ANALYTICS.md for the full event taxonomy and which events are
+now persisted vs. still console-only. Summary: page code never calls a
+vendor SDK directly — everything goes through `track()` in
+`lib/analytics.ts`. As of Block 02, `cta_click` is persisted to the
+`interaction` table via `/api/track`; `whatsapp_click`/`social_click` are
+tracked server-side via `/go/[slug]` instead (docs/SOCIAL_ROUTING.md);
+`lead_submit` is recorded server-side by `/api/lead` itself. No real
+analytics *vendor* (GA4/Meta Pixel/PostHog) is wired yet — that's still a
+one-file change (`registerAnalyticsSink()`) away, not a per-page rewrite.
 
-## 7. Attribution strategy
+## 7. Attribution strategy — implemented in Block 02
 
-UTM parameters, QR-driven `utm_medium=qr` visits, and referrer-based
-channel classification (`organic_social`, `organic_search`, `referral`,
-`direct`) are captured in `src/proxy.ts` at the edge, before any page
-renders — not left to a form field to reconstruct later. Two first-party
-cookies (`cb_attr_first`, `cb_attr_last`, 90-day expiry) store the same
-`SourceRef` shape used in `types/crm.ts`, so a future CRM write path reads
-them directly with no translation layer.
+UTM parameters, QR-driven `?qr=<slug>` scans, and referrer-based channel
+classification (`organic_social`, `organic_search`, `referral`, `direct`)
+are captured in `src/proxy.ts` at the edge, before any page renders — not
+left to a form field to reconstruct later. Two first-party cookies
+(`cb_attr_first`, `cb_attr_last`, 90-day expiry) plus a third
+(`cb_visitor`, 2-year expiry, the anonymous identity anchor) exist purely
+at the edge; the actual `visitor`/`contact` database rows are written
+lazily by Node.js route handlers the first time attribution actually
+needs to be persisted (Edge Runtime can't hold a Postgres connection).
+Full mechanics, including the first-touch/last-touch enforcement and the
+visitor→contact linking, in docs/ATTRIBUTION.md.
 
-**QR campaigns**: no generator was built (not required for this block).
-The architecture is: a QR image encodes a normal URL with
-`utm_source`/`utm_medium=qr`/`utm_campaign` (e.g.
-`/entrenar?utm_source=aura&utm_medium=qr&utm_campaign=aura-envigado`) — the
-same proxy logic that handles a social click handles a QR scan, so no
-QR-specific backend code is needed until someone wants dynamic
-(re-pointable) QR codes, which is a real feature to design later, not a
-default to build now.
+**QR campaigns**: a `qr_source` table now exists (pre-registered codes
+only, never auto-created — see docs/DATABASE.md) but no QR *image*
+generator was built (still not required). A QR's printed URL encodes both
+the usual `utm_source`/`utm_medium=qr`/`utm_campaign` and a `?qr=<slug>`
+identifying which registered code was scanned.
 
 **Privacy**: only first-party, non-fingerprinting data is stored (the
-campaign labels already present in the visitor's own URL/referrer). No
-consent banner exists yet because no cookie here is currently used for
-anything beyond functional attribution — revisit before adding an
-advertising pixel (see Roadmap).
+campaign labels already present in the visitor's own URL/referrer, plus
+an opaque UUID). No consent banner exists yet because nothing collected
+is an advertising cookie — revisit before adding a third-party pixel (see
+Roadmap and docs/SECURITY.md).
 
 ## 8. Design system (foundation pass)
 
@@ -162,11 +193,23 @@ instruction to avoid "diseño genérico de SaaS":
 
 ## 9. Security
 
+Full model in docs/SECURITY.md. Summary:
+
 - **Secrets**: none in the repo. `.env.example` documents every var this
-  app reads (`src/lib/env.ts`); real values live in `.env.local`
-  (git-ignored) or the deploy platform's env var store.
-- **Input validation**: every external input (`/api/lead`, `ContactForm`)
-  is parsed through zod; invalid input never reaches application logic.
+  app reads — client-safe vars in `src/lib/env.ts`, server-only vars
+  (`DATABASE_URL`) in `src/server/env.ts`, validated lazily so an
+  unrelated build never needs a live database.
+- **Server-only DB access**: every file under `src/server/db/` is
+  `server-only`-guarded; there is no client-side database access anywhere.
+- **RLS**: enabled on every table (`supabase/migrations/0002_rls_policies.sql`),
+  default-deny for `anon`/`authenticated` except three genuinely public
+  read-only tables. Today's actual boundary is that all writes use a
+  server-only connection, not RLS — RLS is defense-in-depth, prepared for
+  a future block that adds client-side reads.
+- **Input validation**: every external input (`/api/lead`, `/api/track`,
+  `ContactForm`) is parsed through zod; invalid input never reaches
+  application logic. Proven inert against SQL-metacharacter payloads by
+  integration tests (parameterized queries throughout).
 - **Form protection**: a honeypot field plus a simple in-memory sliding-
   window rate limit (5 requests/IP/minute) on `/api/lead`. Documented
   limitation: in-memory state doesn't survive a redeploy and doesn't
@@ -175,41 +218,52 @@ instruction to avoid "diseño genérico de SaaS":
 - **HTTP headers**: `next.config.ts` sets `X-Content-Type-Options`,
   `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, and a
   baseline `Content-Security-Policy` on every route.
-- **Data minimization**: attribution cookies store only campaign labels
-  already present in the URL/referrer — nothing else is collected because
-  nothing else is needed yet.
+- **Data minimization**: attribution/visitor cookies store only campaign
+  labels already present in the URL/referrer plus an opaque UUID —
+  nothing else is collected because nothing else is needed yet.
 
 ## 10. Roadmap (proposed block order)
 
-1. **Block 01 — Repository audit + technical foundation** *(this block)*.
-2. **Block 02 — CRM data layer**: stand up Postgres/Supabase, turn
-   `types/crm.ts` into real tables + RLS policies, wire `/api/lead` to
-   persist instead of log, move attribution cookies into a
-   `Contact.firstSource/lastSource` write path.
+1. **Block 01 — Repository audit + technical foundation** ✅.
+2. **Block 02 — CRM + data + attribution + social routing + audience
+   journey** ✅ *(this block)*: Postgres schema + RLS, `/api/lead`
+   persistence end to end, `visitor`→`contact` linking, `/go/[slug]`
+   outbound routing, `/redes`, the unified `interaction` journal.
 3. **Block 03 — Analytics sink + dashboard data**: pick and wire a real
-   analytics vendor or first-party `/api/events` store; build the
-   acquisition/conversion/revenue read models the Dashboard section of the
-   brief describes (no visual dashboard yet — data first).
-4. **Block 04 — Commerce**: `/productos` checkout integration(s),
-   `/comunidad` Facebook Subscription linkout hardening, order/subscription
-   sync into the CRM.
-5. **Block 05 — B2B funnels**: `/shows` and `/marcas` lead routing,
-   pipeline stages on `Lead.status`, notification/follow-up automation.
+   analytics vendor or first-party warehouse; build the
+   acquisition/conversion/revenue read models (SQL views/queries) the
+   Dashboard section of the brief describes — the `interaction` journal
+   already has everything they'd read from (no visual dashboard yet —
+   data/read-models first). A `session` table (see docs/AUDIENCE_JOURNEY.md)
+   is a candidate here if session-level rollups turn out to be needed.
+4. **Block 04 — Commerce**: `/productos` checkout integration(s), first
+   writes to `orders`/`order_items`/`subscription`, `/comunidad` Facebook
+   Subscription linkout hardening.
+5. **Block 05 — B2B funnels**: a real `/shows`/`/marcas` intake writing to
+   `b2b_opportunity` (schema already exists, unused), stage-change
+   notifications.
 6. **Block 06 — Content & brand pass**: real copy, photography/video,
    motion (`gsap-web` from the skills library), once there is real content
    to animate.
-7. **Later, not scheduled**: auth/accounts, membership platform, AI
-   coaching, mobile app, 3D — all explicitly deferred per Product Vision.
+7. **Later, not scheduled**: auth/accounts (needed before any RLS
+   self-service policy), membership platform, AI coaching, mobile app,
+   3D — all explicitly deferred per Product Vision.
 
 ## 11. What was NOT implemented in this block, on purpose
 
-- No database, no ORM, no migrations.
-- No real analytics vendor wired — `track()` only logs to console.
-- No QR generator.
-- No visual dashboard.
-- No authentication/accounts.
-- No payment/checkout integration (Facebook Subscription is linked to
-  externally, not embedded).
+- No connection to any real Supabase project — every migration/test ran
+  against a disposable local/CI Postgres.
+- No real analytics vendor wired — `track()` persists a subset of events
+  to this app's own `interaction` table, not to GA4/Meta/PostHog/etc.
+- No QR image generator (the `qr_source` registry exists; codes are
+  inserted directly).
+- No visual dashboard — the read models it would query aren't built yet
+  either (Block 03).
+- No authentication/accounts — and therefore no per-contact RLS
+  self-service policies (would need `contact.auth_user_id`, which
+  doesn't exist).
+- No payment/checkout integration — `orders`/`order_items`/`subscription`
+  exist as schema only, nothing writes to them yet.
 - No consent banner (nothing beyond functional attribution is collected
   yet — add one before any advertising pixel ships).
 - No content/copy beyond structurally-correct placeholders — see Product

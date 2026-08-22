@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import { TrackedLink } from "@/components/ui/TrackedLink";
-import { navItems, secondaryNavItems, siteConfig, socialLinks } from "@/config/site";
+import { GoLink } from "@/components/ui/GoLink";
+import { navItems, secondaryNavItems, siteConfig, goLinks } from "@/config/site";
 
 export function Footer() {
   return (
@@ -25,38 +25,18 @@ export function Footer() {
 
         <div className="flex flex-col gap-2">
           <p className="font-mono text-xs uppercase tracking-wider text-steel-dim">Conecta</p>
-          <TrackedLink
-            event={{ name: "whatsapp_click", topic: "footer" }}
-            href={socialLinks.whatsapp}
-            external
-            className="text-sm text-steel hover:text-ember"
-          >
+          <GoLink slug={goLinks.whatsappCommunity} className="text-sm text-steel hover:text-ember">
             WhatsApp
-          </TrackedLink>
-          <TrackedLink
-            event={{ name: "social_click", network: "instagram" }}
-            href={socialLinks.instagram}
-            external
-            className="text-sm text-steel hover:text-ember"
-          >
+          </GoLink>
+          <GoLink slug={goLinks.instagram} className="text-sm text-steel hover:text-ember">
             Instagram
-          </TrackedLink>
-          <TrackedLink
-            event={{ name: "social_click", network: "tiktok" }}
-            href={socialLinks.tiktok}
-            external
-            className="text-sm text-steel hover:text-ember"
-          >
+          </GoLink>
+          <GoLink slug={goLinks.tiktok} className="text-sm text-steel hover:text-ember">
             TikTok
-          </TrackedLink>
-          <TrackedLink
-            event={{ name: "social_click", network: "youtube" }}
-            href={socialLinks.youtube}
-            external
-            className="text-sm text-steel hover:text-ember"
-          >
+          </GoLink>
+          <GoLink slug={goLinks.youtube} className="text-sm text-steel hover:text-ember">
             YouTube
-          </TrackedLink>
+          </GoLink>
         </div>
       </Container>
 

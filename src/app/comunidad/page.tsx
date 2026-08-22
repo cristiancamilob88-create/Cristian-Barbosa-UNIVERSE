@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
-import { TrackedLink } from "@/components/ui/TrackedLink";
+import { GoLink } from "@/components/ui/GoLink";
 import { buildMetadata } from "@/lib/seo";
-import { socialLinks } from "@/config/site";
+import { goLinks } from "@/config/site";
 
 export const metadata: Metadata = buildMetadata({
   title: "Comunidad",
@@ -33,14 +33,12 @@ export default function ComunidadPage() {
                 universo.
               </p>
             </div>
-            <TrackedLink
-              event={{ name: "whatsapp_click", topic: "comunidad" }}
-              href={socialLinks.whatsapp}
-              external
+            <GoLink
+              slug={goLinks.whatsappCommunity}
               className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
             >
               Unirme por WhatsApp
-            </TrackedLink>
+            </GoLink>
           </div>
 
           <div className="flex flex-col justify-between gap-6 bg-ink p-8">
@@ -54,14 +52,12 @@ export default function ComunidadPage() {
                 por Facebook Subscription.
               </p>
             </div>
-            <TrackedLink
-              event={{ name: "cta_click", cta: "facebook_subscription", topic: "comunidad" }}
-              href={socialLinks.facebook}
-              external
+            <GoLink
+              slug={goLinks.facebookSubscription}
               className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
             >
               Ver en Facebook
-            </TrackedLink>
+            </GoLink>
           </div>
         </Container>
       </section>

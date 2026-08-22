@@ -71,6 +71,12 @@ export const navItems: NavItem[] = [
     href: "/eventos",
     description: "Agenda de próximas apariciones y eventos.",
   },
+  {
+    tag: "NETWORK",
+    label: "Redes",
+    href: "/redes",
+    description: "Todos los canales oficiales, en un solo lugar.",
+  },
 ];
 
 export const secondaryNavItems: NavItem[] = [
@@ -88,10 +94,19 @@ export const secondaryNavItems: NavItem[] = [
   },
 ];
 
-export const socialLinks = {
-  instagram: "https://instagram.com/",
-  tiktok: "https://tiktok.com/@",
-  youtube: "https://youtube.com/@",
-  facebook: "https://facebook.com/",
-  whatsapp: "https://wa.me/",
+/**
+ * `/go/<slug>` route identifiers used by Header/Footer/comunidad chrome —
+ * NOT destination URLs. The actual URL lives only in the `social_profile`
+ * table (supabase/seed.sql seeds these same slugs) and is resolved at
+ * redirect time in src/app/go/[slug]/route.ts. Keeping only slugs here
+ * (not URLs) is what "single source of truth" means in practice: this
+ * file can name *which* channels appear in nav chrome without ever
+ * duplicating *where* they point. See docs/SOCIAL_ROUTING.md.
+ */
+export const goLinks = {
+  whatsappCommunity: "whatsapp-community",
+  instagram: "instagram-main",
+  tiktok: "tiktok-main",
+  youtube: "youtube-main",
+  facebookSubscription: "facebook-subscription",
 } as const;

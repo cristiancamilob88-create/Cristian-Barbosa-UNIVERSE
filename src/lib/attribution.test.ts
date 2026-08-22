@@ -15,6 +15,10 @@ describe("hasAttributionSignal", () => {
   it("is true when any utm_* param is present", () => {
     expect(hasAttributionSignal(new URLSearchParams("utm_source=show"))).toBe(true);
   });
+
+  it("is true when only a qr param is present", () => {
+    expect(hasAttributionSignal(new URLSearchParams("qr=aura-2026-main"))).toBe(true);
+  });
 });
 
 describe("classifyChannel", () => {
@@ -46,8 +50,10 @@ describe("classifyChannel", () => {
 });
 
 describe("parseSource / serializeSource / deserializeSource", () => {
-  it("round-trips a QR campaign URL end to end", () => {
-    const params = new URLSearchParams("utm_source=aura&utm_medium=qr&utm_campaign=aura-envigado");
+  it("round-trips a QR campaign URL end to end, including the qr slug", () => {
+    const params = new URLSearchParams(
+      "utm_source=aura&utm_medium=qr&utm_campaign=aura-envigado&qr=aura-2026-main",
+    );
     const now = new Date("2026-01-01T00:00:00.000Z");
     const source = parseSource(params, null, "/entrenar", now);
 
@@ -55,6 +61,7 @@ describe("parseSource / serializeSource / deserializeSource", () => {
       utmSource: "aura",
       utmMedium: "qr",
       utmCampaign: "aura-envigado",
+      qrSlug: "aura-2026-main",
       channel: "qr",
       landingPath: "/entrenar",
       capturedAt: now.toISOString(),

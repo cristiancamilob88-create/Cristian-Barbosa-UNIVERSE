@@ -4,7 +4,7 @@ import type { SourceRef } from "@/types/crm";
  * Attribution architecture, in one file.
  *
  * Decision: capture UTM/QR/referral data into two first-party cookies
- * (first-touch, last-touch) at the edge, in middleware.ts, rather than
+ * (first-touch, last-touch) at the edge, in proxy.ts, rather than
  * relying on a form field or a third-party pixel. Forms remain the place
  * a person *confirms* who they are; attribution should already be known
  * by then. Both cookies store the same SourceRef shape so a later CRM
@@ -19,11 +19,25 @@ import type { SourceRef } from "@/types/crm";
 
 export const FIRST_TOUCH_COOKIE = "cb_attr_first";
 export const LAST_TOUCH_COOKIE = "cb_attr_last";
+export const VISITOR_COOKIE = "cb_visitor";
 
 /** How long a first-touch attribution is remembered before it's considered stale. */
 export const ATTRIBUTION_MAX_AGE_SECONDS = 60 * 60 * 24 * 90; // 90 days
+/** Anonymous identity persists longer than any one attribution window. */
+export const VISITOR_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365 * 2; // 2 years
+
+/** Shared flags for every cookie this module sets — see the header comment for why httpOnly. */
+export const BASE_COOKIE_OPTIONS = { sameSite: "lax" as const, httpOnly: true, path: "/" };
+
+/** Cookie options for cb_visitor, reused by proxy.ts and any route that has to mint one late. */
+export const visitorCookieOptions = {
+  ...BASE_COOKIE_OPTIONS,
+  maxAge: VISITOR_COOKIE_MAX_AGE_SECONDS,
+};
 
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
+/** A registered QR's identity (supabase.qr_source.slug) — see docs/ATTRIBUTION.md. */
+const QR_KEY = "qr";
 
 /**
  * Classifies a visit into a broad channel bucket. QR campaigns pass
@@ -63,6 +77,7 @@ export function parseSource(
     utmCampaign,
     utmContent,
     utmTerm,
+    qrSlug: params.get(QR_KEY),
     channel: classifyChannel(params, referrer),
     landingPath,
     referrer,
@@ -72,7 +87,7 @@ export function parseSource(
 
 /** True when the request URL carries any attribution signal worth capturing. */
 export function hasAttributionSignal(params: URLSearchParams): boolean {
-  return UTM_KEYS.some((key) => params.has(key));
+  return UTM_KEYS.some((key) => params.has(key)) || params.has(QR_KEY);
 }
 
 export function serializeSource(source: SourceRef): string {
@@ -90,6 +105,7 @@ export function deserializeSource(raw: string | undefined | null): SourceRef | n
       utmCampaign: parsed.utmCampaign ?? null,
       utmContent: parsed.utmContent ?? null,
       utmTerm: parsed.utmTerm ?? null,
+      qrSlug: parsed.qrSlug ?? null,
       channel: parsed.channel ?? null,
       landingPath: parsed.landingPath ?? null,
       referrer: parsed.referrer ?? null,
