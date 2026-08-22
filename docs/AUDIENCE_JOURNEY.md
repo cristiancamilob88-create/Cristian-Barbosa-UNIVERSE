@@ -8,22 +8,22 @@ VISITOR → SESSION → SOURCE → PAGE → INTERACTION → INTEREST → LEAD �
 
 No visual journey UI exists yet (explicitly out of scope — see
 docs/ARCHITECTURE.md §11). What follows is how each link in that chain
-maps to a real table/column, and a worked example proving the chain
-actually reconstructs.
+maps to a real table/column or read-model query, and a worked example
+proving the chain actually reconstructs.
 
 ## The mapping
 
 | Brief concept | This schema |
 |---|---|
 | VISITOR | `visitor` row, keyed by the `cb_visitor` cookie. |
-| SESSION | Not a separate table — a session is implicit in `interaction.created_at` proximity per `visitor_id`. Adding a real `session` table (start/end, duration) is a Block 03 candidate once there's a dashboard that needs session-level rollups; nothing in this block reads or writes one, so it isn't built (avoid unnecessary tables). |
-| SOURCE | `interaction.source_id`/`campaign_id`/`qr_id` — the attribution snapshot *at the moment that event fired*, not just the visitor's current state. |
+| SESSION | Not a stored table — computed on read by gap-sessionizing `interaction` (30-min threshold), `getSessionSummary()` (`src/server/analytics/sessions.ts`, Block 03). Every question the brief asks about sessions is answerable from `interaction` alone; a stored table would just duplicate it. |
+| SOURCE | `interaction.source_id`/`campaign_id`/`qr_id` **+ `medium`/`content`/`term`/`referrer`** (Block 03) — the attribution snapshot *at the moment that event fired*, not just the visitor's current state. |
 | PAGE | `interaction.route`. |
-| INTERACTION | `interaction.event_name` + `metadata`. |
+| INTERACTION | `interaction.event_name` + `metadata` (+ `entity_type`/`entity_id` for entity-specific events like `product_view` — Block 03). |
 | INTEREST | `contact_interest`, once the visitor is identified. |
 | LEAD | `lead`, linked to the same `contact`. |
 | OFFER | `offer` (catalog only — no checkout in this block). |
-| CONVERSION / REVENUE | `orders`/`order_items`/`subscription` (schema only, no writes yet — Block 04). |
+| CONVERSION / REVENUE | `orders`/`order_items`/`subscription` (schema only, no writes yet — Block 04). Revenue read models exist and are tested against simulated purchase data — see docs/ANALYTICS_ENGINE.md and docs/CRM.md. |
 
 ## Worked example: the brief's own scenario
 
@@ -36,8 +36,9 @@ Traced through this schema:
 1. **QR scan** → `GET /entrenar?utm_source=aura&utm_medium=qr&utm_campaign=aura-2026&qr=aura-2026-main`.
    `src/proxy.ts` sets `cb_visitor` (new) + `cb_attr_first`/`cb_attr_last`
    (both — this is the first touch).
-2. **Page view** (not persisted to DB in this block — see
-   docs/ANALYTICS.md for why `page_view` stays console-only for now).
+2. **Page view** — persisted as `landing_view` (the URL still carries the
+   Aura QR signal at this point) by `PageViewTracker` → `/api/track`
+   (Block 03 — see docs/ANALYTICS.md).
 3. **Clicks Facebook** → `GET /go/facebook-subscription`. Writes one
    `interaction` (`event_name: social_click`, `route: /go/facebook-subscription`,
    `source_id`/`campaign_id` resolved from the *still-current* last-touch
@@ -59,10 +60,12 @@ Traced through this schema:
    originating campaign for that revenue).
 
 Querying "everything this person did, in order, with what was known
-about acquisition at each step" is:
+about acquisition at each step" is now a formalized function,
+`getContactJourney()` (`src/server/analytics/journey.ts`, Block 03) —
+conceptually:
 
 ```sql
-select event_name, route, source_id, campaign_id, created_at
+select event_name, route, source_id, campaign_id, medium, content, created_at
 from interaction
 where contact_id = $1
 order by created_at;
@@ -74,9 +77,12 @@ after the fact.
 
 ## Why this isn't premature
 
-Every table this relies on already has integration test coverage proving
-the specific mechanic works (see `src/server/db/repositories/*.integration.test.ts`
-and `src/app/**/*.integration.test.ts`): visitor upsert, first-touch
-immutability (both application-level and a DB trigger), the backfill on
-identification, and end-to-end lead creation. This is a verified
-foundation, not an aspirational one.
+Every table this relies on has integration test coverage proving the
+specific mechanic works: visitor upsert, first-touch immutability (both
+application-level and a DB trigger), the backfill on identification,
+end-to-end lead creation (`src/server/db/repositories/*.integration.test.ts`,
+`src/app/**/*.integration.test.ts`) — and, as of Block 03, the exact
+scenario above (and five others) run as automated tests in
+`src/server/analytics/journeys.integration.test.ts`, using the real
+`/api/lead` route handler for the lead-submission step, not a mock. This
+is a verified foundation, not an aspirational one.

@@ -2,12 +2,12 @@
 
 ## Secrets
 
-Nothing in this repo. `DATABASE_URL` (the only secret the app reads) is
-declared in `src/server/env.ts`, `server-only`-guarded, and validated
-lazily (only when a route actually opens a DB connection — see
-docs/DATABASE.md and docs/ARCHITECTURE.md §9). `.env.example` documents
-every variable; real values live in `.env.local` (git-ignored) or the
-deploy platform's env var store.
+Nothing in this repo. `DATABASE_URL` and `ANALYTICS_API_TOKEN` (the only
+secrets the app reads) are declared in `src/server/env.ts`,
+`server-only`-guarded, and validated lazily (only when a route actually
+needs them — see docs/DATABASE.md and docs/ARCHITECTURE.md §9).
+`.env.example` documents every variable; real values live in
+`.env.local` (git-ignored) or the deploy platform's env var store.
 
 ## Server-only database access
 
@@ -72,6 +72,28 @@ and `/go/[slug]` are not rate-limited in this block — they only ever
 write a single `interaction` row per call, and abuse there produces noisy
 analytics, not a resource or data-integrity risk the way spamming leads
 would. Revisit if that changes.
+
+## Analytics endpoint authorization
+
+`/api/analytics/*` (Block 03 — docs/REPORTING.md) exposes business
+aggregates (visitor counts, lead volume, revenue) that must not be
+public, but full user authentication is out of scope for this block too.
+`requireAnalyticsAuth()` (`src/server/analytics/auth.ts`) gates every
+route with a shared-secret bearer token (`ANALYTICS_API_TOKEN`) — not a
+login system, just an API key suitable for an internal caller. **Fails
+closed**: if the token isn't configured, every request gets `503`, never
+an open table (verified by `overview/route.integration.test.ts`, which
+also asserts no `contact` PII — email, name, phone — ever appears in a
+response body, not just that the TypeScript return types omit it). This
+is deliberately minimal-scope: replace it with a real
+role/permission check once the auth block (docs/DATA_MODEL.md,
+"Explicitly not modeled yet") exists — a bearer token with no expiry or
+per-caller identity isn't meant to be the permanent answer.
+
+These endpoints are read-only and gated by the token, so they carry no
+separate rate limit — the token itself is the access control; add one if
+this ever needs to tolerate a leaked token gracefully rather than just
+being rotated.
 
 ## HTTP headers
 

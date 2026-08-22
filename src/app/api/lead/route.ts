@@ -15,7 +15,9 @@ import { recordInteraction } from "@/server/db/repositories/interaction";
  *
  * validate -> resolve attribution -> find-or-create contact -> preserve
  * first touch / update last touch -> assign interest if resolvable ->
- * create lead -> record a `lead_submitted` interaction -> respond.
+ * create lead -> record `contact_created` (only when a new contact was
+ * actually created — see docs/ANALYTICS_ENGINE.md) and `lead_submitted`
+ * interactions -> respond.
  *
  * Security: all input is validated with zod before touching application
  * logic; a honeypot field and an in-memory sliding-window rate limit
@@ -97,12 +99,22 @@ export async function POST(request: NextRequest) {
     const { visitorId, isNewVisitorId } = await withTransaction(async (client) => {
       const visitorCtx = await resolveVisitorContext(client, request);
 
-      const { contact } = await findOrCreateContact(
+      const { contact, created } = await findOrCreateContact(
         client,
         { email, phone: null, name },
         visitorCtx.visitor,
       );
       await linkVisitorToContact(client, visitorCtx.visitorId, contact.id);
+
+      if (created) {
+        await recordInteraction(client, {
+          visitorId: visitorCtx.visitorId,
+          contactId: contact.id,
+          eventName: "contact_created",
+          route: "/contacto",
+          touch: visitorCtx.touch,
+        });
+      }
 
       const interestSlug = TOPIC_TO_INTEREST_SLUG[topic];
       const interestId = await resolveInterestId(client, interestSlug ?? null);

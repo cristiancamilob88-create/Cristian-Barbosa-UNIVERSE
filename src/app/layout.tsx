@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Big_Shoulders, Inter, JetBrains_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -49,6 +51,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
+        <Suspense fallback={null}>
+          <PageViewTracker />
+        </Suspense>
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

@@ -25,13 +25,21 @@ convenient). Every one of those routes starts by calling
    request" below).
 2. Reads `cb_attr_last`, resolves its slugs to `source`/`campaign`/
    `qr_source` ids (`resolveTouch`, find-or-create for source/campaign,
-   lookup-only for qr — see docs/DATABASE.md).
+   lookup-only for qr — see docs/DATABASE.md). `resolveTouch` resolves
+   these three sequentially, not via `Promise.all` — see
+   docs/ANALYTICS_ENGINE.md, "Testing", for the concurrency bug that
+   fixed.
 3. Upserts the `visitor` row: **last-touch always updates; first-touch
    only fills in if it was still null.** This is the actual enforcement
    point — not a convention, a `WHERE first_touch_captured_at IS NULL`
    in the upsert (`recordVisitorTouch`, `src/server/db/repositories/visitor.ts`).
 4. Looks up whether this visitor is already linked to a contact
    (`contact_visitor`).
+
+The same `ResolvedTouch` this produces (source/campaign/qr ids plus raw
+medium/content/term/referrer) is what every `interaction` row now
+snapshots at write time (Block 03, `0003_analytics_engine.sql`) — see
+docs/ANALYTICS_ENGINE.md, "Canonical event schema".
 
 ## QR codes
 

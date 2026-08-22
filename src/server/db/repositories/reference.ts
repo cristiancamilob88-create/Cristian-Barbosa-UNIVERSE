@@ -101,11 +101,15 @@ export async function resolveTouch(client: PoolClient, source: SourceRef | null)
     };
   }
 
-  const [sourceId, campaignId, qrId] = await Promise.all([
-    resolveSourceId(client, source.utmSource),
-    resolveCampaignId(client, source.utmCampaign),
-    resolveQrId(client, source.qrSlug),
-  ]);
+  // Sequential, not Promise.all: all three share one PoolClient (one
+  // Postgres connection), which cannot run overlapping queries — pg only
+  // tolerates concurrent calls on the same client by silently queueing
+  // them (deprecated, slated for removal, and not something to rely on
+  // for correctness). Each call here still round-trips independently,
+  // just not concurrently.
+  const sourceId = await resolveSourceId(client, source.utmSource);
+  const campaignId = await resolveCampaignId(client, source.utmCampaign);
+  const qrId = await resolveQrId(client, source.qrSlug);
 
   return {
     sourceId,

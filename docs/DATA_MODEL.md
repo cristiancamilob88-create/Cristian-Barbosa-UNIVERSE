@@ -2,11 +2,13 @@
 
 Block 01 defined these entities as TypeScript types only, with no
 database behind them. **Block 02 turned them into the real Postgres
-schema in `supabase/migrations/0001_init_schema.sql`** — this document
-now records the rationale for that literal schema (see docs/DATABASE.md
-for the column-by-column reference, and docs/CRM.md for how the write
-path actually uses it). `src/types/crm.ts` still holds the
-application-facing convenience types for code that shouldn't import `pg`.
+schema in `supabase/migrations/0001_init_schema.sql`**, and **Block 03
+extended `interaction` for analytics** (`0003_analytics_engine.sql` —
+see docs/ANALYTICS_ENGINE.md, "Canonical event schema") — this document
+records the rationale for that literal schema (see docs/DATABASE.md for
+the column-by-column reference, and docs/CRM.md for how the write path
+actually uses it). `src/types/crm.ts` still holds the application-facing
+convenience types for code that shouldn't import `pg`.
 
 ## Why these entities and no others
 
@@ -91,8 +93,10 @@ Per ARCHITECTURE.md §4, now real:
   (`supabase/migrations/0002_rls_policies.sql`) — see docs/SECURITY.md
   for what it actually guards today versus what it's prepared for.
 - `interaction` is exactly the insert-only journal this section
-  originally proposed, indexed by `(visitor_id, created_at)` and
-  `(contact_id, created_at)`.
+  originally proposed, indexed by `(visitor_id, created_at)`,
+  `(contact_id, created_at)`, and — as of Block 03 —
+  `(entity_type, entity_id)` for entity-specific events and `(medium)`
+  for medium-filtered rollups (docs/ANALYTICS_ENGINE.md).
 
 ## Explicitly not modeled yet
 

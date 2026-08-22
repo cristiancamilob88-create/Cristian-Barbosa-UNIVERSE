@@ -17,10 +17,15 @@ import { z } from "zod";
  */
 const serverEnvSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is not set — see .env.example"),
+  // Optional on purpose: unset means the /api/analytics/* endpoints stay
+  // closed (fail-safe), not open — see docs/SECURITY.md and
+  // docs/ANALYTICS_ENGINE.md, "Endpoint authorization".
+  ANALYTICS_API_TOKEN: z.string().min(16).optional(),
 });
 
 export function getServerEnv() {
   return serverEnvSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
+    ANALYTICS_API_TOKEN: process.env.ANALYTICS_API_TOKEN || undefined,
   });
 }

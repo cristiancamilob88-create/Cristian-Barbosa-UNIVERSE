@@ -5,10 +5,13 @@ brand ecosystem. This document was written for **Block 01 — Repository
 Audit + Technical Foundation** and is kept current through every block
 after it — **Block 02 — CRM + Data + Attribution + Social Routing +
 Audience Journey** landed the database, the CRM write path, and outbound
-social routing described in §4–§7 below; see docs/DATABASE.md,
-docs/CRM.md, docs/ATTRIBUTION.md, docs/SOCIAL_ROUTING.md, and
-docs/AUDIENCE_JOURNEY.md for the block-specific detail this file only
-summarizes.
+social routing described in §4–§7 below; **Block 03 — Analytics Engine +
+Conversion Measurement + Data Read Models** landed the event taxonomy
+extensions, the read-model query layer, and the `/api/analytics/*` API.
+See docs/DATABASE.md, docs/CRM.md, docs/ATTRIBUTION.md,
+docs/SOCIAL_ROUTING.md, docs/AUDIENCE_JOURNEY.md, and — for Block 03 —
+docs/ANALYTICS_ENGINE.md, docs/KPI_DEFINITIONS.md, docs/REPORTING.md for
+the block-specific detail this file only summarizes.
 
 ## 1. Audit — state before this block
 
@@ -210,6 +213,9 @@ Full model in docs/SECURITY.md. Summary:
   `ContactForm`) is parsed through zod; invalid input never reaches
   application logic. Proven inert against SQL-metacharacter payloads by
   integration tests (parameterized queries throughout).
+- **Analytics endpoint authorization**: `/api/analytics/*` requires a
+  bearer token (`ANALYTICS_API_TOKEN`), fails closed (503) if unset —
+  see docs/SECURITY.md, "Analytics endpoint authorization".
 - **Form protection**: a honeypot field plus a simple in-memory sliding-
   window rate limit (5 requests/IP/minute) on `/api/lead`. Documented
   limitation: in-memory state doesn't survive a redeploy and doesn't
@@ -229,13 +235,16 @@ Full model in docs/SECURITY.md. Summary:
    journey** ✅ *(this block)*: Postgres schema + RLS, `/api/lead`
    persistence end to end, `visitor`→`contact` linking, `/go/[slug]`
    outbound routing, `/redes`, the unified `interaction` journal.
-3. **Block 03 — Analytics sink + dashboard data**: pick and wire a real
-   analytics vendor or first-party warehouse; build the
-   acquisition/conversion/revenue read models (SQL views/queries) the
-   Dashboard section of the brief describes — the `interaction` journal
-   already has everything they'd read from (no visual dashboard yet —
-   data/read-models first). A `session` table (see docs/AUDIENCE_JOURNEY.md)
-   is a candidate here if session-level rollups turn out to be needed.
+3. **Block 03 — Analytics engine + conversion measurement + data read
+   models** ✅: `interaction` extended for per-event medium/content/term/
+   referrer + polymorphic entity references (`0003_analytics_engine.sql`);
+   4 new taxonomy events (`contact_created`, `outbound_click`,
+   `product_view`, `offer_view`); the full read-model query layer
+   (`src/server/analytics/`) — acquisition/engagement/leads/revenue/
+   funnel/session/journey; 8 private `/api/analytics/*` endpoints
+   (docs/REPORTING.md); `page_view`/`landing_view` now persisted. No
+   visual dashboard yet — this block is exactly "data/read-models first".
+   A real analytics vendor is still not wired (Product Vision, still true).
 4. **Block 04 — Commerce**: `/productos` checkout integration(s), first
    writes to `orders`/`order_items`/`subscription`, `/comunidad` Facebook
    Subscription linkout hardening.
@@ -255,13 +264,19 @@ Full model in docs/SECURITY.md. Summary:
   against a disposable local/CI Postgres.
 - No real analytics vendor wired — `track()` persists a subset of events
   to this app's own `interaction` table, not to GA4/Meta/PostHog/etc.
+  (Block 03 explicitly kept it this way too — "NO conectar todavía
+  permanentemente" any vendor.)
 - No QR image generator (the `qr_source` registry exists; codes are
   inserted directly).
-- No visual dashboard — the read models it would query aren't built yet
-  either (Block 03).
+- No visual dashboard — the read-model API it would query now exists
+  (docs/REPORTING.md), the charts/UI don't.
+- No CAC/ROAS/CPA/CPL — no real ad-spend data exists yet to compute them
+  from (docs/KPI_DEFINITIONS.md).
 - No authentication/accounts — and therefore no per-contact RLS
   self-service policies (would need `contact.auth_user_id`, which
-  doesn't exist).
+  doesn't exist), and `/api/analytics/*`'s bearer-token gate
+  (docs/SECURITY.md) is a placeholder for real role-based access, not
+  the permanent answer.
 - No payment/checkout integration — `orders`/`order_items`/`subscription`
   exist as schema only, nothing writes to them yet.
 - No consent banner (nothing beyond functional attribution is collected

@@ -3,7 +3,8 @@
 The central digital hub for the Cristian Barbosa personal brand — one Next.js
 application serving every pillar (training, community, music, products,
 shows, brands, events, social) as routes of a single system, backed by a
-real Postgres CRM, per [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+real Postgres CRM and analytics engine, per
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Stack
 
@@ -21,8 +22,10 @@ npm run dev
 ```
 
 The app runs without a database for most routes, but `/contacto`,
-`/redes`, `/go/*`, `/api/lead`, and `/api/track` need `DATABASE_URL` set
-— see [`docs/DATABASE.md`](docs/DATABASE.md).
+`/redes`, `/go/*`, `/api/lead`, `/api/track`, and `/api/analytics/*` need
+`DATABASE_URL` set — see [`docs/DATABASE.md`](docs/DATABASE.md).
+`/api/analytics/*` additionally needs `ANALYTICS_API_TOKEN` set, or it
+returns 503 (fails closed — see [`docs/SECURITY.md`](docs/SECURITY.md)).
 
 ## Scripts
 
@@ -47,18 +50,23 @@ The app runs without a database for most routes, but `/contacto`,
 - [`docs/CRM.md`](docs/CRM.md) — the `/api/lead` write-path walkthrough.
 - [`docs/ATTRIBUTION.md`](docs/ATTRIBUTION.md) — first/last-touch, QR, visitor→contact linking.
 - [`docs/ANALYTICS.md`](docs/ANALYTICS.md) — the event taxonomy.
+- [`docs/ANALYTICS_ENGINE.md`](docs/ANALYTICS_ENGINE.md) — the read-model engine: taxonomy audit, session model, funnels, testing.
+- [`docs/KPI_DEFINITIONS.md`](docs/KPI_DEFINITIONS.md) — every KPI's exact formula.
+- [`docs/REPORTING.md`](docs/REPORTING.md) — the `/api/analytics/*` API reference.
 - [`docs/SOCIAL_ROUTING.md`](docs/SOCIAL_ROUTING.md) — `/go/[slug]` and `/redes`.
 - [`docs/AUDIENCE_JOURNEY.md`](docs/AUDIENCE_JOURNEY.md) — the acquisition→conversion data model, worked example.
-- [`docs/SECURITY.md`](docs/SECURITY.md) — RLS, server-only access, secrets, rate limiting.
+- [`docs/SECURITY.md`](docs/SECURITY.md) — RLS, server-only access, secrets, rate limiting, analytics endpoint auth.
 
 ## Status
 
-**Block 01 — Repository audit + technical foundation** and **Block 02 —
-CRM + data + attribution + social routing + audience journey** are both
-complete: full route scaffold, a real Postgres schema with RLS, an
-end-to-end lead intake pipeline (attribution → contact → interest →
-lead), first/last-touch attribution with visitor→contact linking,
-server-tracked outbound social routing (`/go/[slug]`, `/redes`), CI with
-a Postgres service running both test suites. Still not wired: any real
-analytics vendor, payment/checkout, authentication, a visual dashboard —
-see `docs/ARCHITECTURE.md` §11 for the full "not yet" list.
+**Block 01 — foundation**, **Block 02 — CRM + data + attribution +
+social routing + audience journey**, and **Block 03 — analytics engine +
+conversion measurement + data read models** are all complete: full route
+scaffold, a real Postgres schema with RLS, an end-to-end lead intake
+pipeline, first/last-touch attribution with visitor→contact linking,
+server-tracked outbound social routing, a full read-model query layer
+(acquisition/engagement/leads/revenue/funnel/session/journey) behind 8
+private `/api/analytics/*` endpoints, CI with a Postgres service running
+both test suites (80 tests total). Still not wired: any real analytics
+vendor, payment/checkout, authentication, a visual dashboard — see
+`docs/ARCHITECTURE.md` §11 for the full "not yet" list.

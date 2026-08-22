@@ -5,11 +5,13 @@ import { getPool } from "@/server/db/pool";
 import { resolveVisitorContext } from "@/server/db/visitorContext";
 import { getActiveSocialProfileBySlug } from "@/server/db/repositories/socialProfile";
 import { recordInteraction } from "@/server/db/repositories/interaction";
+import { classifyOutboundEvent } from "@/lib/socialPlatform";
 
 /**
- * Controlled outbound routing: `/go/<slug>` records a `social_click` (or
- * `whatsapp_click`, for the WhatsApp platform) interaction server-side,
- * then 307-redirects to the real destination — see docs/SOCIAL_ROUTING.md.
+ * Controlled outbound routing: `/go/<slug>` records a `social_click`,
+ * `whatsapp_click`, or `outbound_click` interaction server-side (see
+ * classifyOutboundEvent — docs/ANALYTICS_ENGINE.md), then 307-redirects
+ * to the real destination — see docs/SOCIAL_ROUTING.md.
  *
  * Server-side on purpose: this works with JavaScript disabled and isn't
  * strippable the way a client-side pixel/fetch can be by a blocker, so
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       await recordInteraction(client, {
         visitorId: visitorCtx.visitorId,
         contactId: visitorCtx.contactId,
-        eventName: profile.platform === "whatsapp" ? "whatsapp_click" : "social_click",
+        eventName: classifyOutboundEvent(profile.platform),
         route: request.nextUrl.pathname,
         touch: visitorCtx.touch,
         metadata: { platform: profile.platform, slug: profile.slug },
