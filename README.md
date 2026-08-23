@@ -61,6 +61,8 @@ first with `node scripts/admin/hash-password.mjs` — see
 - [`docs/COMMAND_CENTER.md`](docs/COMMAND_CENTER.md) — the `/admin` dashboard: admin auth model, routes, what each section consumes.
 - [`docs/UNIVERSE_UX.md`](docs/UNIVERSE_UX.md) — the public site's intention architecture: the CTA/intent map, per-pillar changes, tracking.
 - [`docs/COMMERCE.md`](docs/COMMERCE.md) — commerce/offers infrastructure: the product/offer model review, the checkout abstraction, what's not wired yet.
+- [`docs/SUPABASE_PRODUCTION.md`](docs/SUPABASE_PRODUCTION.md) — taking this schema to a real Supabase project: expected state, RLS, env vars, deployment/rollback notes.
+- [`docs/MANUAL_SETUP_CHECKLIST.md`](docs/MANUAL_SETUP_CHECKLIST.md) — Supabase/GitHub/Vercel/DNS/Meta/etc., split by what Claude can automate vs. what only Cristian can do.
 - [`docs/SOCIAL_ROUTING.md`](docs/SOCIAL_ROUTING.md) — `/go/[slug]` and `/redes`.
 - [`docs/AUDIENCE_JOURNEY.md`](docs/AUDIENCE_JOURNEY.md) — the acquisition→conversion data model, worked example.
 - [`docs/SECURITY.md`](docs/SECURITY.md) — RLS, server-only access, secrets, rate limiting, analytics endpoint auth.
