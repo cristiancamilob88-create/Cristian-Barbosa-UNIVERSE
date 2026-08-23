@@ -74,18 +74,21 @@ social routing + audience journey**, **Block 03 — analytics engine +
 conversion measurement + data read models**, **Block 04 — Command
 Center (admin auth + analytics dashboard)**, **Block 04.1 — Command
 Center visual/data layer**, **Block 04.2 — Universe UX + conversion
-architecture**, and **Block 05 — Commerce/offers/conversion
-infrastructure** are all complete: full route scaffold, a real Postgres
-schema with RLS, an end-to-end lead intake pipeline, first/last-touch
-attribution with visitor→contact linking, server-tracked outbound
-social routing, a full read-model query layer (acquisition/engagement/
-leads/revenue/funnel/session/journey/commerce) behind 10 private
-`/api/analytics/*` endpoints, a single-admin login protecting a
-10-section `/admin` dashboard with trend sparklines and period
-comparisons, an intention-based public UX (every route has an approved
-CTA phrase, docs/UNIVERSE_UX.md), a checkout abstraction ready for a
-real payment provider (docs/COMMERCE.md), and both test suites (unit +
-DB-backed integration) green. Still not wired: any real analytics
-vendor, a real payment provider, multi-user authentication, charts/
-visual design polish — see `docs/ARCHITECTURE.md` §11 for the full "not
-yet" list.
+architecture**, **Block 05 — Commerce/offers/conversion
+infrastructure**, and **Block 06 — real Supabase project deployed**
+are all complete: full route scaffold, a real Postgres schema with RLS
+— now live on the real Supabase project (`Cristian-Barbosa-UNIVERSE`,
+docs/SUPABASE_PRODUCTION.md §3), not just designed — an end-to-end lead
+intake pipeline, first/last-touch attribution with visitor→contact
+linking, server-tracked outbound social routing, a full read-model
+query layer (acquisition/engagement/leads/revenue/funnel/session/
+journey/commerce) behind 10 private `/api/analytics/*` endpoints, a
+single-admin login protecting a 10-section `/admin` dashboard with
+trend sparklines and period comparisons, an intention-based public UX
+(every route has an approved CTA phrase, docs/UNIVERSE_UX.md), a
+checkout abstraction ready for a real payment provider
+(docs/COMMERCE.md), and both test suites (unit + DB-backed integration)
+green. Still not wired: any real analytics vendor, a real payment
+provider, multi-user authentication, charts/visual design polish, a
+Vercel deployment — see `docs/ARCHITECTURE.md` §11 and
+`docs/SUPABASE_PRODUCTION.md` §12-13 for the full "not yet" list.

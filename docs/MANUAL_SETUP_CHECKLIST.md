@@ -9,32 +9,30 @@ encontró (o no encontró) conectado.
 
 ## Supabase
 
-Confirmado en este bloque: existe un conector MCP **oficial** de
-Supabase en el registro de Anthropic (`directoryUuid
-11ca66fc-1e98-49d5-ab9b-7cb4672a8f10`, herramientas incluyendo
-`list_projects`, `get_project`, y ~24 más — probablemente listado de
-tablas, ejecución de SQL, gestión de migraciones). **No está instalado
-en esta cuenta** (`installState: "not_installed"`). Esta es la vía
-preferida — evita pegar una contraseña en el chat.
+**Block 06 completado**: el conector MCP oficial de Supabase se
+conectó, se autorizó a nivel de cuenta, y — un paso adicional real que
+vale la pena que Cristian recuerde para la próxima vez — tuvo que
+**habilitarse también para esta sesión de chat específica**
+(`enabledInChat`, distinto de la autorización a nivel de cuenta) antes
+de que sus herramientas aparecieran. Con eso resuelto, las 5
+migraciones + seed se aplicaron al proyecto real
+(`Cristian-Barbosa-UNIVERSE`, ref `yskfntcurmqqxjuvqoto`) y quedaron
+auditadas en `docs/SUPABASE_PRODUCTION.md` §3. Ninguna contraseña ni
+connection string se pegó en el chat en ningún momento.
 
-| Tarea | Quién |
-|---|---|
-| Crear la cuenta/organización Supabase | **Cristian** (identidad de facturación) |
-| Crear el proyecto (nombre, región, contraseña de base de datos) | **Cristian** |
-| **Opción A (preferida) — conectar el conector oficial de Supabase**: en claude.ai, ir a `Settings → Connectors`, buscar "Supabase", conectarlo y autorizarlo (esto abre el flujo OAuth de Supabase — Cristian inicia sesión ahí, no comparte contraseña con Claude). Luego, en esta sesión de Claude Code, confirmar que el conector está habilitado para el chat. | **Cristian** conecta; Claude verifica con `ListConnectors` una vez hecho |
-| Al conectar el MCP de Supabase, limitarlo (si la UI de Supabase lo permite en el flujo de autorización) al proyecto de Cristian Barbosa Universe específicamente, no a toda la organización | **Cristian**, durante el flujo de autorización |
-| **Opción B (alternativa) — connection string manual**: copiar el "Connection string" (con `sslmode=require`, idealmente el del connection pooler) desde `Project Settings → Database → Connection string` y pegarlo en el chat como `DATABASE_URL` | **Cristian**, solo si prefiere no usar el conector MCP |
-| Auditar tablas/RLS/policies existentes contra `docs/SUPABASE_PRODUCTION.md` §2 | Claude, una vez tenga acceso por cualquiera de las dos vías |
-| Ejecutar `npm run db:migrate` contra el proyecto real | Claude, solo después de la auditoría y con confirmación explícita |
-| Ejecutar `npm run db:seed` contra el proyecto real | Claude, mismo paso que arriba |
-| Verificar RLS final (roles, policies) | Claude |
-| Rotar la contraseña de base de datos si alguna vez se expone | **Cristian** (vía dashboard de Supabase) |
-
-**Nota de seguridad**: pegar una connection string con contraseña
-directamente en el chat la deja en el historial de la conversación. Si
-Cristian prefiere evitarlo, la alternativa es conectar un conector MCP
-de Supabase (si el entorno lo soporta) para que Claude opere sin ver la
-credencial en texto plano — pero decidir cuál usar es de Cristian.
+| Tarea | Quién | Estado |
+|---|---|---|
+| Crear la cuenta/organización Supabase | **Cristian** | ✅ Hecho |
+| Crear el proyecto (nombre, región, contraseña de base de datos) | **Cristian** | ✅ Hecho |
+| Conectar el conector oficial de Supabase (`Settings → Connectors`) | **Cristian** | ✅ Hecho |
+| Habilitar el conector para esta sesión de chat específica | **Cristian** | ✅ Hecho |
+| Auditar tablas/RLS/policies existentes contra `docs/SUPABASE_PRODUCTION.md` §2 | Claude | ✅ Hecho |
+| Aplicar las 5 migraciones (`0001`–`0005`) al proyecto real | Claude, vía MCP `apply_migration` | ✅ Hecho |
+| Ejecutar el seed contra el proyecto real | Claude, vía MCP `execute_sql` | ✅ Hecho |
+| Verificar RLS final (roles, policies) | Claude | ✅ Hecho |
+| **Pendiente**: bootstrap de `public.schema_migrations` en el proyecto real (docs/SUPABASE_PRODUCTION.md §2/§12) — necesario antes de correr `db:migrate` contra este proyecto directamente | Claude, con confirmación explícita de Cristian (es una escritura fuera de las 5 migraciones aprobadas) | ⏳ No hecho |
+| **Pendiente**: copiar el connection string del **pooler** (`sslmode=require`) para usarlo como `DATABASE_URL` en Vercel, cuando exista ese proyecto | **Cristian**, desde `Project Settings → Database` | ⏳ No hecho |
+| Rotar la contraseña de base de datos si alguna vez se expone | **Cristian** (vía dashboard de Supabase) | — |
 
 ## GitHub
 
@@ -111,10 +109,12 @@ credencial en texto plano — pero decidir cuál usar es de Cristian.
 | Publicar contenido, gestionar comunidad | **Cristian** (o su equipo) — fuera del alcance de este proyecto de software |
 | Confirmar handles/URLs oficiales finales para `social_profile` | **Cristian** |
 
-## Resumen — lo único que bloquea el resto de Block 06
+## Resumen — Block 06 cerrado
 
-De toda la lista, una sola fila es la que impide continuar con las
-Fases 2/3/5/7/9 de este bloque: **la connection string real de
-Supabase** (o un conector MCP de Supabase conectado a esta sesión).
-Todo lo demás en esta tabla es relevante para bloques futuros
-(deployment, comercio real, pixels), no para cerrar Block 06.
+Supabase real ya está desplegado y auditado (docs/SUPABASE_PRODUCTION.md
+§3) — deja de ser el bloqueo. Lo único pendiente de este bloque
+específico es el bootstrap de `schema_migrations` (fila marcada ⏳
+arriba), que requiere una confirmación explícita de Cristian por ser
+una escritura fuera de las 5 migraciones ya aprobadas. Todo lo demás en
+esta tabla es relevante para bloques futuros (deployment en Vercel,
+comercio real, pixels), no para cerrar Block 06.
