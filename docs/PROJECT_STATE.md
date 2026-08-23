@@ -55,3 +55,21 @@ Supabase project). Supabase real (`Cristian-Barbosa-UNIVERSE`, ref
 offers) have **not** been applied there yet; that's a data-only insert,
 safe to run once Cristian confirms, or alongside whichever Decision Gate
 closes first.
+
+## Multi-agent operating model
+
+Cristian runs a separate "centro de control" session (currently on
+ChatGPT, since migrated once already for usage-limit reasons — treat
+its identity/platform as changeable, its role as stable) for
+strategy/prioritization/checklist-tracking; Claude Code (this
+repository's sessions) does the technical execution, taking one block's
+brief at a time. **GitHub is the shared source of truth between them**
+— both sides read/write these `docs/*` memory files directly, so a
+concurrent push from the control-center side (or a second Claude Code
+session) is expected, not an error: merge, don't force-overwrite (see
+this file's own git history for a worked example, 2026-08-23).
+
+When Cristian pauses a block on a question/dependency/commercial
+decision, that should land in these memory docs so the *next* brief
+(from either side) already reflects it — never assume a prior
+conversation is still available to either agent.
