@@ -6,7 +6,13 @@ import { AttributionControl } from "@/components/admin/AttributionControl";
 import { Table } from "@/components/admin/Table";
 import { StatTile } from "@/components/admin/StatTile";
 import { formatInteger, formatCents } from "@/lib/format";
-import type { RevenueResponse, RevenueBreakdownRow, ProductRevenueRow, AttributionMode } from "@/lib/adminAnalytics";
+import type {
+  RevenueResponse,
+  RevenueBreakdownRow,
+  ProductRevenueRow,
+  AttributionMode,
+  SubscriptionsResponse,
+} from "@/lib/adminAnalytics";
 
 function BreakdownTable({ rows, labelHeader }: { rows: RevenueBreakdownRow[]; labelHeader: string }) {
   if (rows.length === 0) return <p className="text-sm text-steel">Sin ventas registradas todavía.</p>;
@@ -32,7 +38,10 @@ export function RevenuePageContent() {
       <AnalyticsBoundary<RevenueResponse> path="revenue" extra={{ attribution }}>
         {({ data }) => (
           <div className="flex flex-col gap-10">
-            <StatTile label="Revenue total" value={formatCents(data.total.revenueCents)} sub={`${formatInteger(data.total.purchases)} compras`} />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <StatTile label="Revenue total" value={formatCents(data.total.revenueCents)} sub={`${formatInteger(data.total.purchases)} compras`} />
+              <StatTile label="Clientes" value={formatInteger(data.customers.total)} sub="Contactos con al menos una compra" />
+            </div>
 
             {data.total.purchases === 0 ? (
               <p className="rounded border border-dashed border-steel-dim/50 px-6 py-10 text-center text-sm text-steel">
@@ -70,6 +79,21 @@ export function RevenuePageContent() {
           </div>
         )}
       </AnalyticsBoundary>
+
+      <div>
+        <h2 className="mb-3 font-mono text-xs uppercase tracking-wider text-steel">Suscripciones</h2>
+        <AnalyticsBoundary<SubscriptionsResponse> path="subscriptions">
+          {({ data }) => (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+              <StatTile label="Activas" value={formatInteger(data.active)} />
+              <StatTile label="Pausadas" value={formatInteger(data.paused)} />
+              <StatTile label="Canceladas" value={formatInteger(data.cancelled)} />
+              <StatTile label="Nuevas (rango)" value={formatInteger(data.startedInRange)} />
+              <StatTile label="Canceladas (rango)" value={formatInteger(data.cancelledInRange)} />
+            </div>
+          )}
+        </AnalyticsBoundary>
+      </div>
     </div>
   );
 }

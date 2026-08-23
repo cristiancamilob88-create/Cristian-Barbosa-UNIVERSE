@@ -7,6 +7,7 @@ import {
   getRevenueByProductAndOffer,
   type AttributionMode,
 } from "@/server/analytics/revenue";
+import { getCustomerSummary } from "@/server/analytics/commerce";
 
 /**
  * Private. `?attribution=first_touch` (default) or `last_touch` — see
@@ -27,18 +28,19 @@ export async function GET(request: NextRequest) {
   const attribution: AttributionMode = attributionParam;
 
   const pool = getPool();
-  const [total, bySource, byCampaign, byQr, byProductAndOffer] = await Promise.all([
+  const [total, bySource, byCampaign, byQr, byProductAndOffer, customers] = await Promise.all([
     getTotalRevenue(pool, resolved.range),
     getRevenueByDimension(pool, "source", attribution, resolved.range),
     getRevenueByDimension(pool, "campaign", attribution, resolved.range),
     getRevenueByDimension(pool, "qr", attribution, resolved.range),
     getRevenueByProductAndOffer(pool, resolved.range),
+    getCustomerSummary(pool, resolved.range),
   ]);
 
   return NextResponse.json({
     ok: true,
     range: resolved.range,
     attribution,
-    data: { total, bySource, byCampaign, byQr, byProductAndOffer },
+    data: { total, bySource, byCampaign, byQr, byProductAndOffer, customers },
   });
 }

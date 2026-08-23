@@ -114,7 +114,24 @@ product/offer.
   "bySource": [{ "key": "<uuid>", "label": "Instagram", "purchases": 0, "revenueCents": 0 }],
   "byCampaign": ["..."],
   "byQr": ["..."],
-  "byProductAndOffer": [{ "productSlug": "...", "productName": "...", "offerSlug": "...", "purchases": 0, "revenueCents": 0 }]
+  "byProductAndOffer": [{ "productSlug": "...", "productName": "...", "offerSlug": "...", "purchases": 0, "revenueCents": 0 }],
+  "customers": { "total": 0 }
+}}
+```
+
+`customers.total` (Block 05) is distinct paying contacts in range — see
+`getCustomerSummary()`, docs/COMMERCE.md.
+
+## `GET /api/analytics/subscriptions`
+
+Block 05 — the one endpoint reading `subscription`
+(`getSubscriptionSummary()`, `src/server/analytics/commerce.ts`).
+`active`/`paused`/`cancelled` are current totals, not range-filtered;
+`startedInRange`/`cancelledInRange` are.
+
+```json
+{ "ok": true, "range": {"...": "..."}, "data": {
+  "active": 0, "paused": 0, "cancelled": 0, "startedInRange": 0, "cancelledInRange": 0
 }}
 ```
 

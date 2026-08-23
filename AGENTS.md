@@ -52,6 +52,13 @@ settled without a stated reason.
 - Don't add an analytics vendor, payment integration, or 3D/heavy motion
   library without checking `docs/ARCHITECTURE.md` §10-11 first — several
   of these are deliberately deferred, not forgotten.
+- A "buy"/checkout CTA never links straight to a payment provider —
+  point it at `/api/checkout/[offerSlug]` (`CheckoutLink`,
+  `src/components/ui/CheckoutLink.tsx`) so `checkout_started` is
+  recorded and `resolveCheckoutDestination()`
+  (`src/server/commerce/checkout.ts`) decides where the offer actually
+  sends the visitor — never hardcode a provider's URL in a page
+  component. See docs/COMMERCE.md.
 - `/admin/*` (the Command Center) never queries Postgres or imports
   `src/server/analytics/`/`src/server/db/` from a React component —
   every section fetches an existing `/api/analytics/*` endpoint via

@@ -252,7 +252,23 @@ export interface RevenueResponse {
     byCampaign: RevenueBreakdownRow[];
     byQr: RevenueBreakdownRow[];
     byProductAndOffer: ProductRevenueRow[];
+    /** Block 05 — distinct paying contacts in range (see getCustomerSummary()). */
+    customers: { total: number };
   };
+}
+
+export interface SubscriptionSummary {
+  active: number;
+  paused: number;
+  cancelled: number;
+  startedInRange: number;
+  cancelledInRange: number;
+}
+
+export interface SubscriptionsResponse {
+  ok: true;
+  range: ResolvedRange;
+  data: SubscriptionSummary;
 }
 
 export interface RecentLeadRow {

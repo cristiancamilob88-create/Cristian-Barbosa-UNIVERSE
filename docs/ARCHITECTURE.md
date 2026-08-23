@@ -72,7 +72,8 @@ src/
       (dashboard)/          route group: layout.tsx (auth guard + nav) + 10 section pages
     api/lead/route.ts     lead intake — validation, rate limit, full CRM persistence (docs/CRM.md)
     api/track/route.ts    persistence sink for a subset of client analytics events
-    api/analytics/*       8 private read-model endpoints (Block 03, docs/REPORTING.md)
+    api/analytics/*       10 private read-model endpoints (Block 03/04.1/05, docs/REPORTING.md)
+    api/checkout/[offerSlug]/route.ts  offer → checkout redirect + checkout_started tracking (Block 05, docs/COMMERCE.md)
     go/[slug]/route.ts    outbound social redirect + server-side click tracking (docs/SOCIAL_ROUTING.md)
     layout.tsx            shared shell: fonts, <Header/>, <Footer/>, Person JSON-LD
     sitemap.ts robots.ts  SEO file conventions
@@ -98,7 +99,8 @@ src/
     db/pool.ts               server-only pg Pool singleton
     db/transaction.ts        withTransaction() helper
     db/visitorContext.ts     resolveVisitorContext() — the entry point every DB route calls first
-    db/repositories/         one file per entity: reference, visitor, contact, interaction, lead, socialProfile
+    db/repositories/         one file per entity: reference, visitor, contact, interaction, lead, socialProfile, offer (Block 05)
+    commerce/checkout.ts     resolveCheckoutDestination() — the offer→checkout decision point (Block 05, docs/COMMERCE.md)
   proxy.ts                  visitor/attribution cookies (docs/ATTRIBUTION.md) + optimistic /admin/* auth
                              gate (Block 04, docs/COMMAND_CENTER.md) — no DB access either way
   types/crm.ts              application-facing CRM types (the DB migrations are now the literal source of truth)
@@ -277,23 +279,49 @@ Full model in docs/SECURITY.md. Summary:
    admin session cookie alongside the Block 03 bearer token. No charts,
    no 3D, no heavy motion yet (explicit non-goal, same as Block 03's own
    deferrals).
-5. **Block 05 — Commerce**: `/productos` checkout integration(s), first
-   writes to `orders`/`order_items`/`subscription`, `/comunidad` Facebook
-   Subscription linkout hardening — once real orders exist, Revenue/
-   Productos in the Command Center stop rendering their empty states.
-6. **Block 06 — B2B funnels**: a real `/shows`/`/marcas` intake writing to
+5. **Block 04.1 — Command Center visual/data layer** ✅: `medium` joined
+   source/campaign/QR as a `getPerformanceByDimension()` dimension;
+   `getDailySeries()` (day-bucketed trend), `getRecentLeads()` (the one
+   row-list read model in this app), delta-vs-previous-period
+   comparisons, and inline-SVG Sparkline/MiniBar/FunnelBars visuals — no
+   charting library, dataviz-skill method (docs/COMMAND_CENTER.md §16).
+6. **Block 04.2 — Universe UX + conversion architecture** ✅: every
+   `site.ts` nav item gained an `intent`/`intentId` pair (the actual CTA
+   phrase + its `cta_click.cta` id — docs/UNIVERSE_UX.md); the homepage
+   became an intention hub; `/entrenar`/`/comunidad`/`/musica`/
+   `/productos`/`/shows`/`/marcas`/`/about` all gained or renamed CTAs
+   to the brief's approved copy. Copy/links/tracking only — no schema,
+   no new event, no visual redesign.
+7. **Block 05 — Commerce/offers/conversion infrastructure** ✅: `product`
+   gained `description`/`image_url`/`base_price_cents` + an extended
+   `kind` taxonomy; `offer` gained the checkout abstraction
+   (`checkout_provider`/`checkout_url`/`purchase_type`/`cta_label`/
+   `metadata`); `resolveCheckoutDestination()` + `GET
+   /api/checkout/[offerSlug]` are real, tested infrastructure (no page
+   links to it yet — no product detail page exists); `getCustomerSummary()`/
+   `getSubscriptionSummary()` are new read models (`GET
+   /api/analytics/revenue`'s `customers`, new `GET
+   /api/analytics/subscriptions`) — see docs/COMMERCE.md. Still no real
+   payment provider connected (no credentials exist) — `/productos`
+   still routes to lead capture, not checkout.
+8. **Block 06 — Real commerce integration**: connect a real
+   checkout provider (Hotmart/Stripe/Mercado Pago — whichever Cristian
+   picks) by setting `offer.checkout_provider`/`checkout_url` on real
+   offer rows; first writes to `orders`/`order_items` from an actual
+   purchase; a real product/offer detail page with a live `CheckoutLink`.
+9. **Block 07 — B2B funnels**: a real `/shows`/`/marcas` intake writing to
    `b2b_opportunity` (schema already exists, unused), stage-change
    notifications.
-7. **Block 07 — Content & brand pass**: real copy, photography/video,
-   motion (`gsap-web` from the skills library), once there is real content
-   to animate — likely also when the Command Center's own visual pass
-   (real charts, the deferred motion) happens.
-8. **Later, not scheduled**: multi-user auth/accounts beyond the single
+10. **Block 08 — Content & brand pass**: real copy, photography/video,
+    motion (`gsap-web` from the skills library), once there is real content
+    to animate — likely also when the Command Center's own visual pass
+    (real charts, the deferred motion) happens.
+11. **Later, not scheduled**: multi-user auth/accounts beyond the single
    admin login (needed before any RLS self-service policy), membership
    platform, AI coaching, mobile app, 3D — all explicitly deferred per
    Product Vision.
 
-## 11. What was NOT implemented, on purpose (cumulative through Block 04)
+## 11. What was NOT implemented, on purpose (cumulative through Block 05)
 
 - No connection to any real Supabase project — every migration/test ran
   against a disposable local/CI Postgres.
@@ -314,9 +342,15 @@ Full model in docs/SECURITY.md. Summary:
   `contact.auth_user_id`, which doesn't exist). `requireAnalyticsAuth()`'s
   bearer-token path is kept for non-browser callers, not as the
   dashboard's own mechanism anymore.
-- No payment/checkout integration — `orders`/`order_items`/`subscription`
-  exist as schema only, nothing writes to them yet (so Revenue/Productos
-  in the Command Center render their honest empty states).
+- No real payment/checkout integration — Block 05 built the abstraction
+  (`resolveCheckoutDestination()`, `GET /api/checkout/[offerSlug]` —
+  docs/COMMERCE.md) but connected zero real providers (no credentials
+  exist); `orders`/`order_items`/`subscription` still have no real
+  writer, so Revenue/Productos/Suscripciones in the Command Center
+  render their honest empty states.
+- No product/offer catalog management UI — rows are still managed by
+  direct SQL/`seed.sql` (docs/COMMERCE.md).
+- No revenue-by-landing or revenue-by-intent read model (docs/COMMERCE.md §6).
 - No consent banner (nothing beyond functional attribution is collected
   yet — add one before any advertising pixel ships).
 - No content/copy beyond structurally-correct placeholders — see Product

@@ -60,6 +60,7 @@ first with `node scripts/admin/hash-password.mjs` — see
 - [`docs/REPORTING.md`](docs/REPORTING.md) — the `/api/analytics/*` API reference.
 - [`docs/COMMAND_CENTER.md`](docs/COMMAND_CENTER.md) — the `/admin` dashboard: admin auth model, routes, what each section consumes.
 - [`docs/UNIVERSE_UX.md`](docs/UNIVERSE_UX.md) — the public site's intention architecture: the CTA/intent map, per-pillar changes, tracking.
+- [`docs/COMMERCE.md`](docs/COMMERCE.md) — commerce/offers infrastructure: the product/offer model review, the checkout abstraction, what's not wired yet.
 - [`docs/SOCIAL_ROUTING.md`](docs/SOCIAL_ROUTING.md) — `/go/[slug]` and `/redes`.
 - [`docs/AUDIENCE_JOURNEY.md`](docs/AUDIENCE_JOURNEY.md) — the acquisition→conversion data model, worked example.
 - [`docs/SECURITY.md`](docs/SECURITY.md) — RLS, server-only access, secrets, rate limiting, analytics endpoint auth.
@@ -68,15 +69,21 @@ first with `node scripts/admin/hash-password.mjs` — see
 
 **Block 01 — foundation**, **Block 02 — CRM + data + attribution +
 social routing + audience journey**, **Block 03 — analytics engine +
-conversion measurement + data read models**, and **Block 04 — Command
-Center (admin auth + analytics dashboard)** are all complete: full route
-scaffold, a real Postgres schema with RLS, an end-to-end lead intake
-pipeline, first/last-touch attribution with visitor→contact linking,
-server-tracked outbound social routing, a full read-model query layer
-(acquisition/engagement/leads/revenue/funnel/session/journey) behind 8
-private `/api/analytics/*` endpoints, a single-admin login protecting a
-10-section `/admin` dashboard that consumes that same API, and both test
-suites (unit + DB-backed integration) green in CI. Still not wired: any
-real analytics vendor, payment/checkout, multi-user authentication,
-charts/visual design polish — see `docs/ARCHITECTURE.md` §11 for the
-full "not yet" list.
+conversion measurement + data read models**, **Block 04 — Command
+Center (admin auth + analytics dashboard)**, **Block 04.1 — Command
+Center visual/data layer**, **Block 04.2 — Universe UX + conversion
+architecture**, and **Block 05 — Commerce/offers/conversion
+infrastructure** are all complete: full route scaffold, a real Postgres
+schema with RLS, an end-to-end lead intake pipeline, first/last-touch
+attribution with visitor→contact linking, server-tracked outbound
+social routing, a full read-model query layer (acquisition/engagement/
+leads/revenue/funnel/session/journey/commerce) behind 10 private
+`/api/analytics/*` endpoints, a single-admin login protecting a
+10-section `/admin` dashboard with trend sparklines and period
+comparisons, an intention-based public UX (every route has an approved
+CTA phrase, docs/UNIVERSE_UX.md), a checkout abstraction ready for a
+real payment provider (docs/COMMERCE.md), and both test suites (unit +
+DB-backed integration) green. Still not wired: any real analytics
+vendor, a real payment provider, multi-user authentication, charts/
+visual design polish — see `docs/ARCHITECTURE.md` §11 for the full "not
+yet" list.
