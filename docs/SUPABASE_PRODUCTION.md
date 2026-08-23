@@ -78,42 +78,57 @@ project's current state, which nobody has looked at yet (§3).
 
 ## 3. Real Supabase project — audit result
 
-**Not performed — confirmed no access, twice.** First pass: no
-credential, connection string, or MCP connector gave this session any
-way to inspect a real Supabase project. Second pass (after Cristian
-confirmed the real project exists and asked specifically to check for
-an MCP path before requesting a password): checked every angle
-available —
+**Performed, read-only, via the official Supabase MCP connector**
+(Cristian connected it through claude.ai `Settings → Connectors` after
+the two prior attempts in this doc's history found no access — see git
+history of this file for that earlier, now-resolved gap).
 
-- `ListConnectors` (this claude.ai account's installed connectors):
-  Gmail, Google Calendar, Google Drive, Notion, Porter Metrics,
-  Windsor.ai. **No Supabase connector installed.**
-- `SearchMcpRegistry` (the full Anthropic connector directory): an
-  **official Supabase connector exists** (`directoryUuid
-  11ca66fc-1e98-49d5-ab9b-7cb4672a8f10`, tools including
-  `list_organizations`/`get_organization`/`list_projects`/
-  `get_project`/`get_cost`/`confirm_cost`/`create_project`/
-  `pause_project` + ~24 more) — but its `installState` is
-  `"not_installed"` for this account. It is not connected, so none of
-  its tools are callable from this session.
-- Local MCP server logs (`~/.cache/claude-cli-nodejs/.../mcp-logs-*`):
-  every configured server for this session accounted for (github,
-  Gmail, Google Calendar, Notion, Windsor.ai, Claude Code Remote, and
-  one unauthenticated "Porter Metrics" server unrelated to Supabase).
-  None is a Supabase MCP server.
-- No `.mcp.json`/project-level MCP config exists in the repo, and no
-  `SUPABASE_*`/`DATABASE_URL` environment variable pointing at a real
-  project exists in this session's environment.
+- **Organization**: `cristian barbosa` (id `twzugojfuphgcvqrnnml`) — the
+  connector's authorization is **org-wide, not scoped to one project**:
+  `list_projects` returned three projects in this organization
+  (`FINCA AGUAS BRAVAS` — INACTIVE, unrelated; `dysfunction-tournament-2027`
+  — ACTIVE_HEALTHY, unrelated; and the target project below). Every
+  read below was scoped explicitly to the one matching `project_id` —
+  the other two were never queried.
+- **Project confirmed matching**: name `Cristian-Barbosa-UNIVERSE`,
+  **ref `yskfntcurmqqxjuvqoto`**, region `us-west-2`, Postgres 17
+  (`17.6.1.155`), status `ACTIVE_HEALTHY`, created `2026-08-23T13:47:24Z`
+  (the same day this audit ran — a brand-new project).
+- **Tables in `public`**: **0**. `list_tables` returned an empty array.
+- **Migrations recorded** (Supabase's own migration history, and this
+  repo's `schema_migrations` table): **none** — `list_migrations`
+  returned `[]`, and a direct read confirmed no `schema_migrations`
+  table exists yet either. Nothing has ever been applied to this
+  project.
+- **RLS / policies**: **0** policies (`pg_policies` empty) — expected,
+  since there are zero tables to have RLS enabled on. Supabase's own
+  `auth` schema and the `anon`/`authenticated`/`service_role` roles
+  **are** already provisioned (confirmed by direct query) — exactly
+  what `0002_rls_policies.sql` needs, without the local-only
+  `test-auth-shim.sql`.
+- **Extensions**: only Supabase's own defaults are installed —
+  `pgcrypto` (schema `extensions`), `pg_stat_statements`, `uuid-ossp`,
+  `supabase_vault`, `plpgsql`. **`citext`** (required by
+  `0001_init_schema.sql` for `contact.email`) is **not yet installed**
+  — harmless, since 0001 creates it itself (`create extension if not
+  exists citext;`) the first time it runs.
+- **Security advisors** (`get_advisors`, type `security`): no findings
+  — consistent with an empty schema (nothing to flag yet, not a
+  judgment that the eventual schema will be finding-free).
 
-Rather than guess, simulate, or ask for a password before exhausting
-the MCP path (as instructed), this block stops here and reports the
-gap precisely — see `docs/MANUAL_SETUP_CHECKLIST.md`, "Supabase," for
-the exact two options (connect the official MCP connector via claude.ai
-`Settings → Connectors`, or provide a connection string manually) so a
-future session can run the real Phase 2 audit (list existing tables/
-columns/constraints/indexes/functions/triggers/policies/extensions,
-diff against §2, and only then propose next steps — never a blind
-`db:migrate` against an unaudited project).
+**Diferencia frente al repositorio**: total — el proyecto real está
+completamente vacío; las 5 migraciones (`0001`–`0005`) están listas
+para aplicarse en orden, sin nada que reconciliar ni ningún objeto
+preexistente que preservar o entrar en conflicto. Esto es exactamente
+el escenario más simple posible: no hay divergencia que resolver, solo
+migraciones pendientes de aplicar.
+
+No se ejecutó ninguna escritura — solo `list_organizations`,
+`list_projects`, `get_project`, `list_tables`, `list_migrations`,
+`list_extensions`, `get_advisors`, y una consulta `SELECT` de solo
+lectura. `docs/MANUAL_SETUP_CHECKLIST.md`'s Supabase section reflects
+this connector is now connected; Fase 3 (aplicar migraciones) queda
+pendiente de aprobación explícita de Cristian, no ejecutada todavía.
 
 ## 4. RLS model (design, confirmed unchanged; live audit pending §3)
 
