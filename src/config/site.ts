@@ -8,7 +8,7 @@
 export const siteConfig = {
   name: "Cristian Barbosa",
   universeName: "CRISTIAN BARBOSA UNIVERSE",
-  tagline: "Entrenamiento, comunidad, música y shows — un solo universo.",
+  tagline: "Atleta, artista, entrenador — un universo, muchas formas de entrar.",
   description:
     "El universo digital de Cristian Barbosa: calistenia, coaching, comunidad, música, productos y shows en un solo lugar.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://cristianbarbosa.com",
@@ -21,6 +21,16 @@ export interface NavItem {
   label: string;
   href: string;
   description: string;
+  /**
+   * The first-person intention phrase this route answers — "¿Qué puedo
+   * hacer aquí?" (Block 04.2, docs/UNIVERSE_UX.md). Used as the homepage
+   * hub's CTA phrasing and as each landing's own primary CTA text — not
+   * a second label, the actual verb a visitor clicks on. Never "Quiero
+   * ser parte" (too ambiguous — see docs/UNIVERSE_UX.md for why).
+   */
+  intent: string;
+  /** Semantic id for cta_click's `cta` field (docs/ANALYTICS_ENGINE.md, "Event taxonomy audit") — no new event, just a stable name for this intention. */
+  intentId: string;
 }
 
 /**
@@ -34,48 +44,64 @@ export const navItems: NavItem[] = [
     label: "Entrenar",
     href: "/entrenar",
     description: "Calistenia, coaching y el camino de entrenamiento con Cristian.",
+    intent: "Quiero entrenar",
+    intentId: "intent_training",
   },
   {
     tag: "COMMUNITY",
     label: "Comunidad",
     href: "/comunidad",
     description: "WhatsApp gratuito y Entrena con Cristian Barbosa (Facebook Subscription).",
+    intent: "Quiero entrar a la comunidad",
+    intentId: "intent_community",
   },
   {
     tag: "MUSIC",
     label: "Música",
     href: "/musica",
     description: "Lanzamientos, historia detrás de la canción y acceso anticipado.",
+    intent: "Quiero escuchar su música",
+    intentId: "intent_music",
   },
   {
     tag: "SHOP",
     label: "Productos",
     href: "/productos",
     description: "Productos físicos y digitales — ropa, accesorios, cursos.",
+    intent: "Quiero ver los productos",
+    intentId: "intent_products",
   },
   {
     tag: "SHOWS",
     label: "Shows",
     href: "/shows",
     description: "Shows en vivo para empresas, colegios, universidades y eventos.",
+    intent: "Quiero contratar un show",
+    intentId: "intent_shows",
   },
   {
     tag: "BRANDS",
     label: "Marcas",
     href: "/marcas",
     description: "Partnerships, sponsors y colaboraciones de marca.",
+    intent: "Quiero trabajar con Cristian",
+    intentId: "intent_brands",
   },
   {
     tag: "EVENTS",
     label: "Eventos",
     href: "/eventos",
     description: "Agenda de próximas apariciones y eventos.",
+    intent: "Quiero ver la agenda",
+    intentId: "intent_events",
   },
   {
     tag: "NETWORK",
     label: "Redes",
     href: "/redes",
     description: "Todos los canales oficiales, en un solo lugar.",
+    intent: "Quiero seguir a Cristian",
+    intentId: "intent_social",
   },
 ];
 
@@ -85,12 +111,16 @@ export const secondaryNavItems: NavItem[] = [
     label: "Historia",
     href: "/about",
     description: "Quién es Cristian Barbosa.",
+    intent: "Quiero conocer su historia",
+    intentId: "intent_story",
   },
   {
     tag: "CONTACT",
     label: "Contacto",
     href: "/contacto",
     description: "Hablemos — shows, marcas o preguntas generales.",
+    intent: "Quiero hablar con Cristian",
+    intentId: "intent_contact",
   },
 ];
 

@@ -19,6 +19,11 @@ settled without a stated reason.
 - New commercial routes are folders under `src/app/`, and their nav
   label/description/order come from `src/config/site.ts` — don't hardcode
   a route path anywhere else (nav, footer, sitemap all read from there).
+  Every route also carries an `intent`/`intentId` pair (the first-person
+  CTA phrase + its `cta_click.cta` id, e.g. "Quiero entrenar" /
+  `intent_training`) — see docs/UNIVERSE_UX.md. Never "Quiero ser parte"
+  (too ambiguous); `src/config/site.test.ts` enforces uniqueness and the
+  `intent_[a-z_]+` naming convention.
 - Internal commercial CTAs use `TrackedLink`; outbound social/community
   links use `GoLink` (both in `src/components/ui/`) instead of a bare
   `<a>`/`<Link>`, so every click stays measurable — see

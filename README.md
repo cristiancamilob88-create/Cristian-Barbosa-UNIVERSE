@@ -59,6 +59,7 @@ first with `node scripts/admin/hash-password.mjs` — see
 - [`docs/KPI_DEFINITIONS.md`](docs/KPI_DEFINITIONS.md) — every KPI's exact formula.
 - [`docs/REPORTING.md`](docs/REPORTING.md) — the `/api/analytics/*` API reference.
 - [`docs/COMMAND_CENTER.md`](docs/COMMAND_CENTER.md) — the `/admin` dashboard: admin auth model, routes, what each section consumes.
+- [`docs/UNIVERSE_UX.md`](docs/UNIVERSE_UX.md) — the public site's intention architecture: the CTA/intent map, per-pillar changes, tracking.
 - [`docs/SOCIAL_ROUTING.md`](docs/SOCIAL_ROUTING.md) — `/go/[slug]` and `/redes`.
 - [`docs/AUDIENCE_JOURNEY.md`](docs/AUDIENCE_JOURNEY.md) — the acquisition→conversion data model, worked example.
 - [`docs/SECURITY.md`](docs/SECURITY.md) — RLS, server-only access, secrets, rate limiting, analytics endpoint auth.

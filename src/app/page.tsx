@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { TrackedLink } from "@/components/ui/TrackedLink";
 import { Container } from "@/components/ui/Container";
 import { navItems, siteConfig } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
@@ -11,15 +11,23 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const tickerWords = [
-  "CALISTENIA",
-  "COACHING",
+  "ATLETA",
+  "ARTISTA",
+  "ENTRENADOR",
+  "MÚSICO",
+  "PERFORMER",
   "COMUNIDAD",
-  "MÚSICA",
-  "SHOWS",
-  "MARCAS",
-  "EVENTOS",
+  "EMPRESARIO",
 ];
 
+/**
+ * The home is a HUB, not a Linktree and not a wall of everything at
+ * once (Block 04.2, docs/UNIVERSE_UX.md, "Arquitectura de intenciones").
+ * Every card below is one of `navItems`' own `intent` phrases — the
+ * exact first-person verb a visitor clicks, not a repeated category
+ * label — so a new route added to site.ts shows up here framed as an
+ * intention automatically, never a second copy to maintain.
+ */
 export default function HomePage() {
   return (
     <>
@@ -36,13 +44,14 @@ export default function HomePage() {
             <span className="text-ember">Un universo entero.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-steel">
-            Cristian Barbosa no es solo entrenamiento. Es calistenia, coaching, comunidad,
-            música, shows en vivo y proyectos de marca — todo conectado en un solo lugar.
+            Cristian Barbosa entrena, compite, crea música, sube al escenario y construye
+            marca — calistenia, coaching, comunidad, shows y proyectos, todo conectado.
+            Elige por dónde quieres entrar.
           </p>
         </Container>
       </section>
 
-      {/* Signature element: a scoreboard/lower-third ticker of the universe's pillars. */}
+      {/* Signature element: a scoreboard/lower-third ticker of Cristian's own dimensions. */}
       <div
         aria-hidden="true"
         className="overflow-hidden border-b border-steel-dim/40 bg-ink-raised py-3"
@@ -59,13 +68,14 @@ export default function HomePage() {
       <section className="py-16">
         <Container>
           <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">
-            Explora el universo
+            ¿Qué quieres hacer?
           </h2>
           <div className="mt-6 grid gap-px overflow-hidden rounded-none border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-2 lg:grid-cols-3">
             {navItems.map((item) => (
-              <Link
+              <TrackedLink
                 key={item.href}
                 href={item.href}
+                event={{ name: "cta_click", cta: item.intentId, topic: item.tag.toLowerCase() }}
                 className="group flex flex-col justify-between gap-8 bg-ink p-8 transition-colors hover:bg-ink-raised"
               >
                 <span className="font-mono text-xs uppercase tracking-widest text-ember">
@@ -73,11 +83,11 @@ export default function HomePage() {
                 </span>
                 <div>
                   <h3 className="font-display text-2xl font-black uppercase tracking-tight text-chalk group-hover:text-ember">
-                    {item.label}
+                    {item.intent}
                   </h3>
                   <p className="mt-2 text-sm text-steel">{item.description}</p>
                 </div>
-              </Link>
+              </TrackedLink>
             ))}
           </div>
         </Container>

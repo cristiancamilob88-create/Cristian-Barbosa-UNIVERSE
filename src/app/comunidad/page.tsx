@@ -37,7 +37,7 @@ export default function ComunidadPage() {
               slug={goLinks.whatsappCommunity}
               className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
             >
-              Unirme por WhatsApp
+              Quiero entrar a la comunidad
             </GoLink>
           </div>
 

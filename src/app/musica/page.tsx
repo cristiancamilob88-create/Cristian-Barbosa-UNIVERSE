@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { TrackedLink } from "@/components/ui/TrackedLink";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -16,7 +17,15 @@ export default function MusicaPage() {
         tag="MUSIC"
         title="Música"
         description="La historia detrás de cada canción, el backstage, y el acceso anticipado antes de que llegue a las plataformas."
-      />
+      >
+        <TrackedLink
+          event={{ name: "cta_click", cta: "intent_music_early_access", topic: "musica" }}
+          href="/contacto?topic=musica"
+          className="mt-8 inline-flex w-fit items-center border border-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+        >
+          Quiero escucharla antes que nadie
+        </TrackedLink>
+      </PageHero>
       <section className="py-16">
         <Container className="grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-3">
           {[
@@ -31,6 +40,15 @@ export default function MusicaPage() {
               <p className="mt-2 text-sm text-steel">{block.detail}</p>
             </div>
           ))}
+        </Container>
+        <Container className="mt-10">
+          <TrackedLink
+            event={{ name: "cta_click", cta: "intent_social", topic: "musica" }}
+            href="/redes"
+            className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+          >
+            Quiero seguir a Cristian
+          </TrackedLink>
         </Container>
       </section>
     </>
