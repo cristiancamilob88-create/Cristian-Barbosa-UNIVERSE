@@ -1,0 +1,17 @@
+export function StatTile({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
+  return (
+    <div className="rounded border border-steel-dim/40 bg-ink-raised px-5 py-4">
+      <p className="font-mono text-[0.65rem] uppercase tracking-[0.15em] text-steel">{label}</p>
+      <p className="mt-1 font-display text-3xl font-black text-chalk">{value}</p>
+      {sub && <p className="mt-1 text-xs text-steel">{sub}</p>}
+    </div>
+  );
+}

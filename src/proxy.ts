@@ -10,11 +10,15 @@ import {
   serializeSource,
   visitorCookieOptions,
 } from "@/lib/attribution";
+import { ADMIN_SESSION_COOKIE, isValidAdminSessionToken } from "@/server/auth/session";
+
+const ADMIN_LOGIN_PATH = "/admin/login";
 
 /**
- * Two independent jobs, both edge-only (no database access — see
- * docs/AUDIENCE_JOURNEY.md for why the actual `visitor`/`interaction`
- * rows are written lazily by Node.js route handlers instead of here):
+ * Three independent jobs, all Node.js-runtime (Proxy defaults to it as
+ * of Next.js 16 — see node_modules/next/dist/docs/.../proxy.md,
+ * "Runtime"; the first two predate Block 04 and never touched a
+ * database, the third only reads a cookie, so nothing here got slower):
  *
  * 1. Assign a `cb_visitor` anonymous id cookie to every visitor that
  *    doesn't have one yet, before anything else runs. This is the join
@@ -24,19 +28,39 @@ import {
  * 2. Capture acquisition attribution (utm_* and qr params) into first-touch/
  *    last-touch cookies — unchanged from Block 01, only runs when the
  *    request URL actually carries a signal.
+ * 3. Optimistic auth gate for /admin/* (docs/COMMAND_CENTER.md,
+ *    "Authentication model"): redirect an unauthenticated visitor
+ *    straight to /admin/login, and a logged-in admin away from
+ *    /admin/login back to the dashboard. "Optimistic" per the Next.js
+ *    docs' own term — this only verifies the signed cookie, no database
+ *    read; src/server/auth/adminAuth.ts's requireAdminSession() is the
+ *    second, "secure" check every protected Server Component still runs.
  *
  * Cookies are httpOnly: no client code reads any of these directly today
  * (server routes read them from the request) — keeping them out of
  * `document.cookie` is free hardening against XSS-driven tampering.
  */
 export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/admin")) {
+    const hasValidSession = isValidAdminSessionToken(request.cookies.get(ADMIN_SESSION_COOKIE)?.value);
+    if (pathname === ADMIN_LOGIN_PATH) {
+      if (hasValidSession) {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+    } else if (!hasValidSession) {
+      return NextResponse.redirect(new URL(ADMIN_LOGIN_PATH, request.url));
+    }
+  }
+
   const response = NextResponse.next();
 
   if (!request.cookies.has(VISITOR_COOKIE)) {
     response.cookies.set(VISITOR_COOKIE, crypto.randomUUID(), visitorCookieOptions);
   }
 
-  const { searchParams, pathname } = request.nextUrl;
+  const { searchParams } = request.nextUrl;
   if (hasAttributionSignal(searchParams)) {
     const referrer = request.headers.get("referer");
     const source = parseSource(searchParams, referrer, pathname);

@@ -19,13 +19,28 @@ const serverEnvSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is not set — see .env.example"),
   // Optional on purpose: unset means the /api/analytics/* endpoints stay
   // closed (fail-safe), not open — see docs/SECURITY.md and
-  // docs/ANALYTICS_ENGINE.md, "Endpoint authorization".
+  // docs/ANALYTICS_ENGINE.md, "Endpoint authorization". Kept as a second,
+  // optional access path (service-to-service/automation callers) now
+  // that the admin session (below) is the dashboard's own mechanism —
+  // see docs/COMMAND_CENTER.md, "Authentication model".
   ANALYTICS_API_TOKEN: z.string().min(16).optional(),
+  // Admin login — a single shared credential (docs/COMMAND_CENTER.md,
+  // "Why one shared password"), never stored in plaintext. Generate with
+  // `node scripts/admin/hash-password.mjs`. Both optional on purpose:
+  // unset means /admin/* fails closed (login always reports "not
+  // configured", never accepts a password) instead of silently being
+  // open or crashing the build.
+  ADMIN_PASSWORD_HASH: z.string().min(10).optional(),
+  // Signs/verifies the admin session cookie (HMAC-SHA256, src/server/auth/session.ts).
+  // Generate with `openssl rand -hex 32`.
+  ADMIN_SESSION_SECRET: z.string().min(32).optional(),
 });
 
 export function getServerEnv() {
   return serverEnvSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
     ANALYTICS_API_TOKEN: process.env.ANALYTICS_API_TOKEN || undefined,
+    ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH || undefined,
+    ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET || undefined,
   });
 }

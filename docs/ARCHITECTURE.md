@@ -7,11 +7,13 @@ after it — **Block 02 — CRM + Data + Attribution + Social Routing +
 Audience Journey** landed the database, the CRM write path, and outbound
 social routing described in §4–§7 below; **Block 03 — Analytics Engine +
 Conversion Measurement + Data Read Models** landed the event taxonomy
-extensions, the read-model query layer, and the `/api/analytics/*` API.
-See docs/DATABASE.md, docs/CRM.md, docs/ATTRIBUTION.md,
-docs/SOCIAL_ROUTING.md, docs/AUDIENCE_JOURNEY.md, and — for Block 03 —
-docs/ANALYTICS_ENGINE.md, docs/KPI_DEFINITIONS.md, docs/REPORTING.md for
-the block-specific detail this file only summarizes.
+extensions, the read-model query layer, and the `/api/analytics/*` API;
+**Block 04 — Command Center** landed a minimal admin login and the first
+functional private dashboard consuming that API. See docs/DATABASE.md,
+docs/CRM.md, docs/ATTRIBUTION.md, docs/SOCIAL_ROUTING.md,
+docs/AUDIENCE_JOURNEY.md, docs/ANALYTICS_ENGINE.md, docs/KPI_DEFINITIONS.md,
+docs/REPORTING.md, and — for Block 04 — docs/COMMAND_CENTER.md for the
+block-specific detail this file only summarizes.
 
 ## 1. Audit — state before this block
 
@@ -65,8 +67,12 @@ approval to integrate either).
 src/
   app/                    routes — one folder per pillar, App Router convention
     entrenar/ comunidad/ musica/ productos/ shows/ marcas/ eventos/ about/ contacto/ redes/
+    admin/                 Command Center (Block 04, docs/COMMAND_CENTER.md)
+      login/               public — password form + loginAction Server Action
+      (dashboard)/          route group: layout.tsx (auth guard + nav) + 10 section pages
     api/lead/route.ts     lead intake — validation, rate limit, full CRM persistence (docs/CRM.md)
     api/track/route.ts    persistence sink for a subset of client analytics events
+    api/analytics/*       8 private read-model endpoints (Block 03, docs/REPORTING.md)
     go/[slug]/route.ts    outbound social redirect + server-side click tracking (docs/SOCIAL_ROUTING.md)
     layout.tsx            shared shell: fonts, <Header/>, <Footer/>, Person JSON-LD
     sitemap.ts robots.ts  SEO file conventions
@@ -74,25 +80,36 @@ src/
     layout/               Header, Footer, PageHero (shared route hero shell)
     ui/                   Container, TrackedLink (internal CTA tracking), GoLink (outbound routing)
     forms/                ContactForm (client component)
+    analytics/             PageViewTracker (Block 03)
+    admin/                 Command Center UI primitives — DateRangeControl, useAnalyticsQuery,
+                            AnalyticsBoundary, Table/PerformanceTable, StatTile, FunnelBars (Block 04)
   lib/
     attribution.ts         UTM/QR/referral parsing — pure functions, unit tested
     analytics.ts            client event taxonomy + pluggable sink (console + /api/track)
+    adminAnalytics.ts        client-side /api/analytics/* contract + fetch helper (Block 04)
+    format.ts                currency/integer/ratio display formatting (Block 04)
     seo.ts                   per-route Metadata builder
     env.ts                   validated client-safe (NEXT_PUBLIC_*) env access
   server/
-    env.ts                   validated server-only env access (DATABASE_URL)
+    env.ts                   validated server-only env access (DATABASE_URL, ANALYTICS_API_TOKEN, ADMIN_*)
+    auth/                    admin login: password.ts, session.ts, loginFlow.ts, loginRateLimit.ts,
+                              adminAuth.ts (Block 04, docs/COMMAND_CENTER.md)
+    analytics/                read-model query layer — one file per topic (Block 03, docs/ANALYTICS_ENGINE.md)
     db/pool.ts               server-only pg Pool singleton
     db/transaction.ts        withTransaction() helper
     db/visitorContext.ts     resolveVisitorContext() — the entry point every DB route calls first
     db/repositories/         one file per entity: reference, visitor, contact, interaction, lead, socialProfile
-  proxy.ts                  edge cookie assignment: cb_visitor + first/last-touch (no DB access — docs/ATTRIBUTION.md)
+  proxy.ts                  visitor/attribution cookies (docs/ATTRIBUTION.md) + optimistic /admin/* auth
+                             gate (Block 04, docs/COMMAND_CENTER.md) — no DB access either way
   types/crm.ts              application-facing CRM types (the DB migrations are now the literal source of truth)
-  config/site.ts             nav items, brand copy, /go/ slugs — single source of truth
+  config/site.ts             nav items, brand copy, /go/ slugs — single source of truth (no /admin entry, by design)
 supabase/
   migrations/                versioned schema SQL (docs/DATABASE.md)
   seed.sql                   safe development seed data
 scripts/db/                  migrate.mjs, seed.mjs, setup-test-db.mjs, test-auth-shim.sql (local/CI only)
-docs/                        this file + DATA_MODEL, ANALYTICS, CRM, ATTRIBUTION, DATABASE, SECURITY, SOCIAL_ROUTING, AUDIENCE_JOURNEY
+scripts/admin/                hash-password.mjs — generates ADMIN_PASSWORD_HASH (Block 04)
+docs/                        this file + DATA_MODEL, ANALYTICS, ANALYTICS_ENGINE, KPI_DEFINITIONS, REPORTING,
+                              CRM, ATTRIBUTION, DATABASE, SECURITY, SOCIAL_ROUTING, AUDIENCE_JOURNEY, COMMAND_CENTER
 ```
 
 Rationale: routes stay thin (hero + a data-driven grid), shared logic lives
@@ -213,9 +230,15 @@ Full model in docs/SECURITY.md. Summary:
   `ContactForm`) is parsed through zod; invalid input never reaches
   application logic. Proven inert against SQL-metacharacter payloads by
   integration tests (parameterized queries throughout).
-- **Analytics endpoint authorization**: `/api/analytics/*` requires a
-  bearer token (`ANALYTICS_API_TOKEN`), fails closed (503) if unset —
-  see docs/SECURITY.md, "Analytics endpoint authorization".
+- **Analytics endpoint authorization**: `/api/analytics/*` accepts the
+  admin session cookie (below) or a bearer token (`ANALYTICS_API_TOKEN`),
+  fails closed (503) if neither is configured — see docs/SECURITY.md,
+  "Analytics endpoint authorization".
+- **Admin authentication (Block 04)**: `/admin/*` is a single shared
+  password (`ADMIN_PASSWORD_HASH`, scrypt-hashed, never plaintext) behind
+  a signed, stateless session cookie — checked optimistically in
+  `src/proxy.ts` and authoritatively in `requireAdminSession()`. See
+  docs/SECURITY.md, "Admin authentication", and docs/COMMAND_CENTER.md §2.
 - **Form protection**: a honeypot field plus a simple in-memory sliding-
   window rate limit (5 requests/IP/minute) on `/api/lead`. Documented
   limitation: in-memory state doesn't survive a redeploy and doesn't
@@ -232,9 +255,9 @@ Full model in docs/SECURITY.md. Summary:
 
 1. **Block 01 — Repository audit + technical foundation** ✅.
 2. **Block 02 — CRM + data + attribution + social routing + audience
-   journey** ✅ *(this block)*: Postgres schema + RLS, `/api/lead`
-   persistence end to end, `visitor`→`contact` linking, `/go/[slug]`
-   outbound routing, `/redes`, the unified `interaction` journal.
+   journey** ✅: Postgres schema + RLS, `/api/lead` persistence end to
+   end, `visitor`→`contact` linking, `/go/[slug]` outbound routing,
+   `/redes`, the unified `interaction` journal.
 3. **Block 03 — Analytics engine + conversion measurement + data read
    models** ✅: `interaction` extended for per-event medium/content/term/
    referrer + polymorphic entity references (`0003_analytics_engine.sql`);
@@ -243,22 +266,34 @@ Full model in docs/SECURITY.md. Summary:
    (`src/server/analytics/`) — acquisition/engagement/leads/revenue/
    funnel/session/journey; 8 private `/api/analytics/*` endpoints
    (docs/REPORTING.md); `page_view`/`landing_view` now persisted. No
-   visual dashboard yet — this block is exactly "data/read-models first".
+   visual dashboard yet — this block was exactly "data/read-models first".
    A real analytics vendor is still not wired (Product Vision, still true).
-4. **Block 04 — Commerce**: `/productos` checkout integration(s), first
+4. **Block 04 — Command Center: admin auth + analytics dashboard** ✅:
+   single-admin login (`src/server/auth/`, docs/COMMAND_CENTER.md),
+   `/admin/*` protected by Proxy (optimistic) + `requireAdminSession()`
+   (authoritative); the first functional private dashboard — 10 sections,
+   every one consuming an existing `/api/analytics/*` endpoint, none
+   querying Postgres directly. `requireAnalyticsAuth()` now accepts the
+   admin session cookie alongside the Block 03 bearer token. No charts,
+   no 3D, no heavy motion yet (explicit non-goal, same as Block 03's own
+   deferrals).
+5. **Block 05 — Commerce**: `/productos` checkout integration(s), first
    writes to `orders`/`order_items`/`subscription`, `/comunidad` Facebook
-   Subscription linkout hardening.
-5. **Block 05 — B2B funnels**: a real `/shows`/`/marcas` intake writing to
+   Subscription linkout hardening — once real orders exist, Revenue/
+   Productos in the Command Center stop rendering their empty states.
+6. **Block 06 — B2B funnels**: a real `/shows`/`/marcas` intake writing to
    `b2b_opportunity` (schema already exists, unused), stage-change
    notifications.
-6. **Block 06 — Content & brand pass**: real copy, photography/video,
+7. **Block 07 — Content & brand pass**: real copy, photography/video,
    motion (`gsap-web` from the skills library), once there is real content
-   to animate.
-7. **Later, not scheduled**: auth/accounts (needed before any RLS
-   self-service policy), membership platform, AI coaching, mobile app,
-   3D — all explicitly deferred per Product Vision.
+   to animate — likely also when the Command Center's own visual pass
+   (real charts, the deferred motion) happens.
+8. **Later, not scheduled**: multi-user auth/accounts beyond the single
+   admin login (needed before any RLS self-service policy), membership
+   platform, AI coaching, mobile app, 3D — all explicitly deferred per
+   Product Vision.
 
-## 11. What was NOT implemented in this block, on purpose
+## 11. What was NOT implemented, on purpose (cumulative through Block 04)
 
 - No connection to any real Supabase project — every migration/test ran
   against a disposable local/CI Postgres.
@@ -268,17 +303,20 @@ Full model in docs/SECURITY.md. Summary:
   permanentemente" any vendor.)
 - No QR image generator (the `qr_source` registry exists; codes are
   inserted directly).
-- No visual dashboard — the read-model API it would query now exists
-  (docs/REPORTING.md), the charts/UI don't.
+- No visual charts/graphs in the Command Center — the dashboard exists
+  (docs/COMMAND_CENTER.md) but every number renders as a stat tile or a
+  plain table, per Block 04's own "no diseño visual avanzado todavía".
 - No CAC/ROAS/CPA/CPL — no real ad-spend data exists yet to compute them
   from (docs/KPI_DEFINITIONS.md).
-- No authentication/accounts — and therefore no per-contact RLS
-  self-service policies (would need `contact.auth_user_id`, which
-  doesn't exist), and `/api/analytics/*`'s bearer-token gate
-  (docs/SECURITY.md) is a placeholder for real role-based access, not
-  the permanent answer.
+- No multi-user authentication/accounts — Block 04 added a single shared
+  admin login (docs/COMMAND_CENTER.md §2), not a `users` table; there is
+  still no per-contact RLS self-service policy (would need
+  `contact.auth_user_id`, which doesn't exist). `requireAnalyticsAuth()`'s
+  bearer-token path is kept for non-browser callers, not as the
+  dashboard's own mechanism anymore.
 - No payment/checkout integration — `orders`/`order_items`/`subscription`
-  exist as schema only, nothing writes to them yet.
+  exist as schema only, nothing writes to them yet (so Revenue/Productos
+  in the Command Center render their honest empty states).
 - No consent banner (nothing beyond functional attribution is collected
   yet — add one before any advertising pixel ships).
 - No content/copy beyond structurally-correct placeholders — see Product

@@ -21,6 +21,11 @@ export function PageViewTracker() {
   const lastTracked = useRef<string | null>(null);
 
   useEffect(() => {
+    // Cristian's own Command Center usage shouldn't pollute his own
+    // traffic analytics — /admin/* is never tracked (docs/COMMAND_CENTER.md,
+    // "Why /admin isn't tracked").
+    if (pathname.startsWith("/admin")) return;
+
     const key = `${pathname}?${searchParams.toString()}`;
     // React 19 Strict Mode double-invokes effects in development; guard
     // against firing the same navigation twice.

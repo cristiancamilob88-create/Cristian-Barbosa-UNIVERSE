@@ -22,10 +22,14 @@ npm run dev
 ```
 
 The app runs without a database for most routes, but `/contacto`,
-`/redes`, `/go/*`, `/api/lead`, `/api/track`, and `/api/analytics/*` need
-`DATABASE_URL` set — see [`docs/DATABASE.md`](docs/DATABASE.md).
-`/api/analytics/*` additionally needs `ANALYTICS_API_TOKEN` set, or it
-returns 503 (fails closed — see [`docs/SECURITY.md`](docs/SECURITY.md)).
+`/redes`, `/go/*`, `/api/lead`, `/api/track`, `/api/analytics/*`, and
+`/admin/*` need `DATABASE_URL` set — see [`docs/DATABASE.md`](docs/DATABASE.md).
+`/api/analytics/*` additionally needs `ANALYTICS_API_TOKEN` or
+`ADMIN_SESSION_SECRET` set, or it returns 503 (fails closed — see
+[`docs/SECURITY.md`](docs/SECURITY.md)). `/admin/*` (the Command Center)
+needs `ADMIN_PASSWORD_HASH` and `ADMIN_SESSION_SECRET` set — generate the
+first with `node scripts/admin/hash-password.mjs` — see
+[`docs/COMMAND_CENTER.md`](docs/COMMAND_CENTER.md).
 
 ## Scripts
 
@@ -40,6 +44,7 @@ returns 503 (fails closed — see [`docs/SECURITY.md`](docs/SECURITY.md)).
 | `npm run db:migrate` | Apply pending `supabase/migrations/*.sql` |
 | `npm run db:seed` | Load safe development seed data |
 | `npm run db:setup:test` | Local/CI only: auth shim + migrate + seed, for a disposable test database |
+| `node scripts/admin/hash-password.mjs` | Generates `ADMIN_PASSWORD_HASH` for `/admin` login (docs/COMMAND_CENTER.md) |
 
 ## Docs
 
@@ -53,6 +58,7 @@ returns 503 (fails closed — see [`docs/SECURITY.md`](docs/SECURITY.md)).
 - [`docs/ANALYTICS_ENGINE.md`](docs/ANALYTICS_ENGINE.md) — the read-model engine: taxonomy audit, session model, funnels, testing.
 - [`docs/KPI_DEFINITIONS.md`](docs/KPI_DEFINITIONS.md) — every KPI's exact formula.
 - [`docs/REPORTING.md`](docs/REPORTING.md) — the `/api/analytics/*` API reference.
+- [`docs/COMMAND_CENTER.md`](docs/COMMAND_CENTER.md) — the `/admin` dashboard: admin auth model, routes, what each section consumes.
 - [`docs/SOCIAL_ROUTING.md`](docs/SOCIAL_ROUTING.md) — `/go/[slug]` and `/redes`.
 - [`docs/AUDIENCE_JOURNEY.md`](docs/AUDIENCE_JOURNEY.md) — the acquisition→conversion data model, worked example.
 - [`docs/SECURITY.md`](docs/SECURITY.md) — RLS, server-only access, secrets, rate limiting, analytics endpoint auth.
@@ -60,13 +66,16 @@ returns 503 (fails closed — see [`docs/SECURITY.md`](docs/SECURITY.md)).
 ## Status
 
 **Block 01 — foundation**, **Block 02 — CRM + data + attribution +
-social routing + audience journey**, and **Block 03 — analytics engine +
-conversion measurement + data read models** are all complete: full route
+social routing + audience journey**, **Block 03 — analytics engine +
+conversion measurement + data read models**, and **Block 04 — Command
+Center (admin auth + analytics dashboard)** are all complete: full route
 scaffold, a real Postgres schema with RLS, an end-to-end lead intake
 pipeline, first/last-touch attribution with visitor→contact linking,
 server-tracked outbound social routing, a full read-model query layer
 (acquisition/engagement/leads/revenue/funnel/session/journey) behind 8
-private `/api/analytics/*` endpoints, CI with a Postgres service running
-both test suites (80 tests total). Still not wired: any real analytics
-vendor, payment/checkout, authentication, a visual dashboard — see
-`docs/ARCHITECTURE.md` §11 for the full "not yet" list.
+private `/api/analytics/*` endpoints, a single-admin login protecting a
+10-section `/admin` dashboard that consumes that same API, and both test
+suites (unit + DB-backed integration) green in CI. Still not wired: any
+real analytics vendor, payment/checkout, multi-user authentication,
+charts/visual design polish — see `docs/ARCHITECTURE.md` §11 for the
+full "not yet" list.

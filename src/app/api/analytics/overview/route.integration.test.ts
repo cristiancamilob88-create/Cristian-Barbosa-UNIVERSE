@@ -1,24 +1,45 @@
 import { NextRequest } from "next/server";
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
 import { resetActivityTables, closeTestPool, getTestPool, simulateVisit } from "@/server/db/testHelpers.integration";
+import { createSessionToken, ADMIN_SESSION_COOKIE } from "@/server/auth/session";
 import { GET } from "./route";
 
 const TEST_TOKEN = "test-analytics-token-not-a-real-secret";
+const TEST_SESSION_SECRET = "session-test-secret-" + "x".repeat(20);
 
-function makeRequest(authHeader?: string): NextRequest {
-  return new NextRequest("https://cristianbarbosa.test/api/analytics/overview?range=30d", {
-    headers: authHeader ? { authorization: authHeader } : {},
-  });
+function makeRequest(authHeader?: string, sessionCookie?: string): NextRequest {
+  const headers: Record<string, string> = {};
+  if (authHeader) headers.authorization = authHeader;
+  if (sessionCookie) headers.cookie = `${ADMIN_SESSION_COOKIE}=${sessionCookie}`;
+  return new NextRequest("https://cristianbarbosa.test/api/analytics/overview?range=30d", { headers });
 }
 
 describe("GET /api/analytics/overview", () => {
   const originalToken = process.env.ANALYTICS_API_TOKEN;
+  const originalSecret = process.env.ADMIN_SESSION_SECRET;
 
   beforeEach(resetActivityTables);
   afterEach(() => {
-    process.env.ANALYTICS_API_TOKEN = originalToken;
+    // Assigning `undefined` to a process.env key stringifies it to
+    // "undefined" instead of deleting it — that stray 9/9-char string
+    // then fails ANALYTICS_API_TOKEN's/ADMIN_SESSION_SECRET's own
+    // min-length validation in getServerEnv() on the next test. Restore
+    // properly: delete when there was nothing there to begin with.
+    if (originalToken === undefined) delete process.env.ANALYTICS_API_TOKEN;
+    else process.env.ANALYTICS_API_TOKEN = originalToken;
+    if (originalSecret === undefined) delete process.env.ADMIN_SESSION_SECRET;
+    else process.env.ADMIN_SESSION_SECRET = originalSecret;
   });
   afterAll(closeTestPool);
+
+  it("accepts the Command Center's own admin session cookie — no bearer token involved (Block 04)", async () => {
+    delete process.env.ANALYTICS_API_TOKEN;
+    process.env.ADMIN_SESSION_SECRET = TEST_SESSION_SECRET;
+    const token = createSessionToken(TEST_SESSION_SECRET);
+
+    const response = await GET(makeRequest(undefined, token));
+    expect(response.status).toBe(200);
+  });
 
   it("fails closed (503) when ANALYTICS_API_TOKEN isn't configured — never open by default", async () => {
     delete process.env.ANALYTICS_API_TOKEN;

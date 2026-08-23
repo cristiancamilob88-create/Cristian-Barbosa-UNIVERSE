@@ -1,13 +1,21 @@
 # REPORTING.md — the `/api/analytics/*` surface
 
-Read-only, private (docs/SECURITY.md, "Analytics endpoint authorization"),
-JSON. No visual dashboard consumes these yet — this is the API a future
-one is built against. Every route: `resolveAnalyticsRequest()`
-(`src/server/analytics/http.ts`) checks the bearer token, then parses
+Read-only, private (docs/SECURITY.md, "Analytics endpoint authorization").
+As of Block 04, the Command Center dashboard (docs/COMMAND_CENTER.md) is
+these routes' real consumer — every `/admin/*` section page fetches one
+of these, nothing else. Every route: `resolveAnalyticsRequest()`
+(`src/server/analytics/http.ts`) checks the credential, then parses
 `?range=`/`?from=&to=` (docs/ANALYTICS_ENGINE.md, "Date ranges") — both in
 one call, so each route file is just "resolve, query, respond".
 
-All requests: `Authorization: Bearer <ANALYTICS_API_TOKEN>`.
+Two accepted credentials, checked in this order (docs/COMMAND_CENTER.md,
+"Authentication model"):
+
+1. The `cb_admin_session` cookie (httpOnly, set by `/admin/login`) — what
+   the browser sends automatically once logged in. This is the
+   dashboard's own path; it never handles a bearer token.
+2. `Authorization: Bearer <ANALYTICS_API_TOKEN>` — kept for a future
+   service-to-service/automation caller that isn't a logged-in browser.
 
 ## `GET /api/analytics/overview`
 
@@ -109,14 +117,16 @@ product/offer.
 
 | Status | When |
 |---|---|
-| `503` | `ANALYTICS_API_TOKEN` isn't configured server-side — fails closed, never open. |
-| `401` | Missing/wrong bearer token. |
+| `503` | Neither `ANALYTICS_API_TOKEN` nor `ADMIN_SESSION_SECRET` is configured server-side — fails closed, never open. |
+| `401` | No valid session cookie and no/wrong bearer token. |
 | `400` | Unknown `range`/`preset`, invalid `from`/`to`, or an unknown funnel `steps` event name. |
 
 ## What's not built yet
 
-No visual dashboard — this API is the intended data source for one, not
-built in this block (explicit non-goal). No pagination (result sets are
-small at current scale — dictionary-sized, not row-count-of-`interaction`-sized).
-No caching layer (every request re-queries Postgres directly; add one if
-dashboard polling frequency ever makes that a real cost).
+No pagination (result sets are small at current scale —
+dictionary-sized, not row-count-of-`interaction`-sized). No caching
+layer (every request re-queries Postgres directly; add one if dashboard
+polling frequency ever makes that a real cost). No dedicated
+`/api/analytics/social` route — `GET /api/analytics/overview`'s `social`
+field is the one consumer (`/admin/social`) uses; see
+docs/COMMAND_CENTER.md, "Endpoints used, and why not more".

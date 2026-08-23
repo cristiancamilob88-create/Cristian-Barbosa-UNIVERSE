@@ -1,35 +1,48 @@
 import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerEnv } from "@/server/env";
+import { ADMIN_SESSION_COOKIE, isValidAdminSessionToken } from "@/server/auth/session";
 
 /**
- * Minimal, explicitly-scoped authorization for the private
- * `/api/analytics/*` endpoints — a shared-secret bearer token, not a
- * user authentication system (no login, no sessions, no users table:
- * that's out of scope for this block, and building one just to gate a
- * handful of read-only reporting endpoints would be the wrong tool).
- * See docs/SECURITY.md, "Analytics endpoint authorization" for the full
- * rationale and what replaces this once real accounts exist.
+ * Authorization for the private `/api/analytics/*` endpoints — two
+ * accepted credentials, checked in this order (docs/COMMAND_CENTER.md,
+ * "Analytics endpoint authorization"):
  *
- * Fail-safe: if ANALYTICS_API_TOKEN isn't configured, every request is
- * rejected — there is no "open by default" state.
+ * 1. The admin session cookie (`cb_admin_session`, src/server/auth/session.ts)
+ *    — set by /admin/login, sent automatically by the browser on every
+ *    same-origin request. This is what the Command Center dashboard
+ *    itself uses; the browser never sees a bearer token.
+ * 2. `ANALYTICS_API_TOKEN` as a `Bearer` header — kept as a second,
+ *    optional path for a future service-to-service/automation caller
+ *    that isn't a logged-in browser session. Block 03's original,
+ *    still-valid mechanism, no longer the dashboard's own.
+ *
+ * Fail-safe: if NEITHER is configured, every request is rejected with
+ * 503 — there is no "open by default" state. A configured-but-wrong
+ * credential is 401.
  *
  * Usage: `const denied = requireAnalyticsAuth(request); if (denied) return denied;`
  */
 export function requireAnalyticsAuth(request: NextRequest): NextResponse | null {
-  const { ANALYTICS_API_TOKEN } = getServerEnv();
-  if (!ANALYTICS_API_TOKEN) {
+  const { ANALYTICS_API_TOKEN, ADMIN_SESSION_SECRET } = getServerEnv();
+  if (!ANALYTICS_API_TOKEN && !ADMIN_SESSION_SECRET) {
     return NextResponse.json(
       { ok: false, error: "Analytics API is not configured." },
       { status: 503 },
     );
   }
 
-  const header = request.headers.get("authorization") ?? "";
-  const [scheme, token] = header.split(" ");
-  if (scheme !== "Bearer" || token !== ANALYTICS_API_TOKEN) {
-    return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
+  if (isValidAdminSessionToken(request.cookies.get(ADMIN_SESSION_COOKIE)?.value)) {
+    return null;
   }
 
-  return null;
+  if (ANALYTICS_API_TOKEN) {
+    const header = request.headers.get("authorization") ?? "";
+    const [scheme, token] = header.split(" ");
+    if (scheme === "Bearer" && token === ANALYTICS_API_TOKEN) {
+      return null;
+    }
+  }
+
+  return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
 }

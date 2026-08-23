@@ -47,3 +47,17 @@ settled without a stated reason.
 - Don't add an analytics vendor, payment integration, or 3D/heavy motion
   library without checking `docs/ARCHITECTURE.md` §10-11 first — several
   of these are deliberately deferred, not forgotten.
+- `/admin/*` (the Command Center) never queries Postgres or imports
+  `src/server/analytics/`/`src/server/db/` from a React component —
+  every section fetches an existing `/api/analytics/*` endpoint via
+  `src/components/admin/useAnalyticsQuery.ts`. Adding a business-data
+  section to the dashboard means adding a page that calls an existing
+  endpoint (or, if truly nothing covers it yet, a new
+  `src/server/analytics/` read model + endpoint first, per the rule
+  above) — never a query inside `src/app/admin/`. See
+  docs/COMMAND_CENTER.md.
+- Admin auth (`src/server/auth/`) is a single shared credential, not a
+  users table — don't reach for a `users`/`sessions` schema to gate a
+  new private route; extend `requireAdminSession()`/`requireAnalyticsAuth()`
+  instead, and read docs/COMMAND_CENTER.md §2 before changing the
+  session/login mechanism.

@@ -2,12 +2,14 @@
 
 ## Secrets
 
-Nothing in this repo. `DATABASE_URL` and `ANALYTICS_API_TOKEN` (the only
-secrets the app reads) are declared in `src/server/env.ts`,
-`server-only`-guarded, and validated lazily (only when a route actually
-needs them — see docs/DATABASE.md and docs/ARCHITECTURE.md §9).
-`.env.example` documents every variable; real values live in
-`.env.local` (git-ignored) or the deploy platform's env var store.
+Nothing in this repo. `DATABASE_URL`, `ANALYTICS_API_TOKEN`,
+`ADMIN_PASSWORD_HASH`, and `ADMIN_SESSION_SECRET` (the only secrets the
+app reads) are declared in `src/server/env.ts`, `server-only`-guarded,
+and validated lazily (only when a route actually needs them — see
+docs/DATABASE.md and docs/ARCHITECTURE.md §9). `.env.example` documents
+every variable; real values live in `.env.local` (git-ignored) or the
+deploy platform's env var store. `ADMIN_PASSWORD_HASH` is a hash, never
+a plaintext password — see docs/COMMAND_CENTER.md §2.
 
 ## Server-only database access
 
@@ -73,27 +75,45 @@ write a single `interaction` row per call, and abuse there produces noisy
 analytics, not a resource or data-integrity risk the way spamming leads
 would. Revisit if that changes.
 
+## Admin authentication (Block 04 — Command Center)
+
+`/admin/*` is a single-admin login, not a users table — full rationale,
+session mechanics, and route-protection layers in docs/COMMAND_CENTER.md
+§2. Summary: `ADMIN_PASSWORD_HASH` (scrypt, never plaintext) gates
+`/admin/login`; a signed, stateless session cookie (`cb_admin_session`,
+`ADMIN_SESSION_SECRET`) gates everything else, checked both optimistically
+in `src/proxy.ts` (redirect, no DB read) and authoritatively in
+`requireAdminSession()` (`src/server/auth/adminAuth.ts`, called by every
+protected Server Component) — Proxy alone is never the only check, per
+the Next.js Authentication guide's own recommendation. Login attempts
+are rate-limited (5/IP/minute, same in-memory-Map pattern and limitation
+as `/api/lead`'s). Fails closed: unset `ADMIN_PASSWORD_HASH`/
+`ADMIN_SESSION_SECRET` means login always reports "not configured", never
+silently open.
+
 ## Analytics endpoint authorization
 
 `/api/analytics/*` (Block 03 — docs/REPORTING.md) exposes business
 aggregates (visitor counts, lead volume, revenue) that must not be
-public, but full user authentication is out of scope for this block too.
-`requireAnalyticsAuth()` (`src/server/analytics/auth.ts`) gates every
-route with a shared-secret bearer token (`ANALYTICS_API_TOKEN`) — not a
-login system, just an API key suitable for an internal caller. **Fails
-closed**: if the token isn't configured, every request gets `503`, never
-an open table (verified by `overview/route.integration.test.ts`, which
-also asserts no `contact` PII — email, name, phone — ever appears in a
-response body, not just that the TypeScript return types omit it). This
-is deliberately minimal-scope: replace it with a real
-role/permission check once the auth block (docs/DATA_MODEL.md,
-"Explicitly not modeled yet") exists — a bearer token with no expiry or
-per-caller identity isn't meant to be the permanent answer.
+public. `requireAnalyticsAuth()` (`src/server/analytics/auth.ts`) now
+accepts either of two credentials (docs/COMMAND_CENTER.md §2): the admin
+session cookie above (what the Command Center dashboard itself uses —
+the browser never handles a bearer token), or a shared-secret bearer
+token (`ANALYTICS_API_TOKEN`, Block 03's original mechanism) for a
+future non-browser caller. **Fails closed**: if *neither* is configured,
+every request gets `503`, never an open table (verified by
+`overview/route.integration.test.ts`, which also asserts no `contact`
+PII — email, name, phone — ever appears in a response body, not just
+that the TypeScript return types omit it). Both credentials are
+deliberately minimal-scope: replace the bearer-token path, and extend
+the session mechanism, once real multi-user accounts exist
+(docs/DATA_MODEL.md, "Explicitly not modeled yet" / docs/COMMAND_CENTER.md
+§2, "How this evolves later").
 
-These endpoints are read-only and gated by the token, so they carry no
-separate rate limit — the token itself is the access control; add one if
-this ever needs to tolerate a leaked token gracefully rather than just
-being rotated.
+These endpoints are read-only and gated by one of the two credentials
+above, so they carry no separate rate limit — the credential itself is
+the access control; add one if this ever needs to tolerate a leaked
+token/session gracefully rather than just being rotated.
 
 ## HTTP headers
 
