@@ -102,6 +102,39 @@ describe("POST /api/lead", () => {
     await expect(getTestPool().query("select count(*) from contact")).resolves.toBeDefined();
   });
 
+  it("opens a b2b_opportunity for a shows/marcas topic, but not for others (Block 07)", async () => {
+    const showsEmail = `shows-${Date.now()}@example.com`;
+    const marcasEmail = `marcas-${Date.now()}@example.com`;
+    const trainingEmail = `entrenar-${Date.now()}@example.com`;
+
+    await POST(makeRequest({ name: "Show Lead", email: showsEmail, topic: "shows", message: "Un evento" }));
+    await POST(makeRequest({ name: "Marca Lead", email: marcasEmail, topic: "marcas" }));
+    await POST(makeRequest({ name: "Training Lead", email: trainingEmail, topic: "entrenar" }));
+
+    const showsContact = await getTestPool().query("select id from contact where email = $1", [showsEmail]);
+    const showsOpps = await getTestPool().query(
+      "select category, stage, notes from b2b_opportunity where contact_id = $1",
+      [showsContact.rows[0].id],
+    );
+    expect(showsOpps.rowCount).toBe(1);
+    expect(showsOpps.rows[0].category).toBe("shows");
+    expect(showsOpps.rows[0].stage).toBe("lead");
+    expect(showsOpps.rows[0].notes).toBe("Un evento");
+
+    const marcasContact = await getTestPool().query("select id from contact where email = $1", [marcasEmail]);
+    const marcasOpps = await getTestPool().query("select category from b2b_opportunity where contact_id = $1", [
+      marcasContact.rows[0].id,
+    ]);
+    expect(marcasOpps.rowCount).toBe(1);
+    expect(marcasOpps.rows[0].category).toBe("brands");
+
+    const trainingContact = await getTestPool().query("select id from contact where email = $1", [trainingEmail]);
+    const trainingOpps = await getTestPool().query("select count(*) from b2b_opportunity where contact_id = $1", [
+      trainingContact.rows[0].id,
+    ]);
+    expect(Number(trainingOpps.rows[0].count)).toBe(0);
+  });
+
   it("rate-limits a burst of requests from the same IP", async () => {
     const ip = randomUUID();
     const responses = [];

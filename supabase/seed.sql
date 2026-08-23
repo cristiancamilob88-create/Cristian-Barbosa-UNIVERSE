@@ -79,3 +79,28 @@ insert into offer (product_id, slug, name, currency, landing_path)
 select id, 'digital-course-standard', 'Curso digital', 'COP', '/productos'
 from product where slug = 'digital-course'
 on conflict (slug) do nothing;
+
+-- Block 07 (docs/MASTER_BRIEF_BLOCK_07_10.md): the three coaching
+-- product rows existed since Block 02 with no offer of their own —
+-- /entrenar's coaching card linked straight to /contacto, bypassing the
+-- checkout abstraction entirely. purchase_type = 'quote' here is not a
+-- placeholder for a price we forgot — it's the correct, honest value
+-- until Cristian sets one (Decision Gate 2, Block 07.1 audit):
+-- resolveCheckoutDestination() already treats 'quote' as "always route
+-- to lead capture, regardless of checkout_provider" (docs/COMMERCE.md),
+-- which is exactly today's real behavior for high-ticket coaching. No
+-- price was invented — price_cents stays null.
+insert into offer (product_id, slug, name, currency, landing_path, purchase_type, cta_label)
+select id, 'coaching-essential-quote', 'Coaching Essential', 'COP', '/contacto?topic=coaching', 'quote', 'Quiero entrenar personalmente con Cristian'
+from product where slug = 'coaching-essential'
+on conflict (slug) do nothing;
+
+insert into offer (product_id, slug, name, currency, landing_path, purchase_type, cta_label)
+select id, 'coaching-performance-quote', 'Coaching Performance', 'COP', '/contacto?topic=coaching', 'quote', 'Quiero entrenar personalmente con Cristian'
+from product where slug = 'coaching-performance'
+on conflict (slug) do nothing;
+
+insert into offer (product_id, slug, name, currency, landing_path, purchase_type, cta_label)
+select id, 'coaching-elite-quote', 'Coaching Elite', 'COP', '/contacto?topic=coaching', 'quote', 'Quiero entrenar personalmente con Cristian'
+from product where slug = 'coaching-elite'
+on conflict (slug) do nothing;

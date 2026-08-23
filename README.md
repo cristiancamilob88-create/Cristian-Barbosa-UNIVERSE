@@ -63,6 +63,8 @@ first with `node scripts/admin/hash-password.mjs` — see
 - [`docs/COMMERCE.md`](docs/COMMERCE.md) — commerce/offers infrastructure: the product/offer model review, the checkout abstraction, what's not wired yet.
 - [`docs/SUPABASE_PRODUCTION.md`](docs/SUPABASE_PRODUCTION.md) — taking this schema to a real Supabase project: expected state, RLS, env vars, deployment/rollback notes.
 - [`docs/MANUAL_SETUP_CHECKLIST.md`](docs/MANUAL_SETUP_CHECKLIST.md) — Supabase/GitHub/Vercel/DNS/Meta/etc., split by what Claude can automate vs. what only Cristian can do.
+- [`docs/MASTER_BRIEF_BLOCK_07_10.md`](docs/MASTER_BRIEF_BLOCK_07_10.md) — the Revenue Activation + Lifecycle Marketing brief (Blocks 07–10): source of truth for this stage.
+- [`docs/PROJECT_STATE.md`](docs/PROJECT_STATE.md) / [`docs/MASTER_CHECKLIST.md`](docs/MASTER_CHECKLIST.md) / [`docs/NEXT_BLOCK.md`](docs/NEXT_BLOCK.md) — living checkpoint snapshot, itemized checklist, and next-step plan for Blocks 07–10, updated at every block close.
 - [`docs/SOCIAL_ROUTING.md`](docs/SOCIAL_ROUTING.md) — `/go/[slug]` and `/redes`.
 - [`docs/AUDIENCE_JOURNEY.md`](docs/AUDIENCE_JOURNEY.md) — the acquisition→conversion data model, worked example.
 - [`docs/SECURITY.md`](docs/SECURITY.md) — RLS, server-only access, secrets, rate limiting, analytics endpoint auth.
@@ -92,3 +94,13 @@ green. Still not wired: any real analytics vendor, a real payment
 provider, multi-user authentication, charts/visual design polish, a
 Vercel deployment — see `docs/ARCHITECTURE.md` §11 and
 `docs/SUPABASE_PRODUCTION.md` §12-13 for the full "not yet" list.
+
+**Block 07 — first real sale (training)** is in progress: the funnel
+is real end to end up to lead capture (`/entrenar` now differentiates
+its 4 offers correctly, `b2b_opportunity` has its first writer, coaching
+has real `offer` rows), but closing with an actual paid sale needs two
+Decision Gates resolved by Cristian (Facebook Subscription's real URL,
+and at least one real price/checkout provider) — see
+`docs/PROJECT_STATE.md`/`docs/NEXT_BLOCK.md` for the live status and
+`docs/MASTER_BRIEF_BLOCK_07_10.md` for the full Blocks 07–10 brief
+(Revenue Activation + Lifecycle Marketing).

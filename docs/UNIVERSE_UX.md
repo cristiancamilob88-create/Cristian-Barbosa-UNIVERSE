@@ -69,6 +69,14 @@ asserts every `intentId` is unique and matches `intent_[a-z_]+`.
   Performance/Elite — in the card's own copy, just not as three
   separate top-level cards anymore). Each card is now a `TrackedLink`
   (previously a plain, untracked `Link`) with its own `cta_click.cta` id.
+  **Block 07 fix** (docs/MASTER_BRIEF_BLOCK_07_10.md): the free
+  community and Facebook Subscription cards used to share both the same
+  `intentId` (`intent_community`) and the same destination
+  (`/comunidad`) — the "no mezclar" rule wasn't actually satisfied for
+  those two. The Facebook Subscription card now `GoLink`s straight to
+  the `facebook-subscription` slug (measured server-side as its own
+  `social_click`, distinguishable by slug), matching how `/comunidad`
+  itself already told the two apart.
 - **`/comunidad`**: the WhatsApp `GoLink`'s button text is now "Quiero
   entrar a la comunidad" — the Facebook Subscription card keeps its own
   distinct framing ("Entrena con Cristian Barbosa") right next to it,

@@ -216,3 +216,25 @@ only reports real numbers once real orders/subscriptions exist.
   flow needed (`checkout_started`) already existed in the taxonomy
   since Block 02; this block is the first real writer of it via a live
   route, not a new event.
+
+## 8. Block 07 — coaching offers + the B2B write path
+
+Two gaps closed by the Block 07.1 audit (docs/MASTER_BRIEF_BLOCK_07_10.md):
+
+- **Coaching offers**: `coaching-essential`/`coaching-performance`/
+  `coaching-elite` (products since Block 02) had no `offer` row at all —
+  `/entrenar`'s coaching card linked straight to `/contacto`, bypassing
+  the checkout abstraction entirely. `supabase/seed.sql` now seeds one
+  offer per tier, `purchase_type = 'quote'` (no price invented —
+  Decision Gate 2, Block 07.1 audit) — `resolveCheckoutDestination()`
+  already treats `quote` as "always resolve to lead capture," which is
+  exactly today's real behavior. No page links to these via
+  `CheckoutLink` yet (no coaching-tier detail page exists to pick one of
+  the three from) — same "infrastructure ready, no page wired" state
+  Block 05 left the rest of `offer` in.
+- **`b2b_opportunity` write path**: existed since Block 02 with zero
+  writer. `/api/lead` now also opens a `b2b_opportunity` row (category
+  `shows`/`brands`, `stage` defaulting to `lead`) alongside the generic
+  `lead` row when the submitted topic is `shows`/`marcas` — see
+  `src/server/db/repositories/b2bOpportunity.ts`. `estimated_value_cents`
+  stays null; a contact-form submission never implies a deal size.

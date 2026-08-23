@@ -7,6 +7,7 @@ import { resolveInterestId } from "@/server/db/repositories/reference";
 import { findOrCreateContact, assignInterest } from "@/server/db/repositories/contact";
 import { linkVisitorToContact } from "@/server/db/repositories/visitor";
 import { createLead } from "@/server/db/repositories/lead";
+import { createB2bOpportunity, type B2bCategory } from "@/server/db/repositories/b2bOpportunity";
 import { recordInteraction } from "@/server/db/repositories/interaction";
 
 /**
@@ -47,6 +48,17 @@ const TOPIC_TO_INTEREST_SLUG: Record<string, string | undefined> = {
   musica: "music",
   productos: "products",
   // "general" intentionally maps to no specific interest.
+};
+
+/**
+ * shows/marcas are the B2B topics (docs/MASTER_BRIEF_BLOCK_07_10.md,
+ * "Block 07"): alongside the generic `lead` row every topic gets, these
+ * two also open a `b2b_opportunity` row so the shows/brands pipeline
+ * (`stage`) is real instead of just another contact-form submission.
+ */
+const TOPIC_TO_B2B_CATEGORY: Record<string, B2bCategory | undefined> = {
+  shows: "shows",
+  marcas: "brands",
 };
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -129,6 +141,16 @@ export async function POST(request: NextRequest) {
         message: message || null,
         touch: visitorCtx.touch,
       });
+
+      const b2bCategory = TOPIC_TO_B2B_CATEGORY[topic];
+      if (b2bCategory) {
+        await createB2bOpportunity(client, {
+          contactId: contact.id,
+          category: b2bCategory,
+          notes: message || null,
+          touch: visitorCtx.touch,
+        });
+      }
 
       await recordInteraction(client, {
         visitorId: visitorCtx.visitorId,
