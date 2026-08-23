@@ -9,13 +9,22 @@ encontró (o no encontró) conectado.
 
 ## Supabase
 
+Confirmado en este bloque: existe un conector MCP **oficial** de
+Supabase en el registro de Anthropic (`directoryUuid
+11ca66fc-1e98-49d5-ab9b-7cb4672a8f10`, herramientas incluyendo
+`list_projects`, `get_project`, y ~24 más — probablemente listado de
+tablas, ejecución de SQL, gestión de migraciones). **No está instalado
+en esta cuenta** (`installState: "not_installed"`). Esta es la vía
+preferida — evita pegar una contraseña en el chat.
+
 | Tarea | Quién |
 |---|---|
 | Crear la cuenta/organización Supabase | **Cristian** (identidad de facturación) |
 | Crear el proyecto (nombre, región, contraseña de base de datos) | **Cristian** |
-| Copiar el "Connection string" (con `sslmode=require`) desde el dashboard de Supabase | **Cristian** |
-| Entregar esa connection string a Claude — como `DATABASE_URL` en el entorno de la sesión, o conectando un conector MCP de Supabase si está disponible | **Cristian** (decide el canal — ver nota de seguridad abajo) |
-| Auditar tablas/RLS/policies existentes contra `docs/SUPABASE_PRODUCTION.md` §2 | Claude, una vez tenga la connection string |
+| **Opción A (preferida) — conectar el conector oficial de Supabase**: en claude.ai, ir a `Settings → Connectors`, buscar "Supabase", conectarlo y autorizarlo (esto abre el flujo OAuth de Supabase — Cristian inicia sesión ahí, no comparte contraseña con Claude). Luego, en esta sesión de Claude Code, confirmar que el conector está habilitado para el chat. | **Cristian** conecta; Claude verifica con `ListConnectors` una vez hecho |
+| Al conectar el MCP de Supabase, limitarlo (si la UI de Supabase lo permite en el flujo de autorización) al proyecto de Cristian Barbosa Universe específicamente, no a toda la organización | **Cristian**, durante el flujo de autorización |
+| **Opción B (alternativa) — connection string manual**: copiar el "Connection string" (con `sslmode=require`, idealmente el del connection pooler) desde `Project Settings → Database → Connection string` y pegarlo en el chat como `DATABASE_URL` | **Cristian**, solo si prefiere no usar el conector MCP |
+| Auditar tablas/RLS/policies existentes contra `docs/SUPABASE_PRODUCTION.md` §2 | Claude, una vez tenga acceso por cualquiera de las dos vías |
 | Ejecutar `npm run db:migrate` contra el proyecto real | Claude, solo después de la auditoría y con confirmación explícita |
 | Ejecutar `npm run db:seed` contra el proyecto real | Claude, mismo paso que arriba |
 | Verificar RLS final (roles, policies) | Claude |

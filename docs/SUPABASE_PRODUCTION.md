@@ -78,15 +78,42 @@ project's current state, which nobody has looked at yet (§3).
 
 ## 3. Real Supabase project — audit result
 
-**Not performed.** No credential, connection string, or MCP connector
-gave this session any way to inspect a real Supabase project's tables,
-RLS, roles, or `schema_migrations` state. Rather than guess, simulate,
-or skip silently, this block stops here and reports the gap — see
-`docs/MANUAL_SETUP_CHECKLIST.md`, "Supabase," for exactly what to
-provide so a future session can run the real Phase 2 audit (list
-existing tables/columns/constraints/indexes/functions/triggers/
-policies/extensions, diff against §2, and only then propose next
-steps — never a blind `db:migrate` against an unaudited project).
+**Not performed — confirmed no access, twice.** First pass: no
+credential, connection string, or MCP connector gave this session any
+way to inspect a real Supabase project. Second pass (after Cristian
+confirmed the real project exists and asked specifically to check for
+an MCP path before requesting a password): checked every angle
+available —
+
+- `ListConnectors` (this claude.ai account's installed connectors):
+  Gmail, Google Calendar, Google Drive, Notion, Porter Metrics,
+  Windsor.ai. **No Supabase connector installed.**
+- `SearchMcpRegistry` (the full Anthropic connector directory): an
+  **official Supabase connector exists** (`directoryUuid
+  11ca66fc-1e98-49d5-ab9b-7cb4672a8f10`, tools including
+  `list_organizations`/`get_organization`/`list_projects`/
+  `get_project`/`get_cost`/`confirm_cost`/`create_project`/
+  `pause_project` + ~24 more) — but its `installState` is
+  `"not_installed"` for this account. It is not connected, so none of
+  its tools are callable from this session.
+- Local MCP server logs (`~/.cache/claude-cli-nodejs/.../mcp-logs-*`):
+  every configured server for this session accounted for (github,
+  Gmail, Google Calendar, Notion, Windsor.ai, Claude Code Remote, and
+  one unauthenticated "Porter Metrics" server unrelated to Supabase).
+  None is a Supabase MCP server.
+- No `.mcp.json`/project-level MCP config exists in the repo, and no
+  `SUPABASE_*`/`DATABASE_URL` environment variable pointing at a real
+  project exists in this session's environment.
+
+Rather than guess, simulate, or ask for a password before exhausting
+the MCP path (as instructed), this block stops here and reports the
+gap precisely — see `docs/MANUAL_SETUP_CHECKLIST.md`, "Supabase," for
+the exact two options (connect the official MCP connector via claude.ai
+`Settings → Connectors`, or provide a connection string manually) so a
+future session can run the real Phase 2 audit (list existing tables/
+columns/constraints/indexes/functions/triggers/policies/extensions,
+diff against §2, and only then propose next steps — never a blind
+`db:migrate` against an unaudited project).
 
 ## 4. RLS model (design, confirmed unchanged; live audit pending §3)
 
