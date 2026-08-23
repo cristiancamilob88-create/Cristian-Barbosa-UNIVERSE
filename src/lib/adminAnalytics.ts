@@ -36,6 +36,20 @@ export class AnalyticsApiError extends Error {
   }
 }
 
+/**
+ * The immediately-preceding, equal-length window before `resolved` —
+ * "vs. período anterior" (Block 04.1, FASE "Comparaciones temporales").
+ * Pure function, computed client-side from the range the API already
+ * echoed back: no backend change, no new endpoint — the comparison is
+ * just a second fetch of the same endpoint with a shifted `from`/`to`.
+ */
+export function previousRangeOf(resolved: ResolvedRange): RangeQuery {
+  const from = new Date(resolved.from).getTime();
+  const to = new Date(resolved.to).getTime();
+  const durationMs = to - from;
+  return { from: new Date(from - durationMs).toISOString(), to: new Date(from).toISOString() };
+}
+
 /** Builds the query string every /api/analytics/* route parses identically (src/server/analytics/dateRange.ts). */
 export function buildQuery(range: RangeQuery, extra: Record<string, string | undefined> = {}): string {
   const qs = new URLSearchParams();
@@ -116,12 +130,21 @@ export interface SocialPerformanceRow {
   uniqueVisitors: number;
 }
 
+export interface DailyPoint {
+  date: string;
+  visitors: number;
+  leads: number;
+  purchases: number;
+  revenueCents: number;
+}
+
 export interface OverviewResponse {
   ok: true;
   range: ResolvedRange;
   data: AnalyticsOverview;
   leadsByInterest: LeadBreakdownRow[];
   social: SocialPerformanceRow[];
+  timeseries: DailyPoint[];
 }
 
 export interface PerformanceRow {
@@ -230,4 +253,22 @@ export interface RevenueResponse {
     byQr: RevenueBreakdownRow[];
     byProductAndOffer: ProductRevenueRow[];
   };
+}
+
+export interface RecentLeadRow {
+  id: string;
+  topicRaw: string;
+  status: string;
+  interestLabel: string | null;
+  sourceLabel: string | null;
+  campaignLabel: string | null;
+  qrSlug: string | null;
+  medium: string | null;
+  createdAt: string;
+}
+
+export interface LeadsResponse {
+  ok: true;
+  range: ResolvedRange;
+  data: RecentLeadRow[];
 }

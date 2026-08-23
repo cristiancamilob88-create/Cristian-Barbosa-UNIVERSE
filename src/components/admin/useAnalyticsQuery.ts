@@ -36,7 +36,20 @@ interface KeyedState<T> {
  * the effect body trips `react-hooks/set-state-in-effect`.
  */
 export function useAnalyticsQuery<T>(path: string, extra?: Record<string, string | undefined>): QueryState<T> {
-  const range = useRangeFromSearchParams();
+  return useAnalyticsQueryForRange<T>(path, useRangeFromSearchParams(), extra);
+}
+
+/**
+ * Same as useAnalyticsQuery, but for an explicit range instead of the
+ * URL's own — the one caller today is the Overview page's "vs. período
+ * anterior" comparison (src/components/admin/DeltaBadge.tsx's data
+ * source), which needs the *previous* period, not the one in the URL.
+ */
+export function useAnalyticsQueryForRange<T>(
+  path: string,
+  range: RangeQuery,
+  extra?: Record<string, string | undefined>,
+): QueryState<T> {
   const extraKey = extra ? JSON.stringify(extra) : "";
   const key = `${path}|${range.range ?? ""}|${range.from ?? ""}|${range.to ?? ""}|${extraKey}`;
 

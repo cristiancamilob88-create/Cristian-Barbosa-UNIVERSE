@@ -19,8 +19,10 @@ Two accepted credentials, checked in this order (docs/COMMAND_CENTER.md,
 
 ## `GET /api/analytics/overview`
 
-The KPI summary (docs/KPI_DEFINITIONS.md) plus two read models with no
-endpoint of their own: leads by interest, social/outbound performance.
+The KPI summary (docs/KPI_DEFINITIONS.md) plus read models with no
+endpoint of their own: leads by interest, social/outbound performance,
+and (Block 04.1) the daily time series behind the Command Center's
+"evolución temporal" sparklines.
 
 ```json
 {
@@ -28,15 +30,18 @@ endpoint of their own: leads by interest, social/outbound performance.
   "range": { "from": "...", "to": "..." },
   "data": { "visitors": 0, "sessions": 0, "...": "...", "ratios": { "...": null } },
   "leadsByInterest": [{ "key": "...", "label": "training", "leads": 0 }],
-  "social": [{ "platform": "instagram", "slug": "instagram-main", "clicks": 0, "uniqueVisitors": 0 }]
+  "social": [{ "platform": "instagram", "slug": "instagram-main", "clicks": 0, "uniqueVisitors": 0 }],
+  "timeseries": [{ "date": "2026-08-01", "visitors": 0, "leads": 0, "purchases": 0, "revenueCents": 0 }]
 }
 ```
 
-## `GET /api/analytics/sources` / `GET /api/analytics/campaigns`
+## `GET /api/analytics/sources` / `GET /api/analytics/campaigns` / `GET /api/analytics/medium`
 
-Read models 1–2 + "SOURCE/CAMPAIGN PERFORMANCE": one row per
-source/campaign — `getPerformanceByDimension()`
-(`src/server/analytics/performance.ts`).
+Read models 1–2 + "SOURCE/CAMPAIGN/MEDIUM PERFORMANCE": one row per
+source/campaign/medium — `getPerformanceByDimension()`
+(`src/server/analytics/performance.ts`). `medium` (Block 04.1) is free
+text (e.g. `social`, `qr`, `referral`), not a dictionary id — its `key`
+and `label` are the same raw string.
 
 ```json
 { "ok": true, "range": {"...": "..."}, "data": [
@@ -111,6 +116,23 @@ product/offer.
   "byQr": ["..."],
   "byProductAndOffer": [{ "productSlug": "...", "productName": "...", "offerSlug": "...", "purchases": 0, "revenueCents": 0 }]
 }}
+```
+
+## `GET /api/analytics/leads`
+
+Block 04.1 — the individual-lead activity list behind the Command
+Center's Leads section (`getRecentLeads()`,
+`src/server/analytics/leads.ts`). Most recent first, capped at 25 by
+default. No PII (no `contact_id`, name, or email) — see the read
+model's own doc comment and docs/ANALYTICS_ENGINE.md, "Recent-leads list".
+
+```json
+{ "ok": true, "range": {"...": "..."}, "data": [
+  { "id": "<uuid>", "topicRaw": "entrenar", "status": "new",
+    "interestLabel": "Entrenamiento", "sourceLabel": "Instagram",
+    "campaignLabel": "aura-2026", "qrSlug": null, "medium": "social",
+    "createdAt": "2026-08-22T18:04:00.000Z" }
+]}
 ```
 
 ## Errors

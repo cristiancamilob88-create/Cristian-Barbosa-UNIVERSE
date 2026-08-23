@@ -128,4 +128,37 @@ describe("getPerformanceByDimension", () => {
       client.release();
     }
   });
+
+  it("aggregates by medium — a free-text dimension with no dictionary table (Block 04.1)", async () => {
+    const client = await getTestPool().connect();
+    try {
+      await simulateVisit(client, { utmSource: "instagram", utmMedium: "social" });
+      await simulateVisit(client, { utmSource: "instagram", utmMedium: "social" });
+      await simulateVisit(client, { utmSource: "event", utmMedium: "qr", qrSlug: "aura-2026-main" });
+
+      const rows = await getPerformanceByDimension(client, "medium", testDateRange());
+      const socialRow = rows.find((r) => r.key === "social");
+      const qrRow = rows.find((r) => r.key === "qr");
+
+      expect(socialRow?.visitors).toBe(2);
+      // key IS the label for a free-text dimension — no dictionary join.
+      expect(socialRow?.label).toBe("social");
+      expect(qrRow?.visitors).toBe(1);
+    } finally {
+      client.release();
+    }
+  });
+
+  it("groups medium-less visitors under the direct/null bucket, same as source/campaign/qr", async () => {
+    const client = await getTestPool().connect();
+    try {
+      await simulateVisit(client, {});
+      const rows = await getPerformanceByDimension(client, "medium", testDateRange());
+      const directRow = rows.find((r) => r.key === null);
+      expect(directRow?.label).toBe("direct");
+      expect(directRow?.visitors).toBeGreaterThanOrEqual(1);
+    } finally {
+      client.release();
+    }
+  });
 });

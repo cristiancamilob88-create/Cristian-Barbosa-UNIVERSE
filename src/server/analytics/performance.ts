@@ -20,20 +20,26 @@ export interface PerformanceRow {
   leadToPurchaseRate: number | null;
 }
 
-export type PerformanceDimension = "source" | "campaign" | "qr";
+export type PerformanceDimension = "source" | "campaign" | "qr" | "medium";
 
 /**
- * One function serves source/campaign/QR performance instead of three
- * near-duplicate queries — only which dictionary table joins on which
- * id column changes between them, chosen from this fixed, hardcoded map
- * (never from unvalidated input, so there's no SQL-injection surface in
+ * One function serves source/campaign/QR/medium performance instead of
+ * near-duplicate queries — only which column each table groups by (and,
+ * for source/campaign/qr, which dictionary table resolves the label)
+ * changes between them, chosen from this fixed, hardcoded map (never
+ * from unvalidated input, so there's no SQL-injection surface in
  * branching on `dimension`).
+ *
+ * `medium` has `dictionaryTable: null` — unlike source/campaign/qr it's
+ * free text everywhere in this schema (visitor/contact/lead.medium —
+ * see 0004_lead_medium.sql), never FK'd to a dictionary table, so its
+ * own value doubles as both `key` and `label` with no join.
  *
  * Attribution basis, per dimension (documented because it's a real
  * choice, not an accident):
  *  - visitors: `visitor.first_touch_*` — true acquisition, immutable
  *    once set (docs/ATTRIBUTION.md).
- *  - leads: `lead.*_id` — resolved once, at lead-creation time.
+ *  - leads: `lead.*` — resolved once, at lead-creation time.
  *  - purchases/revenue: `contact.first_touch_*` — first-touch
  *    attribution (see docs/ANALYTICS_ENGINE.md, "Revenue attribution",
  *    for why first-touch is the default and last-touch is the only
@@ -41,7 +47,7 @@ export type PerformanceDimension = "source" | "campaign" | "qr";
  */
 const DIMENSION_SQL: Record<
   PerformanceDimension,
-  { visitorColumn: string; leadColumn: string; contactColumn: string; dictionaryTable: string; dictionaryLabel: string }
+  { visitorColumn: string; leadColumn: string; contactColumn: string; dictionaryTable: string | null; dictionaryLabel: string }
 > = {
   source: {
     visitorColumn: "first_touch_source_id",
@@ -64,6 +70,13 @@ const DIMENSION_SQL: Record<
     dictionaryTable: "qr_source",
     dictionaryLabel: "slug",
   },
+  medium: {
+    visitorColumn: "first_touch_medium",
+    leadColumn: "medium",
+    contactColumn: "first_touch_medium",
+    dictionaryTable: null,
+    dictionaryLabel: "",
+  },
 };
 
 export async function getPerformanceByDimension(
@@ -72,6 +85,11 @@ export async function getPerformanceByDimension(
   range: ResolvedDateRange,
 ): Promise<PerformanceRow[]> {
   const cfg = DIMENSION_SQL[dimension];
+  // No dictionary table for a free-text dimension (medium): the raw
+  // value itself is the label, so skip the join entirely rather than
+  // joining a table name built from unvalidated input.
+  const labelSelect = cfg.dictionaryTable ? `dict.${cfg.dictionaryLabel}` : "d.dim_id";
+  const dictJoin = cfg.dictionaryTable ? `left join ${cfg.dictionaryTable} dict on dict.id = d.dim_id` : "";
 
   const { rows } = await db.query<{
     key: string | null;
@@ -110,7 +128,7 @@ export async function getPerformanceByDimension(
     )
     select
       d.dim_id as key,
-      dict.${cfg.dictionaryLabel} as label,
+      ${labelSelect} as label,
       coalesce(v.visitors, 0) as visitors,
       coalesce(l.leads, 0) as leads,
       coalesce(p.purchases, 0) as purchases,
@@ -122,7 +140,7 @@ export async function getPerformanceByDimension(
     left join visitors v on v.dim_id is not distinct from d.dim_id
     left join leads l on l.dim_id is not distinct from d.dim_id
     left join purchases p on p.dim_id is not distinct from d.dim_id
-    left join ${cfg.dictionaryTable} dict on dict.id = d.dim_id
+    ${dictJoin}
     order by revenue_cents desc, visitors desc
     `,
     [range.from.toISOString(), range.to.toISOString()],

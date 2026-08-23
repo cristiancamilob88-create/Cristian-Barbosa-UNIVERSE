@@ -20,8 +20,8 @@ export async function createLead(
 ): Promise<LeadRow> {
   const result = await client.query<LeadRow>(
     `insert into lead (
-       contact_id, interest_id, topic_raw, message, source_id, campaign_id, qr_id
-     ) values ($1, $2, $3, $4, $5, $6, $7)
+       contact_id, interest_id, topic_raw, message, source_id, campaign_id, qr_id, medium
+     ) values ($1, $2, $3, $4, $5, $6, $7, $8)
      returning id, contact_id, status`,
     [
       input.contactId,
@@ -31,6 +31,7 @@ export async function createLead(
       input.touch.sourceId,
       input.touch.campaignId,
       input.touch.qrId,
+      input.touch.medium,
     ],
   );
   return result.rows[0];

@@ -101,12 +101,49 @@ every preset is a trailing window ending now.
 ## Segmentation
 
 Every read model already accepts the natural filter for its own
-dimension (`getPerformanceByDimension(db, 'source'|'campaign'|'qr', range)`,
+dimension (`getPerformanceByDimension(db, 'source'|'campaign'|'qr'|'medium', range)`,
 `getLeadsByDimension(db, 'source'|'campaign'|'interest', range)`) — this
 block does not build a generic cross-dimension filter/segment builder
 (explicitly out of scope: "No construir todavía un sistema de
 segmentación complejo"). Adding a new dimension to filter by is adding a
-case to these functions' existing dimension maps, not new architecture.
+case to these functions' existing dimension maps, not new architecture —
+`medium` (Block 04.1) is exactly that: a fourth case, not a new function.
+`medium` is free text everywhere in this schema (`visitor`/`contact`/
+`interaction`/`lead.medium` — the last added in `0004_lead_medium.sql`),
+never FK'd to a dictionary table, so its `dictionaryTable` config is
+`null` and its own value doubles as `key` and `label` — no join, unlike
+source/campaign/qr.
+
+## Time series (Block 04.1)
+
+`getDailySeries()` (`src/server/analytics/timeseries.ts`) buckets
+visitors/leads/purchases/revenue by UTC day over a range, zero-filled for
+every day with no activity — the read model behind the Command Center's
+"evolución temporal" sparklines. `visitors` here uses the same "any
+interaction that day" definition as `AnalyticsOverview.visitors` (not
+`getPerformanceByDimension`'s first-touch-acquisition definition — see
+docs/KPI_DEFINITIONS.md for why those two differ), so the sparkline and
+the KPI tile it sits under always agree. Deliberately excludes
+`sessions` — bucketing the existing gap-sessionization window
+(`src/server/analytics/sessions.ts`) per day would double-count a
+session spanning midnight, not worth the complexity for a trend line.
+Bucketed by day always, including for the `today` preset (a single
+point) — hourly bucketing was considered and deferred as unnecessary
+MVP complexity.
+
+## Recent-leads list (Block 04.1)
+
+`getRecentLeads()` (`src/server/analytics/leads.ts`) is the one read
+model in this codebase that returns individual rows instead of an
+aggregate — the Command Center's Leads section needed a real activity
+list ("¿cuántos leads estamos generando, y con qué intención/fuente?"),
+which a count or a group-by can't answer on its own. It still respects
+the "aggregates only, no PII" rule for `/api/analytics/*`
+(docs/SECURITY.md): no `contact_id`, no name, no email — only
+topic/interest/source/campaign/qr/medium/timestamp, each already public
+inside this dashboard's own aggregates. Full contact detail (name/email)
+belongs on a future, separate admin-only surface — see
+docs/COMMAND_CENTER.md, "What's not built yet".
 
 ## Endpoint authorization
 

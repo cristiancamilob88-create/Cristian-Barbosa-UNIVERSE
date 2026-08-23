@@ -76,7 +76,7 @@ alongside this doc) and in docs/DATA_MODEL.md for *why* each table exists.
 | `contact_visitor` | Links a visitor id to the contact it turned out to be. |
 | `contact_interest` | Many-to-many: a contact's interests. |
 | `interaction` | The single canonical event/journal table (see below). |
-| `lead` | A qualified ask, tied to a contact + optional interest. |
+| `lead` | A qualified ask, tied to a contact + optional interest. `medium` (Block 04.1, `0004_lead_medium.sql`) is the resolved touch's medium at creation time — same convention as `source_id`/`campaign_id`/`qr_id`. |
 | `product` / `offer` | Catalog (asset) vs. commercial presentation (price/campaign/landing). |
 | `orders` / `order_items` | Named plural — `order` is a reserved SQL keyword. No payment processing yet. |
 | `subscription` | External subscription state (e.g. Facebook Subscription) — never reimplements the provider. |

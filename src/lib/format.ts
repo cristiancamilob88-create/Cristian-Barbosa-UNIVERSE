@@ -15,6 +15,11 @@ const percentFormatter = new Intl.NumberFormat("es-CO", {
   style: "percent",
   maximumFractionDigits: 1,
 });
+const dateTimeFormatter = new Intl.DateTimeFormat("es-CO", {
+  dateStyle: "short",
+  timeStyle: "short",
+  timeZone: "America/Bogota",
+});
 
 export function formatInteger(value: number): string {
   return integerFormatter.format(value);
@@ -28,4 +33,9 @@ export function formatCents(cents: number): string {
 export function formatRatio(value: number | null | undefined): string {
   if (value === null || value === undefined) return "—";
   return percentFormatter.format(value);
+}
+
+/** Colombia local time (America/Bogota) — Cristian's own timezone, not the visitor's/server's. */
+export function formatDateTime(iso: string): string {
+  return dateTimeFormatter.format(new Date(iso));
 }

@@ -250,13 +250,13 @@ No page queries Postgres or imports anything from `src/server/db/` or
 
 | Page | Endpoint(s) |
 |---|---|
-| Overview | `GET /api/analytics/overview` |
-| Fuentes | `GET /api/analytics/sources`, `GET /api/analytics/campaigns` |
+| Overview | `GET /api/analytics/overview` (KPIs, `timeseries`, "vs. período anterior" via a second call to the same endpoint — Block 04.1) |
+| Fuentes | `GET /api/analytics/sources`, `GET /api/analytics/campaigns`, `GET /api/analytics/medium` (Block 04.1) |
 | Social | `GET /api/analytics/overview` (its `social` field) |
 | QR | `GET /api/analytics/qr` |
 | Landings | `GET /api/analytics/landings` |
 | Funnel | `GET /api/analytics/funnel?preset=...` |
-| Leads | `GET /api/analytics/overview` (KPI + leads-by-interest) + `sources`/`campaigns` (their `leads` column) |
+| Leads | `GET /api/analytics/leads` (Block 04.1 — real recent-activity list) + `GET /api/analytics/overview` (KPI + leads-by-interest) + `sources`/`campaigns` (their `leads` column) |
 | Productos | `GET /api/analytics/products` |
 | Revenue | `GET /api/analytics/revenue?attribution=...` |
 | Canales | `GET /api/analytics/sources` |
@@ -281,14 +281,9 @@ route:
 
 ### What's not built (by design, not oversight)
 
-- **No `medium` performance table.** `getPerformanceByDimension()`
-  (Block 03) only supports `source`/`campaign`/`qr` — `medium` is
-  captured per-interaction but was never aggregated into its own
-  read model. Building one now would be a new analytics query, which
-  the brief's own rule ("no duplicar read models... no crear otra capa
-  paralela") argues against adding inside an auth+dashboard block.
-  Recommended for whichever future block next touches
-  `src/server/analytics/performance.ts`.
+- **No `medium` performance table as of Block 04, built in Block 04.1** —
+  see docs/ANALYTICS_ENGINE.md, "Segmentation", for how
+  `getPerformanceByDimension()` grew a fourth, no-dictionary case.
 - **No sessions/landing-views/CTA-clicks broken down by channel** on the
   Canales page — only visitors/leads/purchases/revenue exist per
   dimension today (same read model as Fuentes). The Canales table is
@@ -468,11 +463,11 @@ no real checkout/payment integration, no Hotmart/Meta/TikTok/Google Ads
 API connections, no email/WhatsApp automation, no full multi-user
 authentication (see §2), no CAC/ROAS/CPA/CPL (no real ad spend data
 exists), no production Supabase connection. Also not built, specific to
-this block: a `medium` performance read model (§4), sessions/CTA-clicks
-broken down by channel (§4), a generic cross-dimension filter framework
-(§7), password reset / multi-admin support (§2).
+this block: sessions/CTA-clicks broken down by channel (§4), a generic
+cross-dimension filter framework (§7), password reset / multi-admin
+support (§2). (`medium` performance was added in Block 04.1 — §16.)
 
-## 15. Recommendation for the next block
+## 15. Recommendation after Block 04
 
 The data engine (Block 03) and the admin surface to view it (Block 04)
 are both solid and tested. The natural next step is visual refinement of
@@ -482,4 +477,89 @@ or, if commerce is higher priority, wiring a real `orders` write path so
 Revenue/Productos stop rendering their (correct, honest) empty states.
 Either way, `requireAdminSession()`/`requireAnalyticsAuth()` are already
 the right place to add role checks if a second admin identity is ever
-needed before then.
+needed before then. (Block 04.1, below, took the first of these two
+paths.)
+
+## 16. Block 04.1 — visual/data layer
+
+The MVP dashboard (§§1–15) was functional but minimal — one table per
+section, no trend, no comparison, no medium breakdown, and a leads
+section that could say "how many" but not "which ones, recently."
+Block 04.1 closes those gaps using only the `dataviz` skill's method
+(form → color → validate → marks → interaction → accessibility) and
+the same `ink`/`chalk`/`ember`/`steel` tokens as everywhere else in the
+app — no charting library, no new design system.
+
+### What changed
+
+- **Evolución temporal** (Overview): `GET /api/analytics/overview` gained
+  a `timeseries` field (`getDailySeries()`,
+  `src/server/analytics/timeseries.ts` — a new read model, day-bucketed,
+  zero-filled) rendered by `Sparkline` (`src/components/admin/Sparkline.tsx`),
+  a plain inline-SVG line — one hue (ember, the brand's single accent),
+  since a sparkline is always exactly one series (dataviz: "sequential =
+  one hue"). Interaction is native `<title>` tooltips per point, not a
+  custom crosshair overlay — proportionate to this block's own "motion
+  sutil, no 3D/animación avanzada" scope note.
+- **Comparaciones temporales**: `OverviewComparison`
+  (`src/app/admin/(dashboard)/OverviewComparison.tsx`) fetches the exact
+  same `overview` endpoint a second time for the immediately-preceding,
+  equal-length window (`previousRangeOf()`, `src/lib/adminAnalytics.ts`
+  — pure, client-side, no backend change) and renders a `DeltaBadge`
+  next to each of the four headline tiles (Visitantes/Leads/Compras/
+  Revenue). A zero previous-period value renders "Nuevo", never a
+  fabricated ∞% or 0%.
+- **Performance por medium** (`/admin/fuentes`): `getPerformanceByDimension()`
+  grew a fourth dimension, `medium` — free text, no dictionary join (see
+  docs/ANALYTICS_ENGINE.md, "Segmentation") — behind a new, minimal
+  `GET /api/analytics/medium` (mirrors `sources`/`campaigns` exactly).
+- **Leads — actividad reciente** (`/admin/leads`): a genuinely new read
+  model, `getRecentLeads()` (`src/server/analytics/leads.ts`) — the one
+  place in this codebase returning individual rows instead of an
+  aggregate, behind a new `GET /api/analytics/leads`. Still no PII (see
+  docs/ANALYTICS_ENGINE.md, "Recent-leads list").
+- **Scannable performance tables**: `PerformanceTable` gained an inline
+  `MiniBar` (`src/components/admin/MiniBar.tsx`) on its Visitantes and
+  Revenue columns — a magnitude bar collapsed into the cell it already
+  had, one neutral hue (steel), relative to that table's own max value.
+- **Funnel drop-off**: `FunnelBars` now marks the single step with the
+  worst step-over-step conversion in rust (the palette's existing
+  "pressed/negative" tone) instead of requiring the reader to compare
+  every percentage by hand — directly answers "¿qué punto del funnel
+  pierde usuarios?".
+
+### Decisions worth naming
+
+- **No categorical palette validation was needed.** Every new visual is
+  single-series (Sparkline, MiniBar) or a two-state highlight
+  (FunnelBars' worst-drop marking) — the dataviz skill's six-check
+  categorical validator applies to multi-series color assignment, which
+  this dashboard still doesn't have (see §10's original "Design"
+  rationale: ink/chalk/ember/steel is a monochrome-plus-one-accent
+  brand, not a multi-hue categorical system).
+- **"Vs. período anterior" reuses the existing endpoint** rather than
+  adding a `?compare=true` server-side parameter — computing the
+  previous window is a pure, one-line function, and a second HTTP call
+  costs nothing meaningful at this traffic scale. Revisit only if
+  profiling ever shows otherwise.
+- **`getRecentLeads()` breaks the "every read model is an aggregate"
+  pattern on purpose** — see docs/ANALYTICS_ENGINE.md for the full
+  reasoning; it's the one place a raw, PII-free row list earns its
+  place over a rollup.
+
+### What's still not built
+
+- **Journey de usuario/contacto** — `getContactJourney()`/`getVisitorJourney()`
+  (Block 03) have no endpoint or page yet. Deferred because a real
+  journey view legitimately wants an identifier to look up (which
+  contact?), and building that lookup UI/endpoint well is a sized
+  feature on its own — not squeezed into this pass. Recommended as a
+  focused follow-up, likely paired with the "full contact detail"
+  admin-only surface named in §4/docs/ANALYTICS_ENGINE.md ("Recent-leads
+  list") rather than bolted onto `/api/analytics/*`.
+- **Sessions in the time series** — see docs/ANALYTICS_ENGINE.md, "Time
+  series", for why.
+- Real charts (bar/area beyond a sparkline and a mini-bar), micro-
+  interactions, and any further motion are still deliberately deferred
+  to a later visual-polish block, per this block's own "no 3D/animación
+  avanzada" scope note.
