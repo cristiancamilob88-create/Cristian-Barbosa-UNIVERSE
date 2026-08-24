@@ -3,7 +3,10 @@
 Source-of-truth brief for Block 08, given by Cristian on 2026-08-24.
 Persisted per the brief's own §25 instruction. Condensed, structured
 record of the brief's substance — the intent below is binding,
-verbatim phrasing is not.
+verbatim phrasing is not. The control-center session independently
+pushed its own restatement of this same brief concurrently with this
+one being executed — cross-checked, no new decisions or Decision Gate
+resolutions in theirs beyond what's recorded here.
 
 ## Objective
 
