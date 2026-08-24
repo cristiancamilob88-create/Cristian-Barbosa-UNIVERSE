@@ -1,87 +1,65 @@
 # PROJECT_STATE.md — living snapshot
 
-Updated at the close of every block's checkpoint (per
-docs/MASTER_BRIEF_BLOCK_07_10.md §34). This is the fastest way for a
-new session to know where the project actually is — read this before
-`docs/MASTER_CHECKLIST.md`/`docs/NEXT_BLOCK.md` for the narrative, then
-those two for the itemized state.
+Updated at the close of every block's checkpoint. This is the fastest
+way for a new session to know where the project actually is — read
+this before `docs/MASTER_CHECKLIST.md`/`docs/NEXT_BLOCK.md` for the
+narrative, then those two for the itemized state, then
+`docs/MASTER_ROADMAP.md` for the full block order.
 
 ## Where we are
 
-**Blocks 01–06 complete** (foundation, CRM/attribution/social routing,
-analytics engine, Command Center + its visual layer, Universe UX/
-conversion architecture, Commerce/offers infrastructure, real Supabase
-production deployment — see `README.md` "Status" for the full list).
+**Blocks 01–07 complete** (foundation through the Universe-wide real
+destinations/prices — see `docs/MASTER_ROADMAP.md` for the full list).
+Migrations `0001`–`0006` and the real commercial data are live and
+verified on the real Supabase project (`Cristian-Barbosa-UNIVERSE`,
+ref `yskfntcurmqqxjuvqoto`).
 
-**Block 07 — the Universe is now a real, navigable, priced experience,
-PAUSADO on one thing only.** Cristian's detailed brief
-(docs/MASTER_BRIEF_BLOCK_07_10.md) gave real URLs and prices for
-Facebook Subscription, coaching, música, and every social channel —
-Decision Gates 1–2 from the Block 07.1 audit are **closed**. Every page
-touched by the brief (`/entrenar`, `/comunidad`, `/musica`,
-`/productos`, `/shows`, `/marcas`, `/about`, `/eventos`, `/redes`) is
-built, tested, and verified working end to end against the local
-disposable DB (curl-verified: `/go/[slug]` and
-`/api/checkout/facebook-subscription-standard` both redirect to the
-real destinations). **The only thing not done**: applying migration
-`0006` + the real seed data to the **real** Supabase project — blocked
-on the Supabase MCP connector not being enabled for this chat session
-(it's connected at account level, just not toggled on here — see
-`docs/NEXT_BLOCK.md`).
+**Block 08 — CERRADO** (checkpoints A–E all closed). The whole Universe
+is now a navigable commercial experience end to end, on desktop and
+mobile, for every one of the 9 departments the brief named.
 
-## What Block 07 shipped
+## What Block 08 shipped
 
-- `/entrenar`: Facebook Subscription shows its real price (29.900
-  COP/mes) and routes through `CheckoutLink` (real `checkout_started`
-  events now); coaching shows real per-tier prices and routes to the
-  commercial WhatsApp number, not `/contacto`.
-- `/comunidad`: added Instagram Comunidad as a third real destination;
-  Facebook Subscription matches `/entrenar`'s new checkout treatment.
-- `/musica`: real price model shown (10.000 COP/canción) — no
-  fabricated song/product.
-- `/productos`: physical catalog gained a WhatsApp comercial CTA; both
-  CTAs' lead topic split into `productos_fisicos`/`productos_digitales`
-  (now correctly mapped to their own `interest` rows).
-- `/shows`: real segment list + a "formatos de partida" section; fixed
-  a real bug (its WhatsApp CTA was pointing at the free community
-  number, not the commercial one).
-- `/marcas`: expanded offerings + a confirmed-ambassadorships section
-  (Club Nativos, Expo Fitness) + a WhatsApp comercial CTA.
-- `/about`: restructured into a themed brand-story grid + a press
-  mention (El Colombiano) + bridge links to all 8 pillars (was 4).
-- `/eventos`: bridge CTA to `/shows` — still no fabricated event.
-- `/redes`: automatically picking up every new real channel (no code
-  change needed — it already queries `social_profile` directly).
-- New migration `0006_social_platform_twitter.sql` (additive —
-  `social_profile.platform` gained `'twitter'`).
-- `supabase/seed.sql`: real URLs for every previously-placeholder
-  channel + 6 new real social profiles + real pricing on
-  `facebook-subscription-standard` and the 3 coaching offers.
-- Preview screenshots of 8 key pages sent to Cristian; every touched
-  route smoke-tested (200) and the two real redirect paths verified
-  with `curl` against a running local server, not just "it compiles."
+- **Real mobile navigation bug fixed** — `Header`'s nav was invisible
+  below `lg` with zero fallback (only `Footer`'s nav worked, requiring
+  a full-page scroll). New `MobileNav` component (portal-rendered, to
+  route around `Header`'s `backdrop-blur` acting as a CSS containing
+  block for `position:fixed`) — verified with a real headless-browser
+  click before/after, not just "it compiles."
+- **`entitlement` table + repository** (`supabase/migrations/0007_entitlement.sql`,
+  `src/server/db/repositories/entitlement.ts`) — the "access after a
+  confirmed purchase" primitive for música/digital products, generic
+  across future songs/products, tested (4 integration tests), applied
+  to the real Supabase project and verified live.
+- `/eventos` restructured into 4 real categories (propios/
+  participaciones/próximos/presentaciones pasadas) — no fabricated
+  event, no new `event` table (deferred until a real one exists).
+- `/musica` copy updated to reflect the real access model now that
+  `entitlement` exists.
+- `docs/ASSETS.md` — the media/placeholder convention + per-department
+  asset checklist.
+- `docs/MASTER_ROADMAP.md`, `docs/MASTER_BRIEF_BLOCK_08.md` — new,
+  referenced for the first time by this block's own brief.
+- 08.1/08.3–08.7/08.9 reviewed and found already solid from Block 07 —
+  no rebuild, per the brief's own "mejorar, no reconstruir."
 
 ## What's still open
 
-- **Apply `0006` + the seed data changes to the real Supabase project**
-  — needs the Supabase MCP connector enabled for this chat (manual
-  action, see `docs/NEXT_BLOCK.md`). Everything else about this is
-  ready and reviewed.
-- Decision Gates 3–5 (Block 08 payment provider, Block 09 Droppy/manual
-  fulfillment, Block 10 email/WhatsApp vendor) — informational, don't
-  block Block 07's own close.
+- Decision Gates 3–5 (payment provider for música/digital products,
+  Droppy vs. manual fulfillment, email/WhatsApp vendor) — unchanged,
+  informational, don't block Block 08's own close.
+- No real song/product exists yet for música (title/artwork
+  unconfirmed) — `entitlement` ships unpopulated until one does.
 - `schema_migrations` bootstrap on the real project — unchanged gap
-  from Block 06, still not needed until someone runs `db:migrate`
-  directly against production.
+  from Block 06.
 
 ## Tests / production, as of this checkpoint
 
-lint ✅ · typecheck ✅ · unit 98/98 ✅ · integration 78/78 ✅ (+3 new:
-productos_fisicos/digitales interest mapping, retired-topic rejection,
-Facebook Subscription real checkout redirect) · build ✅ — all against
-the local disposable `cbu_test` DB. Production Supabase still has only
-Block 06's state (5 migrations + original seed) — migration `0006` and
-the real commercial data are validated locally, pending the connector.
+lint ✅ · typecheck ✅ · unit 98/98 ✅ · integration 82/82 ✅ (+4 new:
+`entitlement` grant/idempotency/scoping/order-linking) · build ✅ — all
+against the local disposable `cbu_test` DB. Production Supabase has
+migrations `0001`–`0007` applied and verified (`entitlement` confirmed
+live: FKs, unique constraint, RLS all correct).
 
 ## Multi-agent operating model
 

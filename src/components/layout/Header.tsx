@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { navItems, secondaryNavItems, siteConfig } from "@/config/site";
+import { MobileNav } from "@/components/layout/MobileNav";
 
 export function Header() {
   return (
@@ -25,7 +26,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-4 sm:flex">
+        <div className="hidden items-center gap-4 lg:flex">
           {secondaryNavItems.map((item) => (
             <Link
               key={item.href}
@@ -36,6 +37,8 @@ export function Header() {
             </Link>
           ))}
         </div>
+
+        <MobileNav />
       </Container>
     </header>
   );

@@ -1,52 +1,39 @@
 # NEXT_BLOCK.md — what happens next, and why
 
-## Immediate next step
+## Block 08 is closed. Next up: Block 09 or Block 10 (Cristian's call)
 
-**One manual action closes Block 07**: enable the Supabase MCP
-connector for this chat session (it's already connected/authorized at
-Cristian's account level — this is the same "connected but not
-`enabledInChat`" state seen mid-Block-06, just on a fresh chat). Once
-enabled:
+Both are ready to start technically — neither is blocked on the other.
+Recommended default order (per `docs/MASTER_ROADMAP.md`): **Block 09
+(productos físicos — real fulfillment)** first, since `/productos`
+already has a live WhatsApp/lead-capture MVP to build on top of, versus
+Block 10 (automations) which needs a lifecycle map designed from
+scratch first.
 
-1. Re-verify project identity (`Cristian-Barbosa-UNIVERSE`, ref
-   `yskfntcurmqqxjuvqoto`) before writing anything, same discipline as
-   Block 06.
-2. Apply `supabase/migrations/0006_social_platform_twitter.sql`.
-3. Apply the seed changes in `supabase/seed.sql` from the `-- Block 07`
-   comment markers onward (the URL/price UPDATEs and the 6 new
-   `social_profile` INSERTs) via `execute_sql` — same DML pattern used
-   for the original seed in Block 06.
-4. Validate: read back `social_profile` and `offer` and confirm every
-   value matches what's now in the repo exactly.
-5. Update `docs/SUPABASE_PRODUCTION.md` to reflect the real state.
+## Before either can *close* (not start — start is unblocked)
 
-Nothing else is needed to consider Block 07 closed — the code, the
-local validation, and the real commercial data are all already done.
+- **Block 09** needs Decision Gate 4 answered: Droppy API (real
+  integration, needs credentials/docs) vs. explicit manual fulfillment
+  MVP (recommended — matches the brief's own "pocos productos →
+  validación → escalar ganadores").
+- **Block 10** needs the lifecycle map designed first, *then* Decision
+  Gate 5 (email/WhatsApp vendor) — never choose the vendor before the
+  map, per the brief's own instruction.
+- **Música's real activation** (not a new block on its own — folds into
+  whichever block touches `entitlement` next) needs: the song's own
+  title/artwork (a content decision, not technical) + Decision Gate 3
+  (payment provider) before `grantEntitlement()` gets a real caller.
 
-## Why Block 08 shouldn't start yet
+## Open Decision Gates
 
-Its "access after confirmed payment" mechanism needs Decision Gate 3
-(payment provider) settled first — building it against a guess would
-risk exactly the rework `docs/MASTER_BRIEF_BLOCK_07_10.md`'s point K
-warns about. Música's price model is now confirmed and shown on the
-page; what's still missing is the song's own identity (title/artwork),
-which is a content decision, not a technical one.
+3. Payment provider for música/productos digitales — blocks a real
+   `entitlement` writer.
+4. Droppy API vs. manual fulfillment — blocks Block 09's real close.
+5. Email/WhatsApp automation vendor — deliberately deferred until the
+   Block 10 lifecycle map exists.
 
-## Open Decision Gates (informational — none block Block 07's close)
+## What NOT to rebuild when either block starts
 
-1. ~~Facebook Subscription real URL~~ — **CLOSED**, real URL confirmed
-   and live in `/entrenar`/`/comunidad`.
-2. ~~At least one real price~~ — **CLOSED**, Facebook Subscription +
-   all 3 coaching tiers + música's per-song price are all confirmed.
-3. Payment provider for music/digital products (Block 08).
-4. Droppy vs. manual fulfillment (Block 09).
-5. Email/WhatsApp vendor (Block 10) — deliberately not asked yet.
-
-## Recommended order once the Supabase write lands
-
-Close Block 07 (production data confirmed live) → design the Block 08
-access/delivery migration once Gate 3's answer arrives (and once the
-song's own title/identity is confirmed — a content decision Cristian
-still needs to make) → Block 08 implementation → Block 09 (once Gate 4
-answered, can run in parallel with Block 08 if Cristian wants both
-moving) → Block 10 lifecycle map.
+CRM, Analytics, Commerce (`CheckoutLink`/`resolveCheckoutDestination()`/
+`/api/checkout/[offerSlug]`), `GoLink`/`TrackedLink`, the `entitlement`
+table (reuse it, don't build a second access mechanism), `b2b_opportunity`.
+All confirmed solid and reusable as of Block 08's close.

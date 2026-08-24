@@ -57,9 +57,9 @@ export default function MusicaPage() {
           <p className="mt-3 max-w-2xl text-sm text-steel">
             Cada canción se venderá individualmente por{" "}
             <span className="font-mono text-chalk">{formatCents(1_000_000)}</span>. El
-            catálogo y el acceso privado a las canciones compradas se activan en el próximo
-            bloque de este universo — por ahora, deja tu contacto arriba para ser de los
-            primeros en enterarte.
+            acceso privado a las canciones compradas queda ligado a una compra confirmada —
+            por ahora, deja tu contacto arriba para ser de los primeros en enterarte cuando
+            el catálogo se active.
           </p>
         </Container>
         <Container className="mt-10">
