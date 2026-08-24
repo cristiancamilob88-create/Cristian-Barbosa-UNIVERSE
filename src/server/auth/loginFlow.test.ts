@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
+import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import { attemptLogin } from "./loginFlow";
 import { hashPassword } from "./password";
 import { verifySessionToken } from "./session";
@@ -9,14 +9,9 @@ const SECRET = "c".repeat(32);
 
 describe("attemptLogin", () => {
   const originalEnv = {
-    DATABASE_URL: process.env.DATABASE_URL,
     ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
     ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET,
   };
-
-  beforeAll(() => {
-    process.env.DATABASE_URL = "postgres://test-only";
-  });
 
   afterAll(() => {
     // Assigning `undefined` stringifies to "undefined" instead of
@@ -83,5 +78,17 @@ describe("attemptLogin", () => {
     for (let i = 0; i < 6; i++) attemptLogin("wrong-every-time", "8.8.8.8");
     const result = attemptLogin(REAL_PASSWORD, "8.8.4.4");
     expect(result.ok).toBe(true);
+  });
+
+  it("works correctly even when DATABASE_URL isn't set (Vercel readiness — src/server/env.ts)", () => {
+    const original = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
+    try {
+      const result = attemptLogin(REAL_PASSWORD, "5.5.5.5");
+      expect(result.ok).toBe(true);
+    } finally {
+      if (original === undefined) delete process.env.DATABASE_URL;
+      else process.env.DATABASE_URL = original;
+    }
   });
 });

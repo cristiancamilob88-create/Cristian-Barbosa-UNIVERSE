@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
+import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import { proxy } from "./proxy";
 import { createSessionToken, ADMIN_SESSION_COOKIE } from "@/server/auth/session";
 
@@ -13,13 +13,8 @@ function makeRequest(path: string, sessionToken?: string): NextRequest {
 
 describe("proxy — admin route protection", () => {
   const original = {
-    DATABASE_URL: process.env.DATABASE_URL,
     ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET,
   };
-
-  beforeAll(() => {
-    process.env.DATABASE_URL = "postgres://test-only";
-  });
 
   afterAll(() => {
     // See src/server/auth/loginFlow.test.ts's afterAll for why plain
@@ -77,5 +72,18 @@ describe("proxy — admin route protection", () => {
   it("still assigns a visitor cookie on a public route (Block 01/02 behavior unchanged)", () => {
     const response = proxy(makeRequest("/entrenar"));
     expect(response.cookies.get("cb_visitor")).toBeDefined();
+  });
+
+  it("protects /admin correctly even when DATABASE_URL isn't set (Vercel readiness — src/server/env.ts)", () => {
+    const originalDbUrl = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
+    try {
+      const response = proxy(makeRequest("/admin"));
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toContain("/admin/login");
+    } finally {
+      if (originalDbUrl === undefined) delete process.env.DATABASE_URL;
+      else process.env.DATABASE_URL = originalDbUrl;
+    }
   });
 });

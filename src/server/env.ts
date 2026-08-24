@@ -14,9 +14,23 @@ import { z } from "zod";
  * just because some *other* route imports this module. The database
  * pool itself (src/server/db/pool.ts) calls this the first time a
  * request actually needs a connection.
+ *
+ * DATABASE_URL is optional *in this schema* even though every DB-backed
+ * route needs it — three real call sites (isValidAdminSessionToken(),
+ * attemptLogin(), requireAnalyticsAuth()) call getServerEnv() but only
+ * ever read ADMIN_SESSION_SECRET/ADMIN_PASSWORD_HASH/ANALYTICS_API_TOKEN,
+ * all already `.optional()` here with their own "not configured yet"
+ * fallback. Before this was optional, any one of those three would throw
+ * this schema's own DATABASE_URL error whenever DATABASE_URL happened to
+ * be unset — e.g. a freshly-imported Vercel project with no env vars
+ * configured yet, where visiting /admin/login should say "not
+ * configured," not crash with an unrelated validation error. The real
+ * requirement lives where it's actually needed: getPool()
+ * (src/server/db/pool.ts) throws its own clear error the moment
+ * something really does try to open a connection.
  */
 const serverEnvSchema = z.object({
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is not set — see .env.example"),
+  DATABASE_URL: z.string().min(1).optional(),
   // Optional on purpose: unset means the /api/analytics/* endpoints stay
   // closed (fail-safe), not open — see docs/SECURITY.md and
   // docs/ANALYTICS_ENGINE.md, "Endpoint authorization". Kept as a second,

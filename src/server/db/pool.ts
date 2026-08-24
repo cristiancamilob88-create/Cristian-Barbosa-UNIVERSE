@@ -20,6 +20,12 @@ let pool: Pool | null = null;
 export function getPool(): Pool {
   if (!pool) {
     const { DATABASE_URL } = getServerEnv();
+    // DATABASE_URL is optional in the shared schema (src/server/env.ts) —
+    // most of that schema's other callers don't need it. This is the one
+    // real requirement point: nothing here can proceed without it.
+    if (!DATABASE_URL) {
+      throw new Error("DATABASE_URL is not set — see .env.example");
+    }
     pool = new Pool({ connectionString: DATABASE_URL, max: 5 });
   }
   return pool;

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
+import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import { requireAnalyticsAuth } from "./auth";
 import { createSessionToken, ADMIN_SESSION_COOKIE } from "@/server/auth/session";
 
@@ -15,14 +15,9 @@ function makeRequest({ bearer, sessionToken }: { bearer?: string; sessionToken?:
 
 describe("requireAnalyticsAuth", () => {
   const original = {
-    DATABASE_URL: process.env.DATABASE_URL,
     ANALYTICS_API_TOKEN: process.env.ANALYTICS_API_TOKEN,
     ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET,
   };
-
-  beforeAll(() => {
-    process.env.DATABASE_URL = "postgres://test-only";
-  });
 
   afterAll(() => {
     // See loginFlow.test.ts's afterAll for why plain assignment is unsafe
@@ -81,5 +76,17 @@ describe("requireAnalyticsAuth", () => {
     const foreignToken = createSessionToken("e".repeat(32));
     const denied = requireAnalyticsAuth(makeRequest({ sessionToken: foreignToken }));
     expect(denied?.status).toBe(401);
+  });
+
+  it("still fails closed (503) when DATABASE_URL isn't set either (Vercel readiness — src/server/env.ts)", () => {
+    const originalDbUrl = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
+    try {
+      const denied = requireAnalyticsAuth(makeRequest());
+      expect(denied?.status).toBe(503);
+    } finally {
+      if (originalDbUrl === undefined) delete process.env.DATABASE_URL;
+      else process.env.DATABASE_URL = originalDbUrl;
+    }
   });
 });

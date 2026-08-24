@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import { createSessionToken, verifySessionToken, isValidAdminSessionToken, ADMIN_SESSION_COOKIE } from "./session";
 
 const SECRET = "a".repeat(32);
@@ -59,10 +59,6 @@ describe("createSessionToken / verifySessionToken", () => {
 });
 
 describe("isValidAdminSessionToken", () => {
-  beforeAll(() => {
-    process.env.DATABASE_URL = "postgres://test-only";
-  });
-
   it("fails closed when ADMIN_SESSION_SECRET isn't configured", () => {
     delete process.env.ADMIN_SESSION_SECRET;
     const token = createSessionToken(SECRET);
@@ -83,5 +79,18 @@ describe("isValidAdminSessionToken", () => {
 
   it("the cookie name is the one the whole app agrees on", () => {
     expect(ADMIN_SESSION_COOKIE).toBe("cb_admin_session");
+  });
+
+  it("works correctly even when DATABASE_URL isn't set (Vercel readiness — src/server/env.ts)", () => {
+    const original = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
+    try {
+      process.env.ADMIN_SESSION_SECRET = SECRET;
+      const token = createSessionToken(SECRET);
+      expect(isValidAdminSessionToken(token)).toBe(true);
+    } finally {
+      if (original === undefined) delete process.env.DATABASE_URL;
+      else process.env.DATABASE_URL = original;
+    }
   });
 });
