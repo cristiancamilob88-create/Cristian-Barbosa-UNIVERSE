@@ -238,3 +238,36 @@ Two gaps closed by the Block 07.1 audit (docs/MASTER_BRIEF_BLOCK_07_10.md):
   `lead` row when the submitted topic is `shows`/`marcas` — see
   `src/server/db/repositories/b2bOpportunity.ts`. `estimated_value_cents`
   stays null; a contact-form submission never implies a deal size.
+
+## 9. Block 07 — the first real checkout redirect
+
+Cristian confirmed real numbers directly (docs/MASTER_BRIEF_BLOCK_07_10.md):
+Facebook Subscription at 29.900 COP/mes, with a real subscribe URL, and
+real prices for the three coaching tiers (1.100.000 / 1.600.000 /
+2.000.000 COP). Two different resolutions, on purpose:
+
+- **`facebook-subscription-standard`** now has `price_cents: 2990000`,
+  `checkout_provider: 'manual'`, `checkout_url` set to the real Facebook
+  URL, `purchase_type: 'recurring'`. `/entrenar` and `/comunidad` both
+  switched from a bare `GoLink` to `CheckoutLink` for this offer — a
+  real `checkout_started` event now fires, attributed to this specific
+  offer (`entity_type: 'offer'`), before the 307 redirect to Facebook's
+  own subscribe page. `checkout_provider: 'manual'` is accurate, not a
+  placeholder: there is no webhook, no automated payment confirmation
+  from Facebook (no Meta API integration exists or was assumed to exist
+  — docs/MASTER_BRIEF_BLOCK_07_10.md, "07.SEC"), so `orders`/
+  `subscription` still have no writer for this offer. A future block
+  reconciling subscriptions manually (or via whatever confirmation
+  mechanism Cristian sets up on Facebook's side) writes to those tables
+  without touching this checkout path at all.
+- **Coaching's three tiers** kept `purchase_type: 'quote'` even with
+  real prices now known — Cristian's own brief is explicit ("NO
+  inventar checkout automatizado para coaching todavía"). `/entrenar`
+  shows all three prices for comparison, then a single `GoLink` to the
+  commercial WhatsApp number for all three — no per-tier `CheckoutLink`,
+  since there's no checkout to link to yet, on purpose.
+
+No new `checkout_provider` enum value was added — `'manual'` already
+existed (Block 05) and is the honest description of "a real, priced
+offer with no automated payment confirmation," which is exactly what
+Facebook Subscription is today.

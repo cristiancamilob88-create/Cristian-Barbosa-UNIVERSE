@@ -44,6 +44,31 @@ insert into social_profile (slug, platform, label, url, display_order, category)
   ('facebook-subscription', 'facebook', 'Entrena con Cristian Barbosa', 'https://facebook.com/', 5, 'community')
 on conflict (slug) do nothing;
 
+-- Block 07 (docs/MASTER_BRIEF_BLOCK_07_10.md): Cristian's real channel
+-- list, confirmed directly — closes the placeholder URLs above (Block
+-- 01/02 seeded slugs before any real destination existed) and adds the
+-- channels that had no row at all yet. UPDATE, not a second INSERT,
+-- for every slug that already existed — `on conflict do nothing` never
+-- touches an existing row, so a placeholder left in place would have
+-- silently stayed wrong forever.
+update social_profile set url = 'https://chat.whatsapp.com/CyhVeiJQueaHkf1U0HJcTw' where slug = 'whatsapp-community';
+update social_profile set url = 'https://www.instagram.com/cristian_barbosa201' where slug = 'instagram-main';
+update social_profile set url = 'https://www.tiktok.com/@cristianbarbosa201' where slug = 'tiktok-main';
+update social_profile set url = 'https://m.youtube.com/channel/UCewT6SMEg50bAg2GOFGm_JA' where slug = 'youtube-main';
+update social_profile set url = 'https://www.facebook.com/cristianbarbosa201/subscribe/' where slug = 'facebook-subscription';
+
+insert into social_profile (slug, platform, label, url, display_order, category) values
+  ('tiktok-secondary', 'tiktok', 'TikTok (cuenta secundaria)', 'https://www.tiktok.com/@cristian.barbosa930', 6, 'social'),
+  ('instagram-community', 'instagram', 'Instagram Comunidad', 'https://www.instagram.com/cristianbarbosacomunity?igsi=ZmRvZnkzbnVwemxt&utm_source=qr', 7, 'community'),
+  ('facebook-main', 'facebook', 'Facebook', 'https://www.facebook.com/share/1DqFXpnvfi/', 8, 'social'),
+  ('facebook-secondary', 'facebook', 'Facebook (cuenta secundaria)', 'https://www.facebook.com/share/18wzSksgr4/', 9, 'social'),
+  ('x-main', 'twitter', 'X (Twitter)', 'https://x.com/crisbarbosa2020', 10, 'social'),
+  -- Distinct from whatsapp-community: this is the single commercial
+  -- number for shows/coaching/marcas/productos/consultas (docs/
+  -- MASTER_BRIEF_BLOCK_07_10.md, "07.12"), not the free community chat.
+  ('whatsapp-commercial', 'whatsapp', 'WhatsApp comercial', 'https://wa.me/message/JIT2DR5FHC5TD1', 11, 'commercial')
+on conflict (slug) do nothing;
+
 insert into campaign (slug, name, status) values
   ('aura-2026', 'Aura 2026', 'active'),
   ('show-medellin-2026', 'Show Medellín 2026', 'active'),
@@ -80,27 +105,52 @@ select id, 'digital-course-standard', 'Curso digital', 'COP', '/productos'
 from product where slug = 'digital-course'
 on conflict (slug) do nothing;
 
--- Block 07 (docs/MASTER_BRIEF_BLOCK_07_10.md): the three coaching
--- product rows existed since Block 02 with no offer of their own —
--- /entrenar's coaching card linked straight to /contacto, bypassing the
--- checkout abstraction entirely. purchase_type = 'quote' here is not a
--- placeholder for a price we forgot — it's the correct, honest value
--- until Cristian sets one (Decision Gate 2, Block 07.1 audit):
--- resolveCheckoutDestination() already treats 'quote' as "always route
--- to lead capture, regardless of checkout_provider" (docs/COMMERCE.md),
--- which is exactly today's real behavior for high-ticket coaching. No
--- price was invented — price_cents stays null.
-insert into offer (product_id, slug, name, currency, landing_path, purchase_type, cta_label)
-select id, 'coaching-essential-quote', 'Coaching Essential', 'COP', '/contacto?topic=coaching', 'quote', 'Quiero entrenar personalmente con Cristian'
+-- Block 07 (docs/MASTER_BRIEF_BLOCK_07_10.md): real price + real
+-- destination now confirmed — 29.900 COP/month, Facebook's own
+-- subscribe URL. price_cents follows the same convention as every
+-- other monetary column in this schema (integer minor units — see
+-- src/lib/format.ts's formatCents, cents / 100), so 29.900 COP ->
+-- 2_990_000. checkout_provider = 'manual' (not a new enum value,
+-- accurate as-is: there is no automated payment confirmation from
+-- Facebook, docs/MASTER_BRIEF_BLOCK_07_10.md "07.SEC"/"Block 07" —
+-- "no asumir integración API de Meta"). purchase_type = 'recurring'
+-- (a monthly subscription, not a one-time sale) — resolveCheckoutDestination()
+-- already documented this exact case in its own comments before this
+-- offer ever had a real provider.
+update offer set
+  price_cents = 2990000,
+  checkout_provider = 'manual',
+  checkout_url = 'https://www.facebook.com/cristianbarbosa201/subscribe/',
+  purchase_type = 'recurring',
+  cta_label = 'Suscribirme por Facebook'
+where slug = 'facebook-subscription-standard';
+
+-- Block 07: the three coaching product rows existed since Block 02
+-- with no offer of their own — /entrenar's coaching card linked
+-- straight to /contacto, bypassing the checkout abstraction entirely.
+-- Real prices now exist (1.100.000 / 1.600.000 / 2.000.000 COP), but
+-- Cristian's own brief is explicit: coaching still closes over WhatsApp
+-- with a human, not an automated checkout ("NO inventar checkout
+-- automatizado para coaching todavía") — purchase_type stays 'quote'
+-- on purpose, price_cents now set for catalog/admin display, no
+-- checkout_provider/checkout_url (still 'unavailable' by default: there
+-- is no checkout page for these to redirect to, WhatsApp is a GoLink,
+-- not a CheckoutLink — see src/app/entrenar/page.tsx).
+insert into offer (product_id, slug, name, currency, landing_path, purchase_type, price_cents, cta_label)
+select id, 'coaching-essential-quote', 'Coaching Essential', 'COP', '/contacto?topic=coaching', 'quote', 110000000, 'Quiero entrenar personalmente con Cristian'
 from product where slug = 'coaching-essential'
 on conflict (slug) do nothing;
 
-insert into offer (product_id, slug, name, currency, landing_path, purchase_type, cta_label)
-select id, 'coaching-performance-quote', 'Coaching Performance', 'COP', '/contacto?topic=coaching', 'quote', 'Quiero entrenar personalmente con Cristian'
+insert into offer (product_id, slug, name, currency, landing_path, purchase_type, price_cents, cta_label)
+select id, 'coaching-performance-quote', 'Coaching Performance', 'COP', '/contacto?topic=coaching', 'quote', 160000000, 'Quiero entrenar personalmente con Cristian'
 from product where slug = 'coaching-performance'
 on conflict (slug) do nothing;
 
-insert into offer (product_id, slug, name, currency, landing_path, purchase_type, cta_label)
-select id, 'coaching-elite-quote', 'Coaching Elite', 'COP', '/contacto?topic=coaching', 'quote', 'Quiero entrenar personalmente con Cristian'
+insert into offer (product_id, slug, name, currency, landing_path, purchase_type, price_cents, cta_label)
+select id, 'coaching-elite-quote', 'Coaching Elite', 'COP', '/contacto?topic=coaching', 'quote', 200000000, 'Quiero entrenar personalmente con Cristian'
 from product where slug = 'coaching-elite'
 on conflict (slug) do nothing;
+
+update offer set price_cents = 110000000 where slug = 'coaching-essential-quote';
+update offer set price_cents = 160000000 where slug = 'coaching-performance-quote';
+update offer set price_cents = 200000000 where slug = 'coaching-elite-quote';

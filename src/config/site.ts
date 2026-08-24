@@ -135,8 +135,15 @@ export const secondaryNavItems: NavItem[] = [
  */
 export const goLinks = {
   whatsappCommunity: "whatsapp-community",
+  /** The single commercial WhatsApp number (docs/MASTER_BRIEF_BLOCK_07_10.md) — shows, coaching, marcas, productos, consultas. Distinct from whatsappCommunity, the free entry-level chat. */
+  whatsappCommercial: "whatsapp-commercial",
   instagram: "instagram-main",
+  instagramCommunity: "instagram-community",
   tiktok: "tiktok-main",
+  tiktokSecondary: "tiktok-secondary",
   youtube: "youtube-main",
+  x: "x-main",
+  facebook: "facebook-main",
+  facebookSecondary: "facebook-secondary",
   facebookSubscription: "facebook-subscription",
 } as const;

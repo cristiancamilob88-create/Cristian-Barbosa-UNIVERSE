@@ -199,3 +199,43 @@ HUB = center, landings = entry doors, CRM = memory, Attribution = where
 people come from, Analytics = what works, Commerce = transactions,
 Lifecycle Marketing = data → relationships, Automations = scale,
 Content = demand, Offers = revenue, Sales = validation.
+
+## Addendum (2026-08-23) — Block 07 detailed brief: real data, Decision Gates 1–2 closed
+
+Cristian gave a second, more detailed Block 07 brief with real
+confirmed data, closing the two Decision Gates the Block 07.1 audit
+raised. Recorded here as the source of truth for this data — the
+actual live values are in `supabase/seed.sql`/the real Supabase
+project; this is the record of *what was confirmed and why*, not a
+second copy to keep in sync by hand.
+
+- **Facebook Subscription**: 29.900 COP/mes,
+  `https://www.facebook.com/cristianbarbosa201/subscribe/`.
+- **Coaching**: Essential 1.100.000 COP, Performance 1.600.000 COP,
+  Elite 2.000.000 COP — all three close over WhatsApp comercial with a
+  human, explicitly **not** an automated checkout yet.
+- **Música**: 10.000 COP por canción (price model confirmed; the
+  song's own identity — title, artwork — is not, so no product/offer
+  row was created for it).
+- **WhatsApp comercial** (shows/coaching/marcas/productos/consultas,
+  distinct from the free WhatsApp community):
+  `https://wa.me/message/JIT2DR5FHC5TD1`.
+- **Every real social channel**: WhatsApp Community, Instagram
+  (principal + Comunidad), TikTok (principal + secundaria), YouTube, X,
+  Facebook (principal + secundaria + Subscription) — see
+  `docs/UNIVERSE_UX.md` §7 for the full list with URLs.
+- **Shows**: real segment list (Empresas, Colegios, Ferias, Festivales,
+  Productoras, Eventos privados, Quince años, Rooftops, Eventos
+  masivos, Circo/espectáculos) + 5 starting "formatos de partida"
+  (Corporativo, Productoras/festivales, Colegios, Eventos privados,
+  Rooftops/venues) — not fixed/priced packages yet.
+- **Marcas**: confirmed ambassadorships — Club Nativos, Expo Fitness.
+- **Prensa**: Cristian has been interviewed by El Colombiano — no
+  article URL/date/title was given, so none was invented.
+- **CRM**: `productos_fisicos`/`productos_digitales` are now real
+  `lead`/`interest` topics, replacing the old generic `productos`.
+
+Still explicitly not resolved by this addendum — unchanged Decision
+Gates 3–5 (Block 08 payment provider, Block 09 Droppy/manual
+fulfillment, Block 10 email/WhatsApp vendor), and the song's own title/
+artwork identity for Block 08.

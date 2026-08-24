@@ -45,17 +45,20 @@ interaction.
 
 ## Topic vs. interest: why both exist on `lead`
 
-`/entrenar` links to specific coaching tiers
-(`?topic=coaching-essential`, `-performance`, `-elite`) that all resolve
-to the single canonical interest `coaching` (see
-`src/app/contacto/page.tsx`'s `TOPIC_ALIASES`) — the form itself only
-ever offers one "Coaching personalizado" option. `lead.topic_raw` keeps
-the more specific original string (which tier they actually clicked
-through from) without needing a canonical `coaching_essential` /
-`coaching_performance` / `coaching_elite` interest that would only ever
-be used by this one form. If a future block needs tier-level interest
-tracking, that's a real product decision to make deliberately, not one
-to bake in speculatively now.
+**Updated in Block 07** (docs/MASTER_BRIEF_BLOCK_07_10.md): coaching no
+longer routes through `/contacto` at all — the three tiers close over
+WhatsApp comercial directly (`src/app/entrenar/page.tsx`), so the old
+`coaching-essential`/`-performance`/`-elite` topic aliases in
+`src/app/contacto/page.tsx` were dead code and were removed. `topic` is
+still deliberately coarser than every possible CTA a visitor could have
+clicked — `lead.topic_raw` (free text, always populated) records
+exactly what the visitor submitted, `lead.interest_id` (nullable FK)
+maps it to the canonical, coarser `interest` dictionary. Block 07 added
+the one real split this coarseness was hiding: `productos` used to map
+every physical *and* digital inquiry to the same `products` interest;
+`productos_fisicos`/`productos_digitales` (`src/app/api/lead/route.ts`)
+now map to the `physical_products`/`digital_products` interests that
+existed, unused, since Block 02.
 
 ## Deduplication
 
@@ -68,16 +71,30 @@ happen to share a name.
 
 ## B2B pipeline (`b2b_opportunity`)
 
-Not wired to any UI in this block (no form creates one yet — `/shows` and
-`/marcas` still route to the general `/contacto` lead form). The table
-and its `lead → qualified → proposal → negotiation → won/lost` stage
-vocabulary exist so the next block that builds a real B2B intake (or an
-internal pipeline view) has a reviewed schema instead of inventing one
-under time pressure — the same reasoning as `types/crm.ts` in Block 01.
+**Real writer since Block 07.1** (`src/server/db/repositories/b2bOpportunity.ts`):
+`/shows` and `/marcas` still route to the general `/contacto` lead form
+(same `/api/lead` pipeline as every other topic — no second form was
+built), but when the submitted topic is `shows`/`marcas`, `/api/lead`
+now also opens a `b2b_opportunity` row alongside the generic `lead` —
+`category` (`shows`/`brands`), `stage` defaulting to `lead`,
+`estimated_value_cents` staying null (a contact-form submission never
+implies a deal size). The `lead → qualified → proposal → negotiation →
+won/lost` stage vocabulary is real and usable now, just not yet
+surfaced anywhere in the Command Center — a pipeline view is a natural
+next step, not built in Block 07.
 
-## What's still just a catalog, not commerce
+## What's still just a catalog, not full commerce
 
-`product`/`offer` are populated (seed.sql has five products, two offers)
-but nothing in the app creates an `orders` row yet — there is no checkout.
-`offer.price_cents` is nullable specifically because final commercial
-pricing is an explicit non-goal of this block (see Product Vision).
+`product`/`offer` are populated (seed.sql has eight products, six
+offers). **Facebook Subscription has a real price, provider, and
+checkout URL as of Block 07** (`facebook-subscription-standard`,
+29.900 COP/mes, `checkout_provider: 'manual'`, `purchase_type:
+'recurring'`) and is the first offer this app has ever redirected a
+real visitor to — `checkout_started` is a real, attributed event now,
+not just reserved taxonomy. `orders`/`subscription` still have no
+writer: Facebook's own checkout doesn't confirm back to this app (no
+Meta API integration — docs/MASTER_BRIEF_BLOCK_07_10.md, "07.SEC"), so
+a purchase there is observable as a `checkout_started` click, not yet
+as a confirmed `orders`/`subscription` row. Coaching's three tiers also
+have real prices now but stay `purchase_type: 'quote'` on purpose —
+they close over WhatsApp with a human, not a checkout.

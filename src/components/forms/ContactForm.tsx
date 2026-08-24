@@ -10,7 +10,8 @@ const topics = [
   { value: "shows", label: "Shows" },
   { value: "marcas", label: "Marcas y partnerships" },
   { value: "musica", label: "Música" },
-  { value: "productos", label: "Productos" },
+  { value: "productos_fisicos", label: "Productos físicos" },
+  { value: "productos_digitales", label: "Productos digitales" },
   { value: "general", label: "Otro" },
 ] as const;
 

@@ -2,49 +2,51 @@
 
 ## Immediate next step
 
-**Wait for Cristian on Decision Gates 1–2** (Block 07's own report,
-`docs/MASTER_BRIEF_BLOCK_07_10.md` Decision Gate format), then:
+**One manual action closes Block 07**: enable the Supabase MCP
+connector for this chat session (it's already connected/authorized at
+Cristian's account level — this is the same "connected but not
+`enabledInChat`" state seen mid-Block-06, just on a fresh chat). Once
+enabled:
 
-1. If Decision Gate 1 (Facebook Subscription URL) resolves: update
-   `social_profile.url` for the `facebook-subscription` slug (one row,
-   no migration) on both local seed and the real Supabase project.
-2. If Decision Gate 2 (price/provider) resolves for any offer: set
-   `price_cents`/`checkout_provider`/`checkout_url` on the corresponding
-   `offer` row(s) — `resolveCheckoutDestination()` and
-   `/api/checkout/[offerSlug]` need no code change, per docs/COMMERCE.md.
-3. If Cristian instead says "stay in quote mode for now" — Block 07 can
-   close on that basis: the funnel is real end to end up to lead
-   capture, which is itself the brief's second acceptable path
-   (`TRÁFICO → INTERÉS → REGISTRO → SEGMENTACIÓN → LIFECYCLE MARKETING`).
-   That's a valid, honest checkpoint close, not a failure to reach one.
+1. Re-verify project identity (`Cristian-Barbosa-UNIVERSE`, ref
+   `yskfntcurmqqxjuvqoto`) before writing anything, same discipline as
+   Block 06.
+2. Apply `supabase/migrations/0006_social_platform_twitter.sql`.
+3. Apply the seed changes in `supabase/seed.sql` from the `-- Block 07`
+   comment markers onward (the URL/price UPDATEs and the 6 new
+   `social_profile` INSERTs) via `execute_sql` — same DML pattern used
+   for the original seed in Block 06.
+4. Validate: read back `social_profile` and `offer` and confirm every
+   value matches what's now in the repo exactly.
+5. Update `docs/SUPABASE_PRODUCTION.md` to reflect the real state.
 
-Either way, run the local test suite again, apply the Block 07 seed
-additions (coaching offers) to the real Supabase project (data-only,
-already reviewed — see docs/SUPABASE_PRODUCTION.md for the read-only-
-audit discipline that applies to any future write there too), and
-deliver Block 07's own STATUS report before touching Block 08.
+Nothing else is needed to consider Block 07 closed — the code, the
+local validation, and the real commercial data are all already done.
 
 ## Why Block 08 shouldn't start yet
 
 Its "access after confirmed payment" mechanism needs Decision Gate 3
 (payment provider) settled first — building it against a guess would
 risk exactly the rework `docs/MASTER_BRIEF_BLOCK_07_10.md`'s point K
-warns about. The read models, Commerce abstraction, and CRM it will
-reuse are already confirmed ready (Block 07.1 audit).
+warns about. Música's price model is now confirmed and shown on the
+page; what's still missing is the song's own identity (title/artwork),
+which is a content decision, not a technical one.
 
-## Open Decision Gates (full text in the Block 07.1 audit — chat
-history / this checkpoint's report)
+## Open Decision Gates (informational — none block Block 07's close)
 
-1. Facebook Subscription real URL.
-2. At least one real price + checkout provider, or explicit "stay in
-   quote mode."
+1. ~~Facebook Subscription real URL~~ — **CLOSED**, real URL confirmed
+   and live in `/entrenar`/`/comunidad`.
+2. ~~At least one real price~~ — **CLOSED**, Facebook Subscription +
+   all 3 coaching tiers + música's per-song price are all confirmed.
 3. Payment provider for music/digital products (Block 08).
 4. Droppy vs. manual fulfillment (Block 09).
 5. Email/WhatsApp vendor (Block 10) — deliberately not asked yet.
 
-## Recommended order once Gate 1/2 answers arrive
+## Recommended order once the Supabase write lands
 
-Close Block 07 (real sale or confirmed quote-mode close) → design the
-Block 08 access/delivery migration with Gate 3's answer → Block 08
-implementation → Block 09 (once Gate 4 answered, can run in parallel
-with Block 08 if Cristian wants both moving) → Block 10 lifecycle map.
+Close Block 07 (production data confirmed live) → design the Block 08
+access/delivery migration once Gate 3's answer arrives (and once the
+song's own title/identity is confirmed — a content decision Cristian
+still needs to make) → Block 08 implementation → Block 09 (once Gate 4
+answered, can run in parallel with Block 08 if Cristian wants both
+moving) → Block 10 lifecycle map.

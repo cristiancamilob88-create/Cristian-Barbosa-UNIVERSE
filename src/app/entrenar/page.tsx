@@ -3,8 +3,10 @@ import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { GoLink } from "@/components/ui/GoLink";
+import { CheckoutLink } from "@/components/ui/CheckoutLink";
 import { buildMetadata } from "@/lib/seo";
 import { goLinks } from "@/config/site";
+import { formatCents } from "@/lib/format";
 
 export const metadata: Metadata = buildMetadata({
   title: "Entrenar",
@@ -19,13 +21,14 @@ export const metadata: Metadata = buildMetadata({
  * si fueran el mismo producto") — each its own group, its own CTA
  * phrase, its own `cta_click.cta` id, its own destination.
  *
- * Block 07 fix: the free WhatsApp community and Facebook Subscription
- * cards used to share both the same intentId (`intent_community`) and
- * the same destination (`/comunidad`), so neither offer's clicks were
- * distinguishable in analytics from here — exactly what the "no mezclar
- * ofertas" rule warns against (docs/MASTER_BRIEF_BLOCK_07_10.md, "Block
- * 07"). Each `TrackedLink`-based card here now points straight at its
- * real destination instead of funneling through /comunidad's own menu.
+ * Block 07 fix (docs/MASTER_BRIEF_BLOCK_07_10.md): the free WhatsApp
+ * community and Facebook Subscription cards used to share both the
+ * same intentId and the same destination (`/comunidad`) — fixed by
+ * giving each its own destination. Facebook Subscription now has a
+ * real price (29.900 COP/mes) and a real destination URL, so it routes
+ * through the checkout abstraction (`CheckoutLink` — docs/COMMERCE.md)
+ * instead of a bare outbound GoLink: `checkout_started` is now real,
+ * attributed to the `facebook-subscription-standard` offer.
  */
 const trackedGroups = [
   {
@@ -44,30 +47,31 @@ const trackedGroups = [
     ctaId: "intent_training_course",
     href: "/productos",
   },
-  {
-    eyebrow: "Premium",
-    title: "Coaching personalizado",
-    detail: "Programación, seguimiento y contacto directo con Cristian — tres niveles: Essential, Performance, Elite.",
-    ctaLabel: "Quiero entrenar personalmente con Cristian",
-    ctaId: "intent_training_coaching",
-    href: "/contacto?topic=coaching",
-  },
 ];
 
-/**
- * Facebook Subscription is a GoLink, not a TrackedLink, on purpose —
- * same reasoning as /comunidad's own card for it: it's an outbound
- * destination measured server-side (social_click, via /go/[slug],
- * distinguishable from every other outbound click by its own
- * `facebook-subscription` slug — docs/ANALYTICS_ENGINE.md). Rendered
- * separately from `trackedGroups` because its link component differs.
- */
 const subscriptionGroup = {
   eyebrow: "Suscripción",
   title: "Entrena con Cristian Barbosa",
   detail: "Entrenamiento semanal, contenido exclusivo y lives — la experiencia de Facebook Subscription.",
-  ctaLabel: "Ver en Facebook",
+  price: formatCents(2_990_000),
+  offerSlug: "facebook-subscription-standard",
+  ctaLabel: "Suscribirme por Facebook",
 };
+
+/**
+ * Coaching still closes over WhatsApp with a human, not an automated
+ * checkout — Cristian's own brief: "NO inventar checkout automatizado
+ * para coaching todavía." The three tiers are catalog rows now
+ * (`coaching-essential/performance/elite-quote`, purchase_type
+ * 'quote', real price_cents — supabase/seed.sql), shown here for
+ * comparison; the single CTA is a GoLink to the commercial WhatsApp
+ * number, not a per-tier checkout.
+ */
+const coachingTiers = [
+  { name: "Essential", price: formatCents(110_000_000) },
+  { name: "Performance", price: formatCents(160_000_000) },
+  { name: "Elite", price: formatCents(200_000_000) },
+];
 
 export default function EntrenarPage() {
   return (
@@ -104,33 +108,62 @@ export default function EntrenarPage() {
                   {subscriptionGroup.title}
                 </h2>
                 <p className="mt-3 text-sm text-steel">{subscriptionGroup.detail}</p>
+                <p className="mt-3 font-mono text-sm uppercase tracking-widest text-chalk">
+                  {subscriptionGroup.price} <span className="text-steel-dim">/ mes</span>
+                </p>
               </div>
-              <GoLink
-                slug={goLinks.facebookSubscription}
+              <CheckoutLink
+                offerSlug={subscriptionGroup.offerSlug}
                 className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
               >
                 {subscriptionGroup.ctaLabel}
-              </GoLink>
+              </CheckoutLink>
             </div>
 
-            {trackedGroups.slice(1).map((group) => (
-              <div key={group.title} className="flex flex-col justify-between gap-4 bg-ink p-8">
-                <div>
-                  <p className="font-mono text-xs uppercase tracking-widest text-ember">{group.eyebrow}</p>
-                  <h2 className="mt-3 font-display text-xl font-black uppercase tracking-tight text-chalk">
-                    {group.title}
-                  </h2>
-                  <p className="mt-3 text-sm text-steel">{group.detail}</p>
-                </div>
-                <TrackedLink
-                  event={{ name: "cta_click", cta: group.ctaId, topic: "entrenar" }}
-                  href={group.href}
-                  className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
-                >
-                  {group.ctaLabel}
-                </TrackedLink>
+            <div className="flex flex-col justify-between gap-4 bg-ink p-8">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-ember">{trackedGroups[1].eyebrow}</p>
+                <h2 className="mt-3 font-display text-xl font-black uppercase tracking-tight text-chalk">
+                  {trackedGroups[1].title}
+                </h2>
+                <p className="mt-3 text-sm text-steel">{trackedGroups[1].detail}</p>
               </div>
-            ))}
+              <TrackedLink
+                event={{ name: "cta_click", cta: trackedGroups[1].ctaId, topic: "entrenar" }}
+                href={trackedGroups[1].href}
+                className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+              >
+                {trackedGroups[1].ctaLabel}
+              </TrackedLink>
+            </div>
+
+            <div className="flex flex-col justify-between gap-4 bg-ink p-8">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-ember">Premium</p>
+                <h2 className="mt-3 font-display text-xl font-black uppercase tracking-tight text-chalk">
+                  Coaching personalizado
+                </h2>
+                <p className="mt-3 text-sm text-steel">
+                  Programación, seguimiento y contacto directo con Cristian. Cada nivel se
+                  cierra por WhatsApp, en conversación con Cristian — no hay checkout
+                  automático todavía.
+                </p>
+                <dl className="mt-4 flex flex-col gap-1.5 border-t border-steel-dim/30 pt-4">
+                  {coachingTiers.map((tier) => (
+                    <div key={tier.name} className="flex items-baseline justify-between gap-4">
+                      <dt className="text-sm text-steel">{tier.name}</dt>
+                      <dd className="font-mono text-sm text-chalk">{tier.price}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+              <GoLink
+                slug={goLinks.whatsappCommercial}
+                className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+              >
+                Quiero entrenar personalmente con Cristian
+              </GoLink>
+            </div>
           </div>
         </Container>
       </section>

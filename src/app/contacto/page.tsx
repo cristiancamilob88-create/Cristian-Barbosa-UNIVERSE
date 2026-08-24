@@ -10,20 +10,21 @@ export const metadata: Metadata = buildMetadata({
   path: "/contacto",
 });
 
-const VALID_TOPICS = new Set(["entrenar", "coaching", "shows", "marcas", "musica", "productos", "general"]);
-// /entrenar links to specific coaching tiers (?topic=coaching-essential, etc.) that don't need
-// their own form option — they all resolve to the same "coaching" topic/interest.
-const TOPIC_ALIASES: Record<string, string> = {
-  "coaching-essential": "coaching",
-  "coaching-performance": "coaching",
-  "coaching-elite": "coaching",
-};
+const VALID_TOPICS = new Set([
+  "entrenar",
+  "coaching",
+  "shows",
+  "marcas",
+  "musica",
+  "productos_fisicos",
+  "productos_digitales",
+  "general",
+]);
 
 export default async function ContactoPage(props: PageProps<"/contacto">) {
   const params = await props.searchParams;
   const rawTopic = Array.isArray(params.topic) ? params.topic[0] : params.topic;
-  const resolvedTopic = rawTopic ? (TOPIC_ALIASES[rawTopic] ?? rawTopic) : undefined;
-  const initialTopic = resolvedTopic && VALID_TOPICS.has(resolvedTopic) ? resolvedTopic : "general";
+  const initialTopic = rawTopic && VALID_TOPICS.has(rawTopic) ? rawTopic : "general";
 
   return (
     <>

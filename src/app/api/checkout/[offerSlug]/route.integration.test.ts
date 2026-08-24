@@ -53,6 +53,36 @@ describe("GET /api/checkout/[offerSlug]", () => {
     expect(response.headers.get("location")).toBe("https://pay.hotmart.com/EXTERNAL123");
   });
 
+  it("redirects Facebook Subscription (manual provider, recurring) straight to its real checkout_url (Block 07)", async () => {
+    const client = await getTestPool().connect();
+    let offerSlug: string;
+    try {
+      const product = await client.query(
+        "insert into product (slug, name, kind, external_provider) values ($1, 'Entrena con Cristian Barbosa', 'subscription', 'facebook') returning id",
+        [`fb-sub-product-${Date.now()}`],
+      );
+      offerSlug = `fb-sub-offer-${Date.now()}`;
+      await client.query(
+        `insert into offer (product_id, slug, name, active, checkout_provider, checkout_url, purchase_type, price_cents)
+         values ($1, $2, 'Entrena con Cristian Barbosa', true, 'manual', 'https://www.facebook.com/cristianbarbosa201/subscribe/', 'recurring', 2990000)`,
+        [product.rows[0].id, offerSlug],
+      );
+    } finally {
+      client.release();
+    }
+
+    const response = await GET(makeRequest(offerSlug), { params: Promise.resolve({ offerSlug }) });
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://www.facebook.com/cristianbarbosa201/subscribe/");
+
+    const rows = await getTestPool().query(
+      "select entity_type, metadata from interaction where event_name = 'checkout_started'",
+    );
+    expect(rows.rowCount).toBe(1);
+    expect(rows.rows[0].entity_type).toBe("offer");
+    expect(rows.rows[0].metadata).toMatchObject({ offerSlug, checkoutKind: "external" });
+  });
+
   it("falls back to /productos for an unknown offer slug, without crashing or recording anything", async () => {
     const response = await GET(makeRequest("does-not-exist"), {
       params: Promise.resolve({ offerSlug: "does-not-exist" }),

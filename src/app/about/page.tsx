@@ -12,14 +12,35 @@ export const metadata: Metadata = buildMetadata({
 });
 
 /**
- * The story doesn't sell directly — its job is connection/authority/trust
- * (Block 04.2, docs/UNIVERSE_UX.md, "Historia"). What it needs after
- * that is a bridge into the rest of the universe, so reading it isn't a
- * dead end — the same four intentions most likely to follow "now that I
- * know him, what next," pulled straight from site.ts (never a second,
- * hardcoded list).
+ * Historia is a Brand Story / Authority Layer, not an isolated bio
+ * (docs/MASTER_BRIEF_BLOCK_07_10.md, "07.7"). Every section below is a
+ * real theme the brief names — the copy inside each stays an honest
+ * placeholder ("contenido pendiente de redacción") wherever the actual
+ * biographical detail hasn't been provided, per the same instruction's
+ * own "no inventar datos biográficos que no estén documentados." The
+ * structure is real; the specifics aren't invented.
  */
-const bridgeSlugs = ["/entrenar", "/musica", "/shows", "/redes"];
+const storyThemes = [
+  { title: "Historia", detail: "De la calistenia en una barra al universo que existe hoy." },
+  { title: "Evolución", detail: "Cómo pasó de entrenar solo a construir una comunidad." },
+  { title: "Calistenia", detail: "La disciplina física que sostiene todo lo demás." },
+  { title: "Trayectoria", detail: "El camino recorrido — entrenamiento, competencias, escenario." },
+  { title: "Competencias", detail: "Resultados y momentos que marcaron el camino." },
+  { title: "Música", detail: "El lado artístico — de dónde viene y hacia dónde va." },
+  { title: "Shows", detail: "Llevar la disciplina física a un escenario real." },
+  { title: "Comunidad", detail: "Por qué construir una comunidad, no solo una audiencia." },
+  { title: "Visión", detail: "Hacia dónde va el universo de Cristian Barbosa." },
+  { title: "Proyectos", detail: "Lo que viene — entrenamiento, música, marca." },
+];
+
+/**
+ * Historia should connect toward every pillar, not just a curated
+ * four (docs/MASTER_BRIEF_BLOCK_07_10.md, "07.7": "enlaces internos
+ * hacia /entrenar /comunidad /musica /productos /shows /marcas
+ * /eventos /redes"). Pulled straight from `navItems` — never a second,
+ * hardcoded list (AGENTS.md).
+ */
+const bridgeSlugs = ["/entrenar", "/comunidad", "/musica", "/productos", "/shows", "/marcas", "/eventos", "/redes"];
 const bridgeItems = navItems.filter((item) => bridgeSlugs.includes(item.href));
 
 export default function AboutPage() {
@@ -36,6 +57,30 @@ export default function AboutPage() {
             Esta página cuenta la historia personal de Cristian: de la calistenia a la
             comunidad, del entrenamiento a la música y los shows. Contenido pendiente de
             redacción final.
+          </p>
+        </Container>
+      </section>
+      <section className="border-t border-steel-dim/40 py-16">
+        <Container>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">El universo, por capítulos</p>
+          <div className="mt-6 grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-2 lg:grid-cols-3">
+            {storyThemes.map((theme) => (
+              <div key={theme.title} className="bg-ink p-6">
+                <h2 className="font-display text-lg font-black uppercase tracking-tight text-chalk">
+                  {theme.title}
+                </h2>
+                <p className="mt-2 text-sm text-steel">{theme.detail}</p>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+      <section className="border-t border-steel-dim/40 py-16">
+        <Container>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Prensa</p>
+          <p className="mt-4 max-w-2xl text-sm text-steel">
+            Cristian ha sido entrevistado en medios como El Colombiano. Press kit y enlaces a
+            entrevistas/apariciones, próximamente.
           </p>
         </Container>
       </section>

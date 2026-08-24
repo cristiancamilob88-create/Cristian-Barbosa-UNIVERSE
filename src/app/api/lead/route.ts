@@ -30,7 +30,16 @@ import { recordInteraction } from "@/server/db/repositories/interaction";
 const leadSchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(200),
-  topic: z.enum(["entrenar", "coaching", "shows", "marcas", "musica", "productos", "general"]),
+  topic: z.enum([
+    "entrenar",
+    "coaching",
+    "shows",
+    "marcas",
+    "musica",
+    "productos_fisicos",
+    "productos_digitales",
+    "general",
+  ]),
   message: z.string().trim().max(2000).optional().default(""),
   // Honeypot: real users never fill this hidden field. Bounded but NOT
   // max(0) — a filled value must reach the `if (parsed.data.company)`
@@ -39,14 +48,22 @@ const leadSchema = z.object({
   company: z.string().max(200).optional().default(""),
 });
 
-/** Maps the contact form's topic values to the canonical interest dictionary (supabase seed.sql). */
+/**
+ * Maps the contact form's topic values to the canonical interest
+ * dictionary (supabase seed.sql). productos_fisicos/productos_digitales
+ * (Block 07, docs/MASTER_BRIEF_BLOCK_07_10.md §07.11) replace the old
+ * generic "productos" topic — `physical_products`/`digital_products`
+ * existed in the interest dictionary since Block 02 but had no topic
+ * that ever resolved to them until now.
+ */
 const TOPIC_TO_INTEREST_SLUG: Record<string, string | undefined> = {
   entrenar: "training",
   coaching: "coaching",
   shows: "shows",
   marcas: "brands",
   musica: "music",
-  productos: "products",
+  productos_fisicos: "physical_products",
+  productos_digitales: "digital_products",
   // "general" intentionally maps to no specific interest.
 };
 

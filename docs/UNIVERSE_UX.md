@@ -163,15 +163,10 @@ path this block's CTAs now measure end to end.
 - No music streaming/purchase link — `social_profile` has no music
   platform row yet (no Spotify/Apple Music account registered); adding
   a fake one would be inventing an integration. `/musica`'s CTAs both
-  route to existing, real destinations (`/contacto`, `/redes`).
-- No per-product-type lead topic (`productos_fisicos` vs.
-  `productos_digitales`) — the `lead.topic_raw`/`interest` vocabulary
-  already has `physical_products`/`digital_products` interest slugs
-  seeded, but wiring a new `/contacto` topic value through `ContactForm`'s
-  schema is exactly the kind of catalog-adjacent change Block 05 (Commerce)
-  owns — bundling it here would mean touching the lead intake schema
-  twice in two consecutive blocks instead of once, deliberately.
-  `/productos` links to the existing generic `productos` topic instead.
+  route to existing, real destinations (`/contacto`, `/redes`). **Still
+  true after Block 07** — a real per-song price now exists (§7 below),
+  but no purchasable song identity was invented.
+- ~~No per-product-type lead topic~~ — **done in Block 07**, see §7.
 - No sticky/global "primary CTA" in the Header — the brief didn't ask
   for one, and adding one risks exactly the "convertir el universo en
   un simple Linktree" the brief explicitly warned against.
@@ -179,3 +174,67 @@ path this block's CTAs now measure end to end.
   existed (the ticker) — this block is copy, links, and tracking, per
   its own "no sacrificar arquitectura por estética" instruction (carried
   over from Block 04.1's scope note).
+
+## 7. Block 07 — real destinations, real prices, every pillar touched
+
+Cristian's own brief (docs/MASTER_BRIEF_BLOCK_07_10.md) gave real
+channel URLs and prices for the first time — this section records what
+changed pillar by pillar, beyond the `/entrenar` CTA-differentiation fix
+already documented in §3.
+
+- **`/entrenar`**: Facebook Subscription now shows its real price
+  (29.900 COP/mes) and routes through `CheckoutLink` (docs/COMMERCE.md
+  §9) instead of a bare `GoLink`. Coaching gained a real 3-tier price
+  breakdown (Essential/Performance/Elite) and its single CTA now `GoLink`s
+  straight to the commercial WhatsApp number — no more `/contacto?topic=coaching`.
+- **`/comunidad`**: gained a third block, Instagram Comunidad (a real,
+  distinct account from Cristian's main Instagram) — the page now
+  explicitly separates all three community entry points instead of two.
+  Facebook Subscription's card matches `/entrenar`'s new
+  `CheckoutLink`/price treatment.
+- **`/musica`**: added the confirmed price model (10.000 COP por
+  canción) as informational commercial framing — no purchase flow, no
+  invented song identity (§6).
+- **`/productos`**: the physical block gained a `GoLink` to the
+  commercial WhatsApp number alongside its existing lead-capture CTA
+  (matching `/shows`'/`/marcas`' established dual-CTA pattern). Both
+  CTAs' topic values changed from the generic `productos` to
+  `productos_fisicos`/`productos_digitales` (docs/CRM.md).
+- **`/shows`**: the audience-segment list expanded to match Cristian's
+  real list (added Ferias, Quince años, Rooftops, Eventos masivos,
+  Circo/espectáculos); added a "formatos de partida" section (Corporativo,
+  Productoras/festivales, Colegios, Eventos privados, Rooftops/venues) —
+  starting points for a commercial conversation, not fixed/priced
+  packages, per the brief's own "no crear 15 PDFs ahora." **Bug fixed**:
+  the secondary WhatsApp CTA was pointing at `whatsappCommunity` (the
+  free community chat) — now correctly points at `whatsappCommercial`.
+- **`/marcas`**: offerings list expanded (added Embajador, Fitness/
+  lifestyle); added a confirmed-ambassadorships section (Club Nativos,
+  Expo Fitness — a real fact Cristian gave directly, no metric/result
+  invented); gained a secondary `GoLink` to the commercial WhatsApp
+  number alongside its existing lead-capture CTA.
+- **`/about`**: restructured from one narrative paragraph into a
+  themed grid (historia/evolución/calistenia/trayectoria/competencias/
+  música/shows/comunidad/visión/proyectos) — structure only, every
+  theme's copy stays an honest "contenido pendiente" placeholder where
+  no real biographical detail exists yet. Added a press mention (El
+  Colombiano — confirmed directly, no article URL/date/title invented)
+  with a "press kit próximamente" placeholder. Bridge links expanded
+  from 4 routes to all 8 commercial pillars (`/entrenar`, `/comunidad`,
+  `/musica`, `/productos`, `/shows`, `/marcas`, `/eventos`, `/redes`),
+  still pulled straight from `navItems` — never a second hardcoded list.
+- **`/eventos`**: still no fabricated event (none exists yet) — gained
+  a bridge section ("¿quieres algo similar?" → `/shows`), the one
+  commercial purpose the brief names that doesn't require inventing a
+  date/venue.
+- **`/redes`**: unchanged code — automatically renders every new
+  `social_profile` row seeded this block (tiktok-secondary,
+  instagram-community, facebook-main/secondary, x-main,
+  whatsapp-commercial) since it already queries the table directly with
+  no hardcoded list (docs/SOCIAL_ROUTING.md).
+- **New `goLinks` entries** (`src/config/site.ts`): `whatsappCommercial`,
+  `instagramCommunity`, `tiktokSecondary`, `x`, `facebook`,
+  `facebookSecondary` — real destinations, all confirmed directly, none
+  invented. `x-main` needed `supabase/migrations/0006_social_platform_twitter.sql`
+  (additive, same pattern as 0005's `product_kind_check` extension) —
+  `social_profile.platform` didn't have a `twitter` value yet.

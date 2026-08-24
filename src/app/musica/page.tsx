@@ -3,6 +3,7 @@ import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { buildMetadata } from "@/lib/seo";
+import { formatCents } from "@/lib/format";
 
 export const metadata: Metadata = buildMetadata({
   title: "Música",
@@ -40,6 +41,26 @@ export default function MusicaPage() {
               <p className="mt-2 text-sm text-steel">{block.detail}</p>
             </div>
           ))}
+        </Container>
+        {/*
+         * "Escuchar música" is the intention this whole page answers;
+         * "comprar canción" is a separate conversion — never conflated
+         * (docs/MASTER_BRIEF_BLOCK_07_10.md, "Block 08"). The price
+         * model is confirmed (10.000 COP por canción); the catalog
+         * identity (title, artwork, access mechanism) isn't yet, so no
+         * product/offer row was created here — inventing one would mean
+         * inventing the song. This section states the confirmed
+         * business model without pretending a purchase flow exists.
+         */}
+        <Container className="mt-10 border border-steel-dim/40 bg-ink p-8">
+          <p className="font-mono text-xs uppercase tracking-widest text-ember">Próximamente</p>
+          <p className="mt-3 max-w-2xl text-sm text-steel">
+            Cada canción se venderá individualmente por{" "}
+            <span className="font-mono text-chalk">{formatCents(1_000_000)}</span>. El
+            catálogo y el acceso privado a las canciones compradas se activan en el próximo
+            bloque de este universo — por ahora, deja tu contacto arriba para ser de los
+            primeros en enterarte.
+          </p>
         </Container>
         <Container className="mt-10">
           <TrackedLink

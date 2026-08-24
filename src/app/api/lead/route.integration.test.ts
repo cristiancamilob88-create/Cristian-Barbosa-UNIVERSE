@@ -102,6 +102,35 @@ describe("POST /api/lead", () => {
     await expect(getTestPool().query("select count(*) from contact")).resolves.toBeDefined();
   });
 
+  it("maps productos_fisicos/productos_digitales to their own interests, not the old generic one (Block 07)", async () => {
+    const physicalEmail = `fisicos-${Date.now()}@example.com`;
+    const digitalEmail = `digitales-${Date.now()}@example.com`;
+
+    await POST(makeRequest({ name: "Fisicos Lead", email: physicalEmail, topic: "productos_fisicos" }));
+    await POST(makeRequest({ name: "Digitales Lead", email: digitalEmail, topic: "productos_digitales" }));
+
+    const physicalRows = await getTestPool().query(
+      `select i.slug from lead l join interest i on i.id = l.interest_id
+       join contact c on c.id = l.contact_id where c.email = $1`,
+      [physicalEmail],
+    );
+    expect(physicalRows.rows[0].slug).toBe("physical_products");
+
+    const digitalRows = await getTestPool().query(
+      `select i.slug from lead l join interest i on i.id = l.interest_id
+       join contact c on c.id = l.contact_id where c.email = $1`,
+      [digitalEmail],
+    );
+    expect(digitalRows.rows[0].slug).toBe("digital_products");
+  });
+
+  it("rejects the retired bare 'productos' topic", async () => {
+    const response = await POST(
+      makeRequest({ name: "Old Topic", email: `old-topic-${Date.now()}@example.com`, topic: "productos" }),
+    );
+    expect(response.status).toBe(400);
+  });
+
   it("opens a b2b_opportunity for a shows/marcas topic, but not for others (Block 07)", async () => {
     const showsEmail = `shows-${Date.now()}@example.com`;
     const marcasEmail = `marcas-${Date.now()}@example.com`;
