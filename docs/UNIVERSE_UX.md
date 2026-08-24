@@ -238,3 +238,69 @@ already documented in §3.
   invented. `x-main` needed `supabase/migrations/0006_social_platform_twitter.sql`
   (additive, same pattern as 0005's `product_kind_check` extension) —
   `social_profile.platform` didn't have a `twitter` value yet.
+
+## 8. Block 08.10, Fase 7 — `/redes` audit: why it "feels like a flat list"
+
+Cristian's own read of `/redes` in the public preview ("se siente como
+una lista plana") is accurate, and the audit found the concrete reason
+— **no redesign done here**, per this block's own rule (documented
+improvement path only).
+
+**What `/redes` renders today** (`src/app/redes/page.tsx`): one
+`<ul>`, single column on mobile / 2 columns on desktop
+(`sm:grid-cols-2`), every row the same visual weight — a label and a
+platform name in mono uppercase text, ordered strictly by
+`display_order`. All 11 real channels currently seeded render this
+way:
+
+| slug | platform | category (DB) | display_order |
+|---|---|---|---|
+| whatsapp-community | whatsapp | community | 1 |
+| instagram-main | instagram | social | 2 |
+| tiktok-main | tiktok | social | 3 |
+| youtube-main | youtube | social | 4 |
+| facebook-subscription | facebook | community | 5 |
+| tiktok-secondary | tiktok | social | 6 |
+| instagram-community | instagram | community | 7 |
+| facebook-main | facebook | social | 8 |
+| facebook-secondary | facebook | social | 9 |
+| x-main | twitter | social | 10 |
+| whatsapp-commercial | whatsapp | commercial | 11 |
+
+**Root cause**: `social_profile` already has a `category` column
+(`community`/`social`/`commercial` — seeded correctly for all 11 rows,
+`supabase/seed.sql`), and `listActiveSocialProfiles()`
+(`src/server/db/repositories/socialProfile.ts`) already selects it —
+but `RedesPage` never reads `profile.category`. The data model already
+supports grouping; the page just doesn't use it. That's the entire gap
+— not a missing column, not a missing query, a rendering choice.
+
+**Two other concrete contributors**, found in the same pass:
+- No platform iconography (docs/ASSETS_AND_BRAND.md, category 13) —
+  every row is the same mono-text tag (`WHATSAPP`, `INSTAGRAM`,
+  `TIKTOK`...) with no visual differentiation beyond the text itself.
+- Six of the eleven rows share a platform with another row
+  (`tiktok`×2, `instagram`×2, `facebook`×3, `whatsapp`×2) with no
+  visual cue distinguishing "principal" from "secundaria" /
+  "comunidad" from "comercial" beyond the label text — a scanning
+  reader has to read every label to tell them apart.
+
+**Improvement path (not executed in this block)**: group the `<ul>` by
+`profile.category` into three labeled sections (Comunidad, Social,
+Comercial) instead of one flat list, and/or add a small icon per
+`platform` value. Both are additive to the existing query (the data is
+already there) and don't touch `GoLink`, `socialProfile.ts`, or the
+seed — a Fase-9-style "content/presentation change, not an
+architecture change" the way `/eventos`'s categories or `/entrenar`'s
+coaching tiers were. Left undone here because this block's own rule is
+audit-and-document, not the definitive visual redesign Cristian asked
+to defer until after real assets/visual identity land (docs/ASSETS_AND_BRAND.md
+§3, Fase 8 sequencing: Vercel URL → navigate → fix UX → load assets →
+define visual identity → visual optimization → domain).
+
+**Confirmed unchanged**: every one of the 11 destinations above is a
+real, Cristian-confirmed URL (Block 07's real-data brief) rendered
+through `GoLink` — no destination was added, removed, or altered in
+this audit, and outbound tracking (`social_click`/`whatsapp_click` via
+`GoLink`, docs/SOCIAL_ROUTING.md) is unaffected by the grouping
+question above.

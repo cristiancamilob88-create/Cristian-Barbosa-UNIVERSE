@@ -1,6 +1,48 @@
 # NEXT_BLOCK.md — what happens next, and why
 
-## Block 08 is closed. Next up: Block 09 or Block 10 (Cristian's call)
+## Block 08.10 is closed. Immediate next step: Cristian redeploys on Vercel — NOT Block 09/10 yet
+
+Explicit instruction from Cristian: don't continue toward Block 09/10
+or automations until the public preview is actually up and verified.
+The one thing standing between "code is Vercel-ready" and "there's a
+real `https://*.vercel.app` URL" is a manual step only Cristian can do
+— this session has no Vercel MCP/API/CLI access.
+
+### What Cristian needs to do manually in Vercel
+
+1. In the Vercel project's dashboard, set the environment variables
+   (Production, and Preview if desired) — values are Cristian's to
+   provide, never written here or anywhere in this repo:
+   - `DATABASE_URL` — the Supabase **connection pooler** string
+     (port 6543, "Transaction" mode), not the direct 5432 one — see
+     `docs/SUPABASE_PRODUCTION.md` §10 for why (serverless connection
+     limits).
+   - `NEXT_PUBLIC_SITE_URL` — the Vercel preview URL for now (or the
+     eventual domain, once connected).
+   - `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`,
+     `ANALYTICS_API_TOKEN` — generate per `.env.example`'s own
+     instructions (`node scripts/admin/hash-password.mjs`,
+     `openssl rand -hex 32`); without these, `/admin/*` simply reports
+     "not configured" and stays fail-closed — not a broken deploy.
+2. Trigger a redeploy (push already landed the `DATABASE_URL` fix and
+   the Node version pin — commit `93eaae4`; a redeploy from the latest
+   commit on `claude/cristian-barbosa-master-init-jxln6u` picks both up
+   automatically).
+3. Share the resulting `https://*.vercel.app` URL and, if it still
+   fails, the actual build log — this session could not see Vercel's
+   real error text (no MCP/PR-based access), so the fix applied is the
+   most plausible root cause found by static audit, not a confirmed
+   match against Cristian's literal error.
+
+### After a working preview URL exists
+
+Per Cristian's own sequencing (Fase 8): navigate the real preview →
+report any UX errors found → fix those → load real assets
+(`docs/ASSETS_AND_BRAND.md`) → define visual identity → visual
+optimization pass → connect the domain. Block 09/10 stay parked until
+Cristian says otherwise.
+
+## After that: Block 09 or Block 10 (Cristian's call)
 
 Both are ready to start technically — neither is blocked on the other.
 Recommended default order (per `docs/MASTER_ROADMAP.md`): **Block 09
