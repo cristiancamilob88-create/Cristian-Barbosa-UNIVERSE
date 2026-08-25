@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
@@ -64,10 +65,32 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
 
   return (
     <>
+      {/* Full-bleed brand hero — first real photo of Cristian used
+          anywhere in the app (2026-08-25). Deliberately above the
+          personalized PageHero below, not replacing it: this is the
+          "wow" moment, the greeting is the personalization. */}
+      <section className="relative h-[48vh] min-h-[340px] w-full overflow-hidden">
+        <Image
+          src="/brand/cristian-hero-01.jpg"
+          alt="Cristian Barbosa"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[62%_42%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
+        <div className="relative flex h-full flex-col justify-end px-6 pb-10 sm:px-8">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Cristian Barbosa</p>
+          <h1 className="mt-3 max-w-xl font-display text-3xl font-black uppercase leading-[0.95] tracking-tight text-chalk sm:text-5xl">
+            La calistenia es la belleza de la fortaleza
+          </h1>
+        </div>
+      </section>
+
       <PageHero
         tag="BIENVENIDA"
         title={`¡Hola, ${greeting}!`}
-        description="Gracias por escanear el código — este es el universo completo de Cristian Barbosa. Déjanos tus datos para entrar directo a la comunidad, o explora todo desde aquí."
+        description="Gracias por escanear el código — este es el universo completo de Cristian Barbosa: entrenamiento, comunidad, música, shows y lo que viene. Déjanos tus datos para entrar directo a la comunidad, o explora todo desde aquí."
       />
       <section className="py-16">
         <Container className="grid gap-10 lg:grid-cols-2">
@@ -121,12 +144,12 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
 
             <div className="flex flex-col gap-4 bg-ink p-6">
               <div>
-                <p className="font-mono text-xs uppercase tracking-widest text-ember">Todo el universo</p>
+                <p className="font-mono text-xs uppercase tracking-widest text-ember">Hay más</p>
                 <h3 className="mt-2 font-display text-lg font-black uppercase tracking-tight text-chalk">
-                  Entrenamiento, música, shows y más
+                  ¿Qué está construyendo Cristian?
                 </h3>
                 <p className="mt-2 text-sm text-steel">
-                  Coaching, productos, marcas, eventos — todo lo que hace Cristian, en un solo lugar.
+                  Música, shows, marcas, productos — el entrenamiento es solo la puerta de entrada.
                 </p>
               </div>
               <TrackedLink
