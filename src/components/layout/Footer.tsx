@@ -40,10 +40,26 @@ export function Footer() {
         </div>
       </Container>
 
-      <Container className="border-t border-steel-dim/40 py-6">
+      <Container className="flex flex-wrap items-center justify-between gap-2 border-t border-steel-dim/40 py-6">
         <p className="text-xs text-steel-dim">
           © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
         </p>
+        {/*
+          Admin login link, added 2026-08-25 at Cristian's own request —
+          he needs a findable way back into /admin without remembering
+          the URL, now that it's the real day-to-day Command Center.
+          Deliberately NOT a navItems/secondaryNavItems entry (those
+          drive the homepage pillar grid and require a commercial
+          `intent` phrase — a login link isn't a customer-facing
+          intention) and deliberately NOT a TrackedLink (that's for
+          commercial CTAs; /admin traffic is excluded from analytics on
+          purpose — see PageViewTracker.tsx, "Why /admin isn't
+          tracked"). A plain, muted Link, same tier as the copyright
+          line above — visible, but not competing with any real CTA.
+        */}
+        <Link href="/admin/login" className="text-xs text-steel-dim hover:text-steel">
+          Login administrador
+        </Link>
       </Container>
     </footer>
   );

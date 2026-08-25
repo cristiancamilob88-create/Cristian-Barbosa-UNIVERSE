@@ -217,9 +217,17 @@ a valid session", not on how that session was established.
 ## 3. Routes
 
 `/admin` was chosen over `/dashboard` — shorter, and "Command Center" is
-the block's own name for this surface. No public nav link points here
-(`src/config/site.ts`'s `navItems`/`secondaryNavItems` are untouched) —
-the only way in is knowing the URL and having the password.
+the block's own name for this surface. `src/config/site.ts`'s
+`navItems`/`secondaryNavItems` are still untouched — those drive the
+homepage pillar grid and require a commercial `intent` phrase, which a
+login link isn't. **Updated 2026-08-25**, at Cristian's own request (he
+uses `/admin` as a real day-to-day tool now and needs a findable way
+back in): a small, muted `Link` to `/admin/login` sits in `Footer.tsx`,
+same visual tier as the copyright line — visible on every page, but
+not a `TrackedLink` (per PageViewTracker.tsx, `/admin` traffic is
+excluded from analytics on purpose) and not competing with any real
+CTA. The password is still the only actual gate — this only changes
+whether a legitimate admin can find the door, not who can open it.
 
 ```
 /admin/login              public — the only unprotected page under /admin
