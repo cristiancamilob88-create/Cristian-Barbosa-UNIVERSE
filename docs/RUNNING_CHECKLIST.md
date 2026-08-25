@@ -17,12 +17,17 @@ live only in chat history. Newest items at the top of each section.
   a personalized page").
 - **Probar la base de datos con datos reales, no solo seed** —
   Cristian's own words: "una vez empecemos a construir base de datos,
-  hay que probarla" once real people (not test rows) start writing to
-  it. First real occasion: the Colegio de la Leticia — Envigado visit
-  (2026-08-27) — the `/bienvenida/colegio-la-leticia-2026` leads that
-  land that day are the first real, non-test data through this exact
-  path. Check `/admin/leads` and `/admin/social` after the visit to
-  confirm real rows, real attribution, no surprises.
+  hay que probarla". Updated 2026-08-25: no longer waiting for the
+  2026-08-27 school visit — Cristian has people ready to test today.
+  He can drive the whole circuit himself right now: visit the site (or
+  `/bienvenida/colegio-la-leticia-2026` for the school-attributed
+  version — needs the `campaign`/`qr_source` row Cristian already ran
+  in Supabase's SQL Editor to actually be there; if the greeting
+  doesn't show his name, that row is the first thing to check),
+  submit the form, then check `/admin/leads`, `/admin/qr`, and
+  `/admin/landings` for the real rows. The Colegio de la Leticia visit
+  is still the first occasion for *volume*, but isn't the gating event
+  for testing the mechanism anymore.
 - **Assets reales de Cristian** — fotos, imágenes, logos "para
   perfeccionar la página" (2026-08-25), to be sent over time. Tracked
   per-category in docs/ASSETS_AND_BRAND.md — update that file's
@@ -41,6 +46,17 @@ live only in chat history. Newest items at the top of each section.
 
 ## Closed
 
+- **Command Center: 8/10 sections crashed in production; dwell-time +
+  session-duration metrics added** (2026-08-25): Cristian asked to see
+  "todo el comportamiento" — de qué QR viene la gente (already worked),
+  cuánto tiempo pasan en cada página (didn't exist). While wiring that
+  in, found and fixed a real bug: 8 of the dashboard's 10 sections threw
+  a Server/Client Component error in production (`next start`/Vercel,
+  never caught by `next dev` or `npm run build` alone) — every section
+  is fixed and reverified against a real production build now. New:
+  average time on page per route (Landings), average session duration
+  and pages/session (Overview). Full record in docs/COMMAND_CENTER.md
+  §8 and docs/KPI_DEFINITIONS.md.
 - **Colegio de la Leticia — Envigado — QR landing for the 2026-08-27 visit**
   (2026-08-25): `src/app/bienvenida/[slug]/page.tsx` (new, reusable for
   any future school/event QR), `src/server/db/repositories/qrSource.ts`
