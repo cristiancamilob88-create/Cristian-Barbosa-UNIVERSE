@@ -7,6 +7,7 @@ import { GoLink } from "@/components/ui/GoLink";
 import { CheckoutLink } from "@/components/ui/CheckoutLink";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { ContactForm } from "@/components/forms/ContactForm";
+import { InstagramEmbed } from "@/components/ui/InstagramEmbed";
 import { buildMetadata } from "@/lib/seo";
 import { formatCents } from "@/lib/format";
 import { goLinks } from "@/config/site";
@@ -92,6 +93,17 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         title={`¡Hola, ${greeting}!`}
         description="Gracias por escanear el código — este es el universo completo de Cristian Barbosa: entrenamiento, comunidad, música, shows y lo que viene. Déjanos tus datos para entrar directo a la comunidad, o explora todo desde aquí."
       />
+
+      <section className="border-b border-steel-dim/40 py-16">
+        <Container className="flex flex-col items-center gap-6 text-center">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
+          <InstagramEmbed
+            url="https://www.instagram.com/reel/DQcWOQMCUuN/"
+            title="Presentación de Cristian Barbosa"
+          />
+        </Container>
+      </section>
+
       <section className="py-16">
         <Container className="grid gap-10 lg:grid-cols-2">
           <div>
@@ -107,9 +119,9 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           </div>
 
           <div className="flex flex-col gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40">
-            <div className="flex flex-col gap-4 bg-ink p-6">
+            <div className="flex flex-col gap-4 bg-ink p-6 ring-1 ring-inset ring-tide/40">
               <div>
-                <p className="font-mono text-xs uppercase tracking-widest text-ember">Gratis · WhatsApp</p>
+                <p className="font-mono text-xs uppercase tracking-widest text-tide">Empieza aquí · Gratis</p>
                 <h3 className="mt-2 font-display text-lg font-black uppercase tracking-tight text-chalk">
                   Comunidad WhatsApp
                 </h3>
@@ -117,7 +129,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
               </div>
               <GoLink
                 slug={goLinks.whatsappCommunity}
-                className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+                className="inline-flex w-fit items-center border border-tide px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
               >
                 Unirme por WhatsApp
               </GoLink>

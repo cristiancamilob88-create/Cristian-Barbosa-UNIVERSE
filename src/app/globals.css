@@ -8,6 +8,13 @@
  *   chalk  — off-white foreground, gymnast's chalk dust
  *   ember  — signature accent: effort, heat, stage light
  *   rust   — pressed/hover state of ember, darker ember
+ *   tide   — second signature accent, added 2026-08-25 from Cristian's
+ *            own brand direction (his logo's red/blue duality) — bright
+ *            sea-blue-with-a-touch-of-green, neon, glossy. Used for a
+ *            second point of visual hierarchy alongside ember (e.g. the
+ *            free-community CTA), never replacing it — the logo pairs
+ *            red and blue, not one or the other.
+ *   tide-deep — pressed/hover state of tide, same relationship rust has to ember
  *   steel  — muted neutral for secondary text, borders, dividers
  */
 :root {
@@ -16,6 +23,8 @@
   --color-chalk: #f3f1ea;
   --color-ember: #ff5a1f;
   --color-rust: #c8420f;
+  --color-tide: #22e0c8;
+  --color-tide-deep: #0e9e8f;
   --color-steel: #8a9089;
   --color-steel-dim: #565b54;
 }
@@ -26,6 +35,8 @@
   --color-chalk: var(--color-chalk);
   --color-ember: var(--color-ember);
   --color-rust: var(--color-rust);
+  --color-tide: var(--color-tide);
+  --color-tide-deep: var(--color-tide-deep);
   --color-steel: var(--color-steel);
   --color-steel-dim: var(--color-steel-dim);
 

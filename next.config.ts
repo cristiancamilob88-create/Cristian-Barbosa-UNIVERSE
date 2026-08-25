@@ -24,6 +24,10 @@ const securityHeaders = [
       "img-src 'self' data: https:",
       "font-src 'self' https://fonts.gstatic.com",
       "connect-src 'self'",
+      // Only Instagram's own /embed iframe (InstagramEmbed.tsx) — a
+      // plain iframe, not a vendor SDK. Added with the first real use,
+      // 2026-08-25.
+      "frame-src https://www.instagram.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },
