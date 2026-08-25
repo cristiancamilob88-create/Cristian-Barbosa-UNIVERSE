@@ -70,14 +70,25 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           anywhere in the app (2026-08-25). Deliberately above the
           personalized PageHero below, not replacing it: this is the
           "wow" moment, the greeting is the personalization. */}
-      <section className="relative h-[48vh] min-h-[340px] w-full overflow-hidden">
+      {/*
+        Crop tuned separately per breakpoint, not one value for both:
+        this is a tall portrait photo, so the same object-position
+        lands in a completely different part of the image depending on
+        how wide vs. tall the container is (verified by screenshotting
+        both — a shared value that looked right on mobile showed only
+        background on desktop's much wider/shorter hero). Mobile: tight
+        crop favoring chest/abs per Cristian's own ask ("que se me haga
+        más el abdomen, no tanto la cara"). Desktop: taller box, less
+        extreme position, same intent.
+      */}
+      <section className="relative h-[34vh] min-h-[240px] w-full overflow-hidden lg:h-[48vh]">
         <Image
           src="/brand/cristian-hero-01.jpg"
           alt="Cristian Barbosa"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[62%_42%]"
+          className="object-cover object-[58%_100%] lg:object-[62%_84%]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
         <div className="relative flex h-full flex-col justify-end px-6 pb-10 sm:px-8">
@@ -88,11 +99,23 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
-      <PageHero
-        tag="BIENVENIDA"
-        title={`¡Hola, ${greeting}!`}
-        description="Gracias por escanear el código — este es el universo completo de Cristian Barbosa: entrenamiento, comunidad, música, shows y lo que viene. Déjanos tus datos para entrar directo a la comunidad, o explora todo desde aquí."
-      />
+      {/* Logo watermarked into the background, per Cristian's own ask
+          ("como si perdiera transparencia") — the text/layout underneath
+          is untouched, just a faint brand mark behind it. */}
+      <div className="relative overflow-hidden">
+        <Image
+          src="/brand/cristian-logo-01.png"
+          alt=""
+          aria-hidden="true"
+          fill
+          className="pointer-events-none select-none object-cover opacity-[0.08]"
+        />
+        <PageHero
+          tag="BIENVENIDA"
+          title={`¡Hola, ${greeting}!`}
+          description="Gracias por escanear el código — este es el universo completo de Cristian Barbosa: entrenamiento, comunidad, música, shows y lo que viene. Déjanos tus datos para entrar directo a la comunidad, o explora todo desde aquí."
+        />
+      </div>
 
       <section className="border-b border-steel-dim/40 py-16">
         <Container className="flex flex-col items-center gap-6 text-center">
