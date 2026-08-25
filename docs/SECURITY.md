@@ -65,15 +65,41 @@ parameterized `$1, $2, ...` placeholders, never string-interpolated SQL.
 
 ## Rate limiting
 
-`/api/lead`'s in-memory sliding window (5 requests/minute/IP,
-`src/app/api/lead/route.ts`) is a documented, intentional limitation: it
-resets on redeploy and doesn't coordinate across instances. Fine for a
-single-instance deploy; replace with a shared store (e.g. Upstash Redis)
-before running more than one instance behind a load balancer. `/api/track`
-and `/go/[slug]` are not rate-limited in this block — they only ever
-write a single `interaction` row per call, and abuse there produces noisy
-analytics, not a resource or data-integrity risk the way spamming leads
-would. Revisit if that changes.
+Every public, DB-writing endpoint is rate-limited via one shared
+in-memory sliding-window implementation (`src/server/rateLimit.ts`) —
+same documented, intentional limitation across all of them: state
+resets on redeploy and doesn't coordinate across serverless instances.
+Fine at this traffic scale; replace with a shared store (e.g. Upstash
+Redis) if/when that becomes a real constraint. Each call site owns its
+own limiter instance (own state, own threshold) — one route's traffic
+never counts against another's:
+
+| Endpoint | Limit | Why this number |
+|---|---|---|
+| `/admin/login` (`loginRateLimit.ts`) | 5/min/IP | Tightest — a single shared admin password is a high-value brute-force target |
+| `/api/lead` | 5/min/IP | A real visitor submits the contact form once, not repeatedly |
+| `/api/checkout/[offerSlug]` | 30/min/IP | A GET a visitor can legitimately hit several times browsing multiple offers; still bounded since every hit does a DB read + write |
+| `/api/track` | 60/min/IP | Fires on ordinary browsing (`page_view`, `cta_click`) — highest ceiling since a real visitor can trigger it often just by clicking around |
+
+`/go/[slug]` remains unlimited — it only ever writes a single
+`interaction` row per call and redirects immediately outbound; abuse
+there produces noisy analytics, not the DB load the four routes above
+carry. Revisit if that changes.
+
+**2026-08-25 audit**: walked a 20-point public web-security checklist
+(secrets in git, exposed APIs, RLS, front-only auth, missing rate
+limits, SQL injection, server validation, XSS, plaintext passwords,
+tokens in localStorage, unauthenticated admin panel, open CORS, email
+validation, predictable IDs, raw request-body logging, unverified
+webhooks, prod stack traces, outdated dependencies, breached-password
+checks, unsafe file uploads) against the real code, not from memory —
+19 of 20 already held; `/api/checkout` and `/api/track` missing a rate
+limit was the one real gap, closed above. `haveibeenpwned`-style
+breached-password checking was the other item with no code —
+intentionally not implemented: it protects a pool of user accounts, and
+this app has exactly one (the shared admin credential Cristian holds
+directly), so the mitigation is Cristian using a unique, strong
+password for it, not a code change.
 
 ## Admin authentication (Block 04 — Command Center)
 
