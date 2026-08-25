@@ -98,17 +98,17 @@ function intersect(a: Set<string>, b: Set<string>): Set<string> {
 /** Two funnels named directly in the brief's own examples — ready to call, not the only ones possible. */
 export const PRESET_FUNNELS: Record<string, FunnelStep[]> = {
   "acquisition-to-purchase": [
-    { name: "Visit", event: "visit" },
-    { name: "Landing view", event: "landing_view" },
-    { name: "CTA click", event: "cta_click" },
-    { name: "Lead", event: "lead_submitted" },
-    { name: "Checkout started", event: "checkout_started" },
-    { name: "Purchase", event: "purchase" },
+    { name: "Visita", event: "visit" },
+    { name: "Vista con origen", event: "landing_view" },
+    { name: "Clic en CTA", event: "cta_click" },
+    { name: "Registro", event: "lead_submitted" },
+    { name: "Checkout iniciado", event: "checkout_started" },
+    { name: "Compra", event: "purchase" },
   ],
   "training-to-lead": [
-    { name: "Visit", event: "visit" },
-    { name: "CTA click", event: "cta_click" },
-    { name: "WhatsApp click", event: "whatsapp_click" },
-    { name: "Lead", event: "lead_submitted" },
+    { name: "Visita", event: "visit" },
+    { name: "Clic en CTA", event: "cta_click" },
+    { name: "Clic a WhatsApp", event: "whatsapp_click" },
+    { name: "Registro", event: "lead_submitted" },
   ],
 };

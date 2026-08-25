@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
 import { SocialPageContent } from "./SocialPageContent";
 
-export const metadata: Metadata = { title: "Social routing" };
+export const metadata: Metadata = { title: "Rutas sociales" };
 
 /**
  * Section 3 — Social routing (FASE 4). Reuses GET /api/analytics/overview
@@ -19,9 +19,9 @@ export default function AdminSocialPage() {
   return (
     <>
       <SectionHeader
-        tag="Social routing"
-        title="/go/[slug] performance"
-        description="Clicks salientes desde el Universe hacia cada destino externo — no medimos qué pasa dentro de Instagram/Facebook/TikTok."
+        tag="Social"
+        title="Rendimiento de /go/[slug]"
+        description="Clics salientes desde el Universe hacia cada destino externo — no medimos qué pasa dentro de Instagram/Facebook/TikTok."
       />
       <SocialPageContent />
     </>

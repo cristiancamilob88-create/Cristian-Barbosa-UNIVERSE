@@ -5,15 +5,15 @@ import { usePathname } from "next/navigation";
 import { logoutAction } from "./actions";
 
 const ADMIN_NAV_ITEMS = [
-  { href: "/admin", label: "Overview" },
+  { href: "/admin", label: "Resumen" },
   { href: "/admin/fuentes", label: "Fuentes" },
   { href: "/admin/social", label: "Social" },
   { href: "/admin/qr", label: "QR" },
-  { href: "/admin/landings", label: "Landings" },
-  { href: "/admin/funnel", label: "Funnel" },
-  { href: "/admin/leads", label: "Leads" },
+  { href: "/admin/landings", label: "Páginas" },
+  { href: "/admin/funnel", label: "Embudo" },
+  { href: "/admin/leads", label: "Registros" },
   { href: "/admin/productos", label: "Productos" },
-  { href: "/admin/revenue", label: "Revenue" },
+  { href: "/admin/revenue", label: "Ingresos" },
   { href: "/admin/canales", label: "Canales" },
 ] as const;
 

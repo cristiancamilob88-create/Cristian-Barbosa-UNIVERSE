@@ -29,7 +29,12 @@ ranges").
 ## Ratios
 
 Each is `numerator / denominator`, `null` when the denominator is 0
-(never divide-by-zero, never silently show 0% for "no data yet").
+(never divide-by-zero, never silently show 0% for "no data yet"). Names
+here stay in English/internal-jargon terms — this doc is for the code,
+not the UI. The dashboard itself is fully Spanish since 2026-08-25
+(Cristian's own request): "Lead" reads "Registro", "Revenue" reads
+"Ingresos", "Visitor → Lead" reads "Visitante → Registro", etc.
+throughout every `/admin/*` page — see docs/COMMAND_CENTER.md.
 
 | Ratio | Formula |
 |---|---|

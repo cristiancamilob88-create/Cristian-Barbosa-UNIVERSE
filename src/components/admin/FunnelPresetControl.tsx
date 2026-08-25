@@ -2,7 +2,7 @@
 
 const PRESETS = [
   { value: "acquisition-to-purchase", label: "Adquisición → Compra" },
-  { value: "training-to-lead", label: "Entrenamiento → Lead" },
+  { value: "training-to-lead", label: "Entrenamiento → Registro" },
 ] as const;
 
 /** Mirrors PRESET_FUNNELS' keys (src/server/analytics/funnel.ts) — no funnel logic here, just which preset to ask for. */

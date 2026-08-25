@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
 import { LandingsPageContent } from "./LandingsPageContent";
 
-export const metadata: Metadata = { title: "Landings" };
+export const metadata: Metadata = { title: "Páginas" };
 
 /**
  * Section 5 — Landing performance (FASE 4). One row per `route` value
@@ -17,9 +17,9 @@ export default function AdminLandingsPage() {
   return (
     <>
       <SectionHeader
-        tag="Landings"
+        tag="Páginas"
         title="Rendimiento por ruta"
-        description="Views, visitantes únicos, tiempo promedio en la página, CTA clicks y conversión a lead/compra — atribuido a la primera ruta en la que entró cada contacto."
+        description="Vistas, visitantes únicos, tiempo promedio en la página, clics en CTA y conversión a registro/compra — atribuido a la primera ruta en la que entró cada contacto."
       />
       <LandingsPageContent />
     </>

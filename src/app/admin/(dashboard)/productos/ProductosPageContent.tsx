@@ -20,7 +20,7 @@ export function ProductosPageContent() {
                 keyFor={(row) => row.productSlug}
                 columns={[
                   { header: "Producto", render: (r) => r.productName },
-                  { header: "Views", align: "right", render: (r) => formatInteger(r.views) },
+                  { header: "Vistas", align: "right", render: (r) => formatInteger(r.views) },
                   { header: "Visitantes únicos", align: "right", render: (r) => formatInteger(r.uniqueVisitors) },
                 ]}
                 rows={data.views}
@@ -29,7 +29,7 @@ export function ProductosPageContent() {
           </div>
 
           <div>
-            <h2 className="mb-3 font-mono text-xs uppercase tracking-wider text-steel">Revenue por producto/oferta</h2>
+            <h2 className="mb-3 font-mono text-xs uppercase tracking-wider text-steel">Ingresos por producto/oferta</h2>
             {data.revenue.length === 0 ? (
               <p className="text-sm text-steel">Sin ventas registradas todavía.</p>
             ) : (
@@ -39,7 +39,7 @@ export function ProductosPageContent() {
                   { header: "Producto", render: (r) => r.productName },
                   { header: "Oferta", render: (r) => r.offerSlug },
                   { header: "Compras", align: "right", render: (r) => formatInteger(r.purchases) },
-                  { header: "Revenue", align: "right", render: (r) => formatCents(r.revenueCents) },
+                  { header: "Ingresos", align: "right", render: (r) => formatCents(r.revenueCents) },
                 ]}
                 rows={data.revenue}
               />

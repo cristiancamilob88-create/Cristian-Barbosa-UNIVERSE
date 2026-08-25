@@ -22,7 +22,7 @@ function BreakdownTable({ rows, labelHeader }: { rows: RevenueBreakdownRow[]; la
       columns={[
         { header: labelHeader, render: (r) => r.label },
         { header: "Compras", align: "right", render: (r) => formatInteger(r.purchases) },
-        { header: "Revenue", align: "right", render: (r) => formatCents(r.revenueCents) },
+        { header: "Ingresos", align: "right", render: (r) => formatCents(r.revenueCents) },
       ]}
       rows={rows}
     />
@@ -39,7 +39,7 @@ export function RevenuePageContent() {
         {({ data }) => (
           <div className="flex flex-col gap-10">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <StatTile label="Revenue total" value={formatCents(data.total.revenueCents)} sub={`${formatInteger(data.total.purchases)} compras`} />
+              <StatTile label="Ingresos totales" value={formatCents(data.total.revenueCents)} sub={`${formatInteger(data.total.purchases)} compras`} />
               <StatTile label="Clientes" value={formatInteger(data.customers.total)} sub="Contactos con al menos una compra" />
             </div>
 
@@ -69,7 +69,7 @@ export function RevenuePageContent() {
                       { header: "Producto", render: (r) => r.productName },
                       { header: "Oferta", render: (r) => r.offerSlug },
                       { header: "Compras", align: "right", render: (r) => formatInteger(r.purchases) },
-                      { header: "Revenue", align: "right", render: (r) => formatCents(r.revenueCents) },
+                      { header: "Ingresos", align: "right", render: (r) => formatCents(r.revenueCents) },
                     ]}
                     rows={data.byProductAndOffer}
                   />

@@ -3,8 +3,8 @@
 import type { AttributionMode } from "@/lib/adminAnalytics";
 
 const OPTIONS: { value: AttributionMode; label: string }[] = [
-  { value: "first_touch", label: "First touch" },
-  { value: "last_touch", label: "Last touch" },
+  { value: "first_touch", label: "Primer contacto" },
+  { value: "last_touch", label: "Último contacto" },
 ];
 
 /** Toggles GET /api/analytics/revenue's `?attribution=` — first/last-touch only, no multi-touch (docs/ANALYTICS_ENGINE.md). */

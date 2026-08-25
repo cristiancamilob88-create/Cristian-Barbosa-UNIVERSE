@@ -15,7 +15,7 @@ export function SocialPageContent() {
           columns={[
             { header: "Plataforma", render: (r) => r.platform },
             { header: "Slug (/go/...)", render: (r) => r.slug },
-            { header: "Clicks", align: "right", render: (r) => formatInteger(r.clicks) },
+            { header: "Clics", align: "right", render: (r) => formatInteger(r.clicks) },
             { header: "Visitantes únicos", align: "right", render: (r) => formatInteger(r.uniqueVisitors) },
           ]}
           rows={social}

@@ -30,10 +30,10 @@ export function PerformanceTable({ rows, labelHeader }: { rows: PerformanceRow[]
             </span>
           ),
         },
-        { header: "Leads", align: "right", render: (r) => formatInteger(r.leads) },
+        { header: "Registros", align: "right", render: (r) => formatInteger(r.leads) },
         { header: "Compras", align: "right", render: (r) => formatInteger(r.purchases) },
         {
-          header: "Revenue",
+          header: "Ingresos",
           align: "right",
           render: (r) => (
             <span className="flex items-center justify-end gap-2">
@@ -42,8 +42,8 @@ export function PerformanceTable({ rows, labelHeader }: { rows: PerformanceRow[]
             </span>
           ),
         },
-        { header: "Visitor→Lead", align: "right", render: (r) => formatRatio(r.visitorToLeadRate) },
-        { header: "Lead→Purchase", align: "right", render: (r) => formatRatio(r.leadToPurchaseRate) },
+        { header: "Visitante→Registro", align: "right", render: (r) => formatRatio(r.visitorToLeadRate) },
+        { header: "Registro→Compra", align: "right", render: (r) => formatRatio(r.leadToPurchaseRate) },
       ]}
       rows={rows}
     />

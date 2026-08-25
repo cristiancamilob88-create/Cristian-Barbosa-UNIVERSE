@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
 import { OverviewPageContent } from "./OverviewPageContent";
 
-export const metadata: Metadata = { title: "Overview" };
+export const metadata: Metadata = { title: "Resumen" };
 
 /**
  * Section 1 — Overview (FASE 4, refined in Block 04.1). Kept as a Server
@@ -17,9 +17,9 @@ export default function AdminOverviewPage() {
   return (
     <>
       <SectionHeader
-        tag="Command Center"
-        title="Overview"
-        description="Tráfico, conversión y revenue del rango seleccionado — definiciones exactas en docs/KPI_DEFINITIONS.md."
+        tag="Centro de Control"
+        title="Resumen"
+        description="Tráfico, conversión e ingresos del rango seleccionado — definiciones exactas en docs/KPI_DEFINITIONS.md."
       />
       <OverviewPageContent />
     </>

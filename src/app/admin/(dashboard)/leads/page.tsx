@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
 import { LeadsPageContent } from "./LeadsPageContent";
 
-export const metadata: Metadata = { title: "Leads" };
+export const metadata: Metadata = { title: "Registros" };
 
 /**
  * Section 7 — Leads (FASE 4, extended in Block 04.1 with a real
@@ -19,7 +19,7 @@ export const metadata: Metadata = { title: "Leads" };
 export default function AdminLeadsPage() {
   return (
     <>
-      <SectionHeader tag="CRM" title="Leads" description="Actividad reciente, totales, por interés, por fuente y por campaña." />
+      <SectionHeader tag="CRM" title="Registros" description="Actividad reciente, totales, por interés, por fuente y por campaña." />
       <LeadsPageContent />
     </>
   );

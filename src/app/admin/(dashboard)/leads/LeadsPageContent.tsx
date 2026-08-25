@@ -43,17 +43,17 @@ export function LeadsPageContent() {
       <AnalyticsBoundary<OverviewResponse> path="overview">
         {({ data, leadsByInterest }) => (
           <div className="flex flex-col gap-6">
-            <StatTile label="Leads totales" value={formatInteger(data.leads)} />
+            <StatTile label="Registros totales" value={formatInteger(data.leads)} />
             <div>
               <h2 className="mb-3 font-mono text-xs uppercase tracking-wider text-steel">Por interés</h2>
               {leadsByInterest.length === 0 ? (
-                <p className="text-sm text-steel">Sin leads todavía en este rango.</p>
+                <p className="text-sm text-steel">Sin registros todavía en este rango.</p>
               ) : (
                 <Table
                   keyFor={(row) => row.key ?? "none"}
                   columns={[
                     { header: "Interés", render: (r) => r.label },
-                    { header: "Leads", align: "right", render: (r) => formatInteger(r.leads) },
+                    { header: "Registros", align: "right", render: (r) => formatInteger(r.leads) },
                   ]}
                   rows={leadsByInterest}
                 />

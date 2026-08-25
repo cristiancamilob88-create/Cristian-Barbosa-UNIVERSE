@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
 import { RevenuePageContent } from "./RevenuePageContent";
 
-export const metadata: Metadata = { title: "Revenue" };
+export const metadata: Metadata = { title: "Ingresos" };
 
 /**
  * Section 9 — Revenue (FASE 4). First-touch/last-touch only, per
@@ -14,9 +14,9 @@ export default function AdminRevenuePage() {
   return (
     <>
       <SectionHeader
-        tag="Revenue"
+        tag="Ingresos"
         title="Ingresos"
-        description="Total, por fuente, campaña, QR y producto/oferta — first-touch o last-touch attribution."
+        description="Total, por fuente, campaña, QR y producto/oferta — atribución por primer o último contacto."
       />
       <RevenuePageContent />
     </>

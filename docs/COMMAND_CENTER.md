@@ -392,6 +392,25 @@ animation library, no chart library — bars in `FunnelBars` are plain
 `<div>`s with a CSS `width`, per the block's own "no diseño visual
 avanzado todavía" instruction.
 
+**Full Spanish pass, 2026-08-25** (Cristian's own request — "no entiendo
+bien" citing "Lead" specifically): the dashboard had drifted into a
+mix of Spanish labels and untranslated English jargon — nav items
+(Overview/Landings/Funnel/Leads/Revenue), several StatTile labels
+(Page views/CTA clicks/WhatsApp clicks/...), table headers (Views/
+Scans/Revenue/...), the funnel step names, and the first-touch/
+last-touch toggle. Every user-visible string across all 10 sections is
+Spanish now — verified by walking the rendered DOM text (not just
+grepping source) after a real production build, confirming zero English
+words remain visible. Glossary used, for consistency across future
+sections: **Lead → Registro** (deliberately not "Contacto" — that word is
+reserved for a future, separate, PII-bearing page; see
+docs/ANALYTICS_ENGINE.md, "Recent-leads list", for why `getRecentLeads()`
+itself never exposes name/email), **Revenue → Ingresos**, **Landing
+(views) → Visitas con origen**, **CTA click → Clic en CTA**. Internal
+code (variable/component/type names, docs, event taxonomy strings in
+`interaction.event_name`) stays as-is — only what a person actually
+reads on screen changed.
+
 ## 11. Performance and privacy
 
 - Every `/admin/*` page is dynamically rendered (the `(dashboard)`

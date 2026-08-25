@@ -14,11 +14,11 @@ export function LandingsPageContent() {
           keyFor={(row) => row.route}
           columns={[
             { header: "Ruta", render: (r) => r.route },
-            { header: "Views", align: "right", render: (r) => formatInteger(r.views) },
+            { header: "Vistas", align: "right", render: (r) => formatInteger(r.views) },
             { header: "Visitantes únicos", align: "right", render: (r) => formatInteger(r.uniqueVisitors) },
             { header: "Tiempo promedio", align: "right", render: (r) => formatDuration(r.avgDwellSeconds) },
-            { header: "CTA clicks", align: "right", render: (r) => formatInteger(r.ctaClicks) },
-            { header: "Leads", align: "right", render: (r) => formatInteger(r.leadConversions) },
+            { header: "Clics en CTA", align: "right", render: (r) => formatInteger(r.ctaClicks) },
+            { header: "Registros", align: "right", render: (r) => formatInteger(r.leadConversions) },
             { header: "Compras", align: "right", render: (r) => formatInteger(r.purchaseConversions) },
             {
               header: "Conversión",

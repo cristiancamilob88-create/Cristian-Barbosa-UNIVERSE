@@ -17,7 +17,7 @@ export default function AdminQrPage() {
     <>
       <SectionHeader
         tag="Físico → digital"
-        title="QR performance"
+        title="Rendimiento de QR"
         description="Shows, universidades, colegios, ferias, eventos — cada código registrado, de scan a compra."
       />
       <QrPageContent />

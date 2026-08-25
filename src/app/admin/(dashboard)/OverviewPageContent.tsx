@@ -39,13 +39,13 @@ export function OverviewPageContent() {
                 <StatTile label="Sesiones" value={formatInteger(data.sessions)} />
                 <StatTile label="Duración promedio" value={formatDuration(data.avgSessionDurationSeconds)} />
                 <StatTile label="Páginas / sesión" value={data.avgPagesPerSession.toFixed(1)} />
-                <StatTile label="Page views" value={formatInteger(data.pageViews)} />
-                <StatTile label="Landing views" value={formatInteger(data.landingViews)} />
-                <StatTile label="CTA clicks" value={formatInteger(data.ctaClicks)} />
-                <StatTile label="Social clicks" value={formatInteger(data.socialClicks)} />
-                <StatTile label="WhatsApp clicks" value={formatInteger(data.whatsappClicks)} />
+                <StatTile label="Vistas de página" value={formatInteger(data.pageViews)} />
+                <StatTile label="Visitas con origen" value={formatInteger(data.landingViews)} />
+                <StatTile label="Clics en CTA" value={formatInteger(data.ctaClicks)} />
+                <StatTile label="Clics sociales" value={formatInteger(data.socialClicks)} />
+                <StatTile label="Clics a WhatsApp" value={formatInteger(data.whatsappClicks)} />
                 <StatTile
-                  label="Leads"
+                  label="Registros"
                   value={formatInteger(data.leads)}
                   delta={previous && <DeltaBadge current={data.leads} previous={previous.leads} />}
                 />
@@ -55,7 +55,7 @@ export function OverviewPageContent() {
                   delta={previous && <DeltaBadge current={data.purchases} previous={previous.purchases} />}
                 />
                 <StatTile
-                  label="Revenue"
+                  label="Ingresos"
                   value={formatCents(data.revenueCents)}
                   delta={previous && <DeltaBadge current={data.revenueCents} previous={previous.revenueCents} />}
                 />
@@ -73,13 +73,13 @@ export function OverviewPageContent() {
                 </div>
               </div>
               <div className="rounded border border-steel-dim/40 bg-ink-raised p-4">
-                <p className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">Leads / día</p>
+                <p className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">Registros / día</p>
                 <div className="mt-2">
                   <Sparkline points={timeseries.map((p) => ({ date: p.date, value: p.leads }))} formatValue={formatInteger} />
                 </div>
               </div>
               <div className="rounded border border-steel-dim/40 bg-ink-raised p-4">
-                <p className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">Revenue / día</p>
+                <p className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">Ingresos / día</p>
                 <div className="mt-2">
                   <Sparkline points={timeseries.map((p) => ({ date: p.date, value: p.revenueCents }))} formatValue={formatCents} />
                 </div>
@@ -90,25 +90,25 @@ export function OverviewPageContent() {
           <div>
             <h2 className="mb-3 font-mono text-xs uppercase tracking-wider text-steel">Ratios de conversión</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              <StatTile label="Visitor → Lead" value={formatRatio(data.ratios.visitorToLead)} />
-              <StatTile label="Landing → Lead" value={formatRatio(data.ratios.landingToLead)} />
-              <StatTile label="Lead → Purchase" value={formatRatio(data.ratios.leadToPurchase)} />
-              <StatTile label="Visitor → Purchase" value={formatRatio(data.ratios.visitorToPurchase)} />
-              <StatTile label="CTA → Lead" value={formatRatio(data.ratios.ctaToLead)} />
-              <StatTile label="Checkout → Purchase" value={formatRatio(data.ratios.checkoutToPurchase)} />
+              <StatTile label="Visitante → Registro" value={formatRatio(data.ratios.visitorToLead)} />
+              <StatTile label="Landing → Registro" value={formatRatio(data.ratios.landingToLead)} />
+              <StatTile label="Registro → Compra" value={formatRatio(data.ratios.leadToPurchase)} />
+              <StatTile label="Visitante → Compra" value={formatRatio(data.ratios.visitorToPurchase)} />
+              <StatTile label="CTA → Registro" value={formatRatio(data.ratios.ctaToLead)} />
+              <StatTile label="Checkout → Compra" value={formatRatio(data.ratios.checkoutToPurchase)} />
             </div>
           </div>
 
           <div>
-            <h2 className="mb-3 font-mono text-xs uppercase tracking-wider text-steel">Leads por interés</h2>
+            <h2 className="mb-3 font-mono text-xs uppercase tracking-wider text-steel">Registros por interés</h2>
             {leadsByInterest.length === 0 ? (
-              <p className="text-sm text-steel">Sin leads todavía en este rango.</p>
+              <p className="text-sm text-steel">Sin registros todavía en este rango.</p>
             ) : (
               <Table
                 keyFor={(row) => row.key ?? "none"}
                 columns={[
                   { header: "Interés", render: (r) => r.label },
-                  { header: "Leads", align: "right", render: (r) => formatInteger(r.leads) },
+                  { header: "Registros", align: "right", render: (r) => formatInteger(r.leads) },
                 ]}
                 rows={leadsByInterest}
               />
@@ -120,14 +120,14 @@ export function OverviewPageContent() {
               Social (resumen — detalle en /admin/social)
             </h2>
             {social.length === 0 ? (
-              <p className="text-sm text-steel">Sin clicks salientes todavía en este rango.</p>
+              <p className="text-sm text-steel">Sin clics salientes todavía en este rango.</p>
             ) : (
               <Table
                 keyFor={(row) => `${row.platform}-${row.slug}`}
                 columns={[
                   { header: "Plataforma", render: (r) => r.platform },
                   { header: "Slug", render: (r) => r.slug },
-                  { header: "Clicks", align: "right", render: (r) => formatInteger(r.clicks) },
+                  { header: "Clics", align: "right", render: (r) => formatInteger(r.clicks) },
                   { header: "Visitantes únicos", align: "right", render: (r) => formatInteger(r.uniqueVisitors) },
                 ]}
                 rows={social}
