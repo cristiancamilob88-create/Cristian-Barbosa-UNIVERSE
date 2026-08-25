@@ -18,6 +18,16 @@ const topics = [
 const clientSchema = z.object({
   name: z.string().trim().min(2, "Cuéntanos tu nombre completo."),
   email: z.string().trim().email("Escribe un correo válido."),
+  // Required, not optional — WhatsApp is this site's real follow-up
+  // channel throughout (community, comercial, subscriptions), so a lead
+  // without a number is a lead the team can't actually reach the way
+  // most people expect to be reached.
+  phone: z
+    .string()
+    .trim()
+    .min(7, "Escribe un número de celular válido.")
+    .max(20, "Escribe un número de celular válido.")
+    .regex(/^[0-9+()\s-]+$/, "Solo números, espacios y +()- ."),
   topic: z.enum(topics.map((t) => t.value) as [string, ...string[]]),
   message: z.string().trim().max(2000).optional(),
 });
@@ -36,6 +46,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
     const values = {
       name: String(formData.get("name") ?? ""),
       email: String(formData.get("email") ?? ""),
+      phone: String(formData.get("phone") ?? ""),
       topic: String(formData.get("topic") ?? "general"),
       message: String(formData.get("message") ?? ""),
       company: String(formData.get("company") ?? ""), // honeypot
@@ -111,6 +122,23 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
           type="email"
           required
           autoComplete="email"
+          className="border border-steel-dim/50 bg-transparent px-4 py-3 text-chalk placeholder:text-steel-dim focus:border-ember focus:outline-none"
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label htmlFor="phone" className="font-mono text-xs uppercase tracking-widest text-steel">
+          Celular (WhatsApp)
+        </label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          required
+          minLength={7}
+          maxLength={20}
+          autoComplete="tel"
+          placeholder="300 123 4567"
           className="border border-steel-dim/50 bg-transparent px-4 py-3 text-chalk placeholder:text-steel-dim focus:border-ember focus:outline-none"
         />
       </div>

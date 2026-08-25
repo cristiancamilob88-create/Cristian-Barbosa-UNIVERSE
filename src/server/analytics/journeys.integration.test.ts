@@ -159,6 +159,7 @@ describe("Block 03 manual validation journeys", () => {
       leadRequest(visitorId, JSON.stringify(sourceRef), {
         name: "Test Four",
         email,
+        phone: "3001234567",
         topic: "entrenar",
       }),
     );
@@ -195,6 +196,7 @@ describe("Block 03 manual validation journeys", () => {
       leadRequest(visitorId, JSON.stringify(sourceRef), {
         name: "Test Five",
         email,
+        phone: "3007654321",
         topic: "general",
       }),
     );

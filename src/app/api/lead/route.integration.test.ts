@@ -19,16 +19,40 @@ function makeRequest(body: unknown, options: { cookie?: string; ip?: string } = 
   });
 }
 
+/** A valid phone value, distinct per call so phone-dedup tests don't collide with each other. */
+function testPhone() {
+  return `300${Math.floor(1_000_000 + Math.random() * 8_999_999)}`;
+}
+
 describe("POST /api/lead", () => {
   beforeEach(resetActivityTables);
   afterAll(closeTestPool);
 
   it("rejects invalid input with 400 and writes nothing", async () => {
-    const response = await POST(makeRequest({ name: "A", email: "not-an-email", topic: "general" }));
+    const response = await POST(makeRequest({ name: "A", email: "not-an-email", phone: testPhone(), topic: "general" }));
     expect(response.status).toBe(400);
 
     const rows = await getTestPool().query("select count(*) from contact");
     expect(Number(rows.rows[0].count)).toBe(0);
+  });
+
+  it("rejects a missing phone — required, not optional (WhatsApp is the real follow-up channel)", async () => {
+    const response = await POST(
+      makeRequest({ name: "Ana", email: `no-phone-${Date.now()}@example.com`, topic: "general" }),
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects a phone that's too short or has invalid characters", async () => {
+    const tooShort = await POST(
+      makeRequest({ name: "Ana", email: `short-${Date.now()}@example.com`, phone: "123", topic: "general" }),
+    );
+    expect(tooShort.status).toBe(400);
+
+    const badChars = await POST(
+      makeRequest({ name: "Ana", email: `badchars-${Date.now()}@example.com`, phone: "call me maybe", topic: "general" }),
+    );
+    expect(badChars.status).toBe(400);
   });
 
   it("silently drops a honeypot-tripped submission without writing anything", async () => {
@@ -36,6 +60,7 @@ describe("POST /api/lead", () => {
       makeRequest({
         name: "Bot",
         email: "bot@example.com",
+        phone: testPhone(),
         topic: "general",
         company: "not-empty",
       }),
@@ -45,18 +70,20 @@ describe("POST /api/lead", () => {
     expect(Number(rows.rows[0].count)).toBe(0);
   });
 
-  it("creates a contact, assigns the mapped interest, and creates a lead end to end", async () => {
+  it("creates a contact (with phone persisted), assigns the mapped interest, and creates a lead end to end", async () => {
     const email = `lead-${Date.now()}@example.com`;
+    const phone = testPhone();
     const cookie = "cb_visitor=11111111-1111-4111-8111-111111111111";
 
     const response = await POST(
-      makeRequest({ name: "Ana Torres", email, topic: "entrenar", message: "Quiero info" }, { cookie }),
+      makeRequest({ name: "Ana Torres", email, phone, topic: "entrenar", message: "Quiero info" }, { cookie }),
     );
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
 
-    const contactRows = await getTestPool().query("select id from contact where email = $1", [email]);
+    const contactRows = await getTestPool().query("select id, phone from contact where email = $1", [email]);
     expect(contactRows.rowCount).toBe(1);
+    expect(contactRows.rows[0].phone).toBe(phone);
     const contactId = contactRows.rows[0].id;
 
     const leadRows = await getTestPool().query(
@@ -77,8 +104,8 @@ describe("POST /api/lead", () => {
   it("routes a second submission with the same email to the same contact (no duplicate contact)", async () => {
     const email = `dup-${Date.now()}@example.com`;
 
-    await POST(makeRequest({ name: "Ana", email, topic: "musica" }));
-    await POST(makeRequest({ name: "Ana", email, topic: "shows" }));
+    await POST(makeRequest({ name: "Ana", email, phone: testPhone(), topic: "musica" }));
+    await POST(makeRequest({ name: "Ana", email, phone: testPhone(), topic: "shows" }));
 
     const contactRows = await getTestPool().query("select id from contact where email = $1", [email]);
     expect(contactRows.rowCount).toBe(1);
@@ -89,11 +116,23 @@ describe("POST /api/lead", () => {
     expect(Number(leadRows.rows[0].count)).toBe(2);
   });
 
+  it("routes a second submission with the same phone but a different email to the same contact", async () => {
+    const phone = testPhone();
+    const firstEmail = `phone-dedup-a-${Date.now()}@example.com`;
+    const secondEmail = `phone-dedup-b-${Date.now()}@example.com`;
+
+    await POST(makeRequest({ name: "Ana", email: firstEmail, phone, topic: "musica" }));
+    await POST(makeRequest({ name: "Ana", email: secondEmail, phone, topic: "shows" }));
+
+    const contactRows = await getTestPool().query("select count(*) from contact where phone = $1", [phone]);
+    expect(Number(contactRows.rows[0].count)).toBe(1);
+  });
+
   it("stores a name containing SQL metacharacters as inert data", async () => {
     const email = `injection-${Date.now()}@example.com`;
     const maliciousName = "Robert'); DROP TABLE contact; --";
 
-    const response = await POST(makeRequest({ name: maliciousName, email, topic: "general" }));
+    const response = await POST(makeRequest({ name: maliciousName, email, phone: testPhone(), topic: "general" }));
     expect(response.status).toBe(200);
 
     const rows = await getTestPool().query("select name from contact where email = $1", [email]);
@@ -106,8 +145,8 @@ describe("POST /api/lead", () => {
     const physicalEmail = `fisicos-${Date.now()}@example.com`;
     const digitalEmail = `digitales-${Date.now()}@example.com`;
 
-    await POST(makeRequest({ name: "Fisicos Lead", email: physicalEmail, topic: "productos_fisicos" }));
-    await POST(makeRequest({ name: "Digitales Lead", email: digitalEmail, topic: "productos_digitales" }));
+    await POST(makeRequest({ name: "Fisicos Lead", email: physicalEmail, phone: testPhone(), topic: "productos_fisicos" }));
+    await POST(makeRequest({ name: "Digitales Lead", email: digitalEmail, phone: testPhone(), topic: "productos_digitales" }));
 
     const physicalRows = await getTestPool().query(
       `select i.slug from lead l join interest i on i.id = l.interest_id
@@ -126,7 +165,7 @@ describe("POST /api/lead", () => {
 
   it("rejects the retired bare 'productos' topic", async () => {
     const response = await POST(
-      makeRequest({ name: "Old Topic", email: `old-topic-${Date.now()}@example.com`, topic: "productos" }),
+      makeRequest({ name: "Old Topic", email: `old-topic-${Date.now()}@example.com`, phone: testPhone(), topic: "productos" }),
     );
     expect(response.status).toBe(400);
   });
@@ -136,9 +175,11 @@ describe("POST /api/lead", () => {
     const marcasEmail = `marcas-${Date.now()}@example.com`;
     const trainingEmail = `entrenar-${Date.now()}@example.com`;
 
-    await POST(makeRequest({ name: "Show Lead", email: showsEmail, topic: "shows", message: "Un evento" }));
-    await POST(makeRequest({ name: "Marca Lead", email: marcasEmail, topic: "marcas" }));
-    await POST(makeRequest({ name: "Training Lead", email: trainingEmail, topic: "entrenar" }));
+    await POST(
+      makeRequest({ name: "Show Lead", email: showsEmail, phone: testPhone(), topic: "shows", message: "Un evento" }),
+    );
+    await POST(makeRequest({ name: "Marca Lead", email: marcasEmail, phone: testPhone(), topic: "marcas" }));
+    await POST(makeRequest({ name: "Training Lead", email: trainingEmail, phone: testPhone(), topic: "entrenar" }));
 
     const showsContact = await getTestPool().query("select id from contact where email = $1", [showsEmail]);
     const showsOpps = await getTestPool().query(
@@ -169,7 +210,9 @@ describe("POST /api/lead", () => {
     const responses = [];
     for (let i = 0; i < 6; i++) {
       responses.push(
-        await POST(makeRequest({ name: "Ana", email: `burst-${i}-${Date.now()}@example.com`, topic: "general" }, { ip })),
+        await POST(
+          makeRequest({ name: "Ana", email: `burst-${i}-${Date.now()}@example.com`, phone: testPhone(), topic: "general" }, { ip }),
+        ),
       );
     }
     const statuses = responses.map((r) => r.status);

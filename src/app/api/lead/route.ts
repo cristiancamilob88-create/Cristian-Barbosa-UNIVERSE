@@ -31,6 +31,17 @@ import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
 const leadSchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(200),
+  // Required — WhatsApp is this site's real follow-up channel
+  // throughout (community, comercial, subscriptions); a lead with no
+  // number is one the team can't actually reach the way most people
+  // expect. Same shape as the client-side check (ContactForm.tsx) —
+  // this is the real enforcement point, that one is just UX.
+  phone: z
+    .string()
+    .trim()
+    .min(7)
+    .max(20)
+    .regex(/^[0-9+()\s-]+$/),
   topic: z.enum([
     "entrenar",
     "coaching",
@@ -111,7 +122,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const { name, email, topic, message } = parsed.data;
+  const { name, email, phone, topic, message } = parsed.data;
 
   try {
     const { visitorId, isNewVisitorId } = await withTransaction(async (client) => {
@@ -119,7 +130,7 @@ export async function POST(request: NextRequest) {
 
       const { contact, created } = await findOrCreateContact(
         client,
-        { email, phone: null, name },
+        { email, phone, name },
         visitorCtx.visitor,
       );
       await linkVisitorToContact(client, visitorCtx.visitorId, contact.id);

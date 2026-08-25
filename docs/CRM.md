@@ -20,7 +20,11 @@ list exactly):
    (case-insensitive), then phone. First-touch copied once on creation;
    last-touch refreshed on every match. Name is filled in only if
    previously null — a later, blanker submission never erases a name
-   already on file.
+   already on file. **Phone is a required field on `ContactForm`**
+   (2026-08-25, Cristian's own ask — WhatsApp is this site's real
+   follow-up channel throughout) — before this, `contact.phone` existed
+   in the schema and in this function's own matching logic but no form
+   ever collected it, so it was always null in practice.
 6. **Link visitor → contact** — `linkVisitorToContact()`, backfilling
    prior anonymous interactions (docs/AUDIENCE_JOURNEY.md).
 7. **Assign interest** — the form's `topic` maps to the canonical
