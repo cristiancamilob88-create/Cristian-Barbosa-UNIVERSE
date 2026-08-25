@@ -41,9 +41,57 @@ live only in chat history. Newest items at the top of each section.
   session should ask what to change first, or start from the concrete
   finding already on record (`/redes` grouped by category,
   docs/UNIVERSE_UX.md §8).
+- **IA dentro del panel que explica los datos en lenguaje natural**
+  (2026-08-25) — Cristian's own idea: ask the dashboard "¿alguien se
+  registró hoy?" in plain Spanish instead of reading tables. The
+  biggest of the three asks from that message — needs a real Claude/
+  Anthropic API integration (new vendor, cost per query) — deliberately
+  not started; asked Cristian to prioritize the three together
+  (Contactos / mensajes automáticos / esto), he picked Contactos first
+  (closed below).
+- **Mensajes automáticos (WhatsApp/correo) al registrarse + invitación
+  semanal a la comunidad** (2026-08-25) — same message as above. This
+  is the same automation item already open since earlier the same day
+  (see the entry above about a real automation) — still blocked on
+  Decision Gate 5 (vendor choice, docs/NEXT_BLOCK.md). Now that
+  `/admin/contactos` exists (closed below), Cristian can already do
+  this manually — reach out himself using the real phone/email now
+  visible there — while the vendor decision is still open.
 
 ## Closed
 
+- **`/admin/contactos` — real name/email/teléfono per registro**
+  (2026-08-25): Cristian's own request — "quiero ver esa base de datos
+  de esas personas." New page, new `src/server/admin/` module, new
+  `/api/admin/contacts` endpoint (session-cookie-only auth, no bearer
+  token) — deliberately kept out of the PII-free `/api/analytics/*`
+  family. Full record in docs/COMMAND_CENTER.md §17. Verified with a
+  real inserted contact+lead row, screenshotted logged-in. Also
+  answered separately, same conversation: Cristian's "entré sin
+  contraseña" report was investigated in the actual session code
+  (`src/proxy.ts`) — an already-valid 12h session cookie skips the
+  login form by design (redirects straight to `/admin`), the same way
+  any site remembers a logged-in browser; not a real hole unless the
+  same skip happens in a browser that never entered the password
+  (asked Cristian to check via a private/incognito window — no
+  confirmation back yet either way).
+- **Dashboard translated fully to Spanish** (2026-08-25): Cristian's
+  own words, "no entiendo bien," specifically citing "Lead." Every
+  visible string across all 10 (now 11) `/admin/*` sections — full
+  record and glossary in docs/COMMAND_CENTER.md §10/§17.
+- **Vercel Authentication (SSO) wall was blocking the whole public
+  site** (2026-08-25): found while investigating Cristian's "no me pidió
+  contraseña" report on `/admin/login` — turned out to be a much bigger,
+  separate issue: Vercel's own "Standard Protection" (likely the
+  platform's own default for a new project, never something Cristian
+  turned on) required a Vercel account login for every `*.vercel.app`
+  URL, including the real production one — meaning any real visitor
+  without Vercel access, QR scans included, would have hit Vercel's own
+  login wall instead of the site. Disabled via the Vercel API,
+  confirmed off. Also: `ADMIN_PASSWORD_HASH`/`ADMIN_SESSION_SECRET`
+  generated and walked Cristian through pasting them into Vercel's
+  env vars + redeploying — `/admin/login` has a real working password
+  now (`Barbosa2020-2026`, chosen by Cristian).
 - **"Presentaciones pasadas" ready to hold real activity entries**
   (2026-08-25): Cristian asked whether documenting real appearances
   ("ya estuvimos en el colegio de la Leticia... un tipo de noticias")

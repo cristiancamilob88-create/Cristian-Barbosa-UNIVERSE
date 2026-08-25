@@ -238,6 +238,7 @@ whether a legitimate admin can find the door, not who can open it.
 /admin/landings           Landing performance (Section 5)
 /admin/funnel             Funnel (Section 6)
 /admin/leads              Leads (Section 7)
+/admin/contactos          Real contact detail — name/email/phone (2026-08-25, §17)
 /admin/productos          Products/offers (Section 8)
 /admin/revenue            Revenue (Section 9)
 /admin/canales            Channel comparison (FASE 10)
@@ -601,13 +602,53 @@ app — no charting library, no new design system.
   (Block 03) have no endpoint or page yet. Deferred because a real
   journey view legitimately wants an identifier to look up (which
   contact?), and building that lookup UI/endpoint well is a sized
-  feature on its own — not squeezed into this pass. Recommended as a
-  focused follow-up, likely paired with the "full contact detail"
-  admin-only surface named in §4/docs/ANALYTICS_ENGINE.md ("Recent-leads
-  list") rather than bolted onto `/api/analytics/*`.
+  feature on its own — not squeezed into this pass. `/admin/contactos`
+  (§17, added 2026-08-25) is the natural place this would attach — each
+  row could link to its contact's journey — but that link isn't built
+  yet; today the page is a flat list, no drill-down.
 - **Sessions in the time series** — see docs/ANALYTICS_ENGINE.md, "Time
   series", for why.
 - Real charts (bar/area beyond a sparkline and a mini-bar), micro-
   interactions, and any further motion are still deliberately deferred
   to a later visual-polish block, per this block's own "no 3D/animación
   avanzada" scope note.
+
+## 17. /admin/contactos — real contact detail (2026-08-25)
+
+Cristian's own request, direct quote: "quiero ver esa base de datos de
+esas personas" — a registration showing up as a count in `/admin/leads`
+wasn't enough; he needs to actually see who it was and reach out. This
+is the "future, separate admin-only surface" `getRecentLeads()`
+(docs/ANALYTICS_ENGINE.md) and §4/§14 above both named but deferred —
+built now, deliberately kept separate from everything else:
+
+- **New module, not `src/server/analytics/`**: `src/server/admin/`
+  (`contacts.ts` for the query, `auth.ts` for the gate) — parallel to
+  `analytics/`/`auth/`/`commerce/`, not a new function inside
+  `analytics/`. That family is tested to guarantee zero PII in its
+  responses (`overview/route.integration.test.ts`); putting a
+  name/email/phone query anywhere under it would be one accidental
+  refactor away from a real leak. A new top-level folder makes "this
+  one is different" structural, not just a comment.
+- **New endpoint, not `/api/analytics/*`**: `/api/admin/contacts`,
+  session-cookie-only auth (`requireAdminApiSession` —
+  no `ANALYTICS_API_TOKEN` bearer-token fallback, unlike
+  `requireAnalyticsAuth`). That bearer token exists for a future non-
+  browser/automation caller against aggregate data; PII should never be
+  reachable by a shared token, only Cristian's own logged-in browser.
+- **New client DTO file**: `src/lib/adminContacts.ts`, not an addition
+  to `src/lib/adminAnalytics.ts` (documented as the `/api/analytics/*`
+  boundary specifically) — same separation, client side.
+- **No date range**: the page's job is "who do I need to follow up
+  with", not a trend — most-recent-100, newest first. `SectionHeader`
+  gained a `hideDateRange` prop for this (previously every section
+  showed the date-range control unconditionally) — showing a control
+  that silently does nothing when clicked would be a real bug on this
+  page, not just clutter.
+- **One row per lead, not deduped by contact**: the same person can
+  register twice with a different topic; each submission is a real
+  event worth seeing and acting on separately.
+
+Glossary matches the rest of the dashboard (§10's Spanish pass, same
+day): "Contactos" here is the real word for real PII — distinct from
+"Registros" (`/admin/leads`), which stays the aggregate/no-PII term.

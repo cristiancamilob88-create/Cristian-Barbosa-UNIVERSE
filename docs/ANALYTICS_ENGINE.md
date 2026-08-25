@@ -141,9 +141,12 @@ which a count or a group-by can't answer on its own. It still respects
 the "aggregates only, no PII" rule for `/api/analytics/*`
 (docs/SECURITY.md): no `contact_id`, no name, no email — only
 topic/interest/source/campaign/qr/medium/timestamp, each already public
-inside this dashboard's own aggregates. Full contact detail (name/email)
-belongs on a future, separate admin-only surface — see
-docs/COMMAND_CENTER.md, "What's not built yet".
+inside this dashboard's own aggregates. Full contact detail (name/email/
+phone) has its own separate, admin-only surface now — `/admin/contactos`,
+`src/server/admin/contacts.ts`, `/api/admin/contacts` — see
+docs/COMMAND_CENTER.md §17. Deliberately a different module and a
+different endpoint namespace, not an addition here: this file's own
+read models must stay provably PII-free.
 
 ## Endpoint authorization
 
