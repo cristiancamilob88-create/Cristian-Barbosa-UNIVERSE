@@ -1,3 +1,5 @@
+import { env } from "@/lib/env";
+
 /**
  * Single source of truth for site-wide constants: brand copy, navigation,
  * and social/contact links. Route pages and layout read from here instead
@@ -11,7 +13,16 @@ export const siteConfig = {
   tagline: "Atleta, artista, entrenador — un universo, muchas formas de entrar.",
   description:
     "El universo digital de Cristian Barbosa: calistenia, coaching, comunidad, música, productos y shows en un solo lugar.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://cristianbarbosa.com",
+  // Read through src/lib/env.ts's validated export, not process.env
+  // directly (AGENTS.md's own rule) — the previous direct read bypassed
+  // zod's validation/default entirely and broke the Vercel production
+  // build: an env var saved with a blank value in Vercel's dashboard is
+  // an empty string, not absent, so `process.env.X ?? fallback` never
+  // fell back and `new URL("")` in src/app/layout.tsx threw
+  // `ERR_INVALID_URL` (confirmed via the real Vercel build log, Block
+  // 08.10 Fase 10). `env.NEXT_PUBLIC_SITE_URL` already guards against
+  // exactly that case.
+  url: env.NEXT_PUBLIC_SITE_URL,
   locale: "es",
 } as const;
 

@@ -52,7 +52,14 @@ const serverEnvSchema = z.object({
 
 export function getServerEnv() {
   return serverEnvSchema.parse({
-    DATABASE_URL: process.env.DATABASE_URL,
+    // `|| undefined`, not a bare pass-through — an env var saved with a
+    // blank value in a dashboard is an empty string, not absent, and
+    // `.optional()` still validates a present-but-empty value against
+    // `.min(1)` and throws. Same guard the other three fields already
+    // use below; found missing here via a real Vercel build failure
+    // (Block 08.10 Fase 10) in the sibling case, src/lib/env.ts's
+    // NEXT_PUBLIC_SITE_URL — see that file's comment.
+    DATABASE_URL: process.env.DATABASE_URL || undefined,
     ANALYTICS_API_TOKEN: process.env.ANALYTICS_API_TOKEN || undefined,
     ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH || undefined,
     ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET || undefined,
