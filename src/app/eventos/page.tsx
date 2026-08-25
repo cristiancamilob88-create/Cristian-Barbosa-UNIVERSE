@@ -31,8 +31,31 @@ const categories = [
   { title: "Eventos propios", detail: "Presentaciones organizadas directamente por Cristian Barbosa." },
   { title: "Participaciones", detail: "Eventos de terceros donde Cristian se presenta." },
   { title: "Próximos", detail: "Fechas confirmadas, todavía sin publicar." },
-  { title: "Presentaciones pasadas", detail: "Historial de apariciones anteriores." },
 ];
+
+interface PastPresentation {
+  place: string;
+  date: string;
+  description: string;
+}
+
+/**
+ * Real entries only, added the same day something actually happened —
+ * never scheduled or written ahead of time (same "NO inventar eventos"
+ * rule as `categories` above). Cristian's own ask, 2026-08-25: document
+ * real appearances ("ya estuvimos en el colegio de la Leticia, en tal
+ * municipio, haciendo tal") — he explicitly chose reusing this existing
+ * "Presentaciones pasadas" category over a new "Noticias" section, so
+ * this is that category's real content, not a new content type. Starts
+ * empty on purpose: the Colegio de la Leticia — Envigado visit
+ * (2026-08-27, docs/RUNNING_CHECKLIST.md) hasn't happened yet as of
+ * this commit — its entry lands here the day it actually does, with
+ * whatever really happened, not a placeholder written in advance.
+ * A plain array, not a table (same reasoning as the comment above) —
+ * revisit once there are enough real entries that editing this file by
+ * hand stops being the fastest way to add one.
+ */
+const pastPresentations: PastPresentation[] = [];
 
 export default function EventosPage() {
   return (
@@ -53,6 +76,25 @@ export default function EventosPage() {
               <p className="mt-3 text-xs uppercase tracking-widest text-steel-dim">Todavía sin publicar</p>
             </div>
           ))}
+          <div className="bg-ink p-6">
+            <h2 className="font-display text-lg font-black uppercase tracking-tight text-chalk">
+              Presentaciones pasadas
+            </h2>
+            <p className="mt-2 text-sm text-steel">Historial de apariciones anteriores.</p>
+            {pastPresentations.length === 0 ? (
+              <p className="mt-3 text-xs uppercase tracking-widest text-steel-dim">Todavía sin publicar</p>
+            ) : (
+              <ul className="mt-4 flex flex-col gap-4">
+                {pastPresentations.map((entry) => (
+                  <li key={`${entry.place}-${entry.date}`} className="border-t border-steel-dim/40 pt-4 first:border-t-0 first:pt-0">
+                    <p className="font-mono text-xs uppercase tracking-widest text-tide">{entry.date}</p>
+                    <p className="mt-1 font-display text-base font-black uppercase tracking-tight text-chalk">{entry.place}</p>
+                    <p className="mt-1 text-sm text-steel">{entry.description}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </Container>
       </section>
       <section className="border-t border-steel-dim/40 py-16">

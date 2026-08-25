@@ -21,9 +21,7 @@ live only in chat history. Newest items at the top of each section.
   2026-08-27 school visit — Cristian has people ready to test today.
   He can drive the whole circuit himself right now: visit the site (or
   `/bienvenida/colegio-la-leticia-2026` for the school-attributed
-  version — needs the `campaign`/`qr_source` row Cristian already ran
-  in Supabase's SQL Editor to actually be there; if the greeting
-  doesn't show his name, that row is the first thing to check),
+  version — confirmed live in production, see the Closed item below),
   submit the form, then check `/admin/leads`, `/admin/qr`, and
   `/admin/landings` for the real rows. The Colegio de la Leticia visit
   is still the first occasion for *volume*, but isn't the gating event
@@ -46,6 +44,18 @@ live only in chat history. Newest items at the top of each section.
 
 ## Closed
 
+- **"Presentaciones pasadas" ready to hold real activity entries**
+  (2026-08-25): Cristian asked whether documenting real appearances
+  ("ya estuvimos en el colegio de la Leticia... un tipo de noticias")
+  was worth doing. Chose reusing `/eventos`'s existing, already-empty
+  "Presentaciones pasadas" category over a new "Noticias" route/nav
+  entry. `src/app/eventos/page.tsx` now renders a real list from a
+  typed `pastPresentations` array when it has entries, same honest
+  empty state as before when it doesn't — starts empty on purpose, no
+  entry invented ahead of an event that hasn't happened. First real
+  candidate: the Colegio de la Leticia visit, 2026-08-27 — add its
+  entry (place/date/description) to that array the same day, once
+  there's something real to say about it.
 - **Command Center: 8/10 sections crashed in production; dwell-time +
   session-duration metrics added** (2026-08-25): Cristian asked to see
   "todo el comportamiento" — de qué QR viene la gente (already worked),
@@ -68,11 +78,12 @@ live only in chat history. Newest items at the top of each section.
   `qr=colegio-la-leticia-2026` — confirmed by querying the database
   directly, not assumed. QR image generated
   (`qr-colegio-la-leticia-2026.png`, sent to Cristian) encoding the
-  real production URL. **Still needed**: the same `campaign`/`qr_source`
-  rows written to the real production Supabase project (blocked on the
-  Supabase MCP connector being enabled for this chat session — see this
-  file's git history / ask the active session for current status if
-  picking this up later).
+  real production URL. Row confirmed live in the real production
+  Supabase project too (Supabase MCP connector became available this
+  session; queried it directly, 2026-08-25): `qr_source.slug =
+  'colegio-la-leticia-2026'`, `active = true`, `destination_path =
+  '/bienvenida/colegio-la-leticia-2026'`, campaign "Colegio de la
+  Leticia — Envigado", source "Colegio" — nothing left blocking this.
 - **Google AdSense — evaluated, not added** (2026-08-25): documented in
   docs/ARCHITECTURE.md §11 addendum. Competes with this site's actual
   monetization model; not revisited unless that model changes.
