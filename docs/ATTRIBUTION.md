@@ -55,10 +55,31 @@ QR sticker → https://cristianbarbosa.com/entrenar
              ?utm_source=aura&utm_medium=qr&utm_campaign=aura-2026&qr=aura-2026-main
 ```
 
-No QR image generator was built in this block (not required — see
-Block 01's non-goals, still true). `qr_source` rows are inserted directly
-(see `supabase/seed.sql` for two examples) until a generator is worth
-building.
+No in-app QR image generator exists yet (still not required — see
+Block 01's non-goals, still true, and `/admin/qr` reads `qr_source`
+performance but doesn't render codes). `qr_source` rows are inserted
+directly (`supabase/seed.sql`). When a printed QR is actually needed
+(first real case: `colegio-la-letizia-2026`, docs/RUNNING_CHECKLIST.md),
+the image itself was generated ad hoc outside the app (a one-off
+script, not a repo feature) — worth promoting to a real `/admin/qr`
+"generate" action if this keeps happening per-event rather than once.
+
+### A QR that lands on a personalized page, not just a tracked one
+
+`aura-2026-main`/`show-medellin-2026-main`'s `destination_path` points
+at an *existing* commercial route (`/entrenar`, `/shows`) — the QR is
+purely an attribution signal on top of a page that already exists.
+`colegio-la-letizia-2026` is the first QR whose destination is a
+dedicated landing built for exactly this purpose:
+`src/app/bienvenida/[slug]/page.tsx`. That route takes the `[slug]`
+(same value as `qr_source.slug` by convention), looks up the row's
+`campaign.name` for a personalized greeting ("¡Hola, Colegio La
+Letizia!"), and offers the same funnel (register via `ContactForm`,
+join the WhatsApp community, subscribe on Facebook, or browse the full
+site) — reusable for any future school/event QR by adding one
+`campaign` + `qr_source` row, no new code. Never added to `navItems`/
+sitemap (same precedent as `/go/[slug]`) and marked `noindex` (a
+campaign-specific landing isn't meant to rank in search).
 
 ## Visitor → contact linking
 

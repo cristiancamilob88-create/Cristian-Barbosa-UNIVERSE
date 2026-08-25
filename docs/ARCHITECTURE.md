@@ -356,3 +356,19 @@ Full model in docs/SECURITY.md. Summary:
 - No content/copy beyond structurally-correct placeholders — see Product
   Vision's own instruction not to invent commercial specifics
   (coaching pricing/benefits) that weren't provided.
+
+**Addendum, 2026-08-25 — Google AdSense: evaluated, deliberately not
+added.** Cristian asked directly; the answer is documented here per
+this section's own purpose (a decision record, not just a gap list).
+AdSense pays per pageview/click on ads shown *on* this site — it
+structurally competes with this app's actual monetization (coaching,
+shows, brand deals, subscriptions), since every visitor it distracts
+toward a third-party ad is a visitor pulled away from the site's own
+CTAs, for a fraction of what one real conversion is worth at this
+site's price points. It would also add a new third-party
+vendor/tracking script this project has repeatedly kept out (this
+section's own "no real analytics vendor," `next.config.ts`'s CSP,
+docs/SECURITY.md's cookie minimization) and require the consent banner
+this site currently has no reason to carry. Not revisited unless the
+business model itself changes to one that depends on raw pageviews
+rather than conversions — it doesn't today.

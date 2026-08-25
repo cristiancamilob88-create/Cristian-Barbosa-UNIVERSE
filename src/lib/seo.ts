@@ -10,6 +10,8 @@ export function buildMetadata(input: {
   title: string;
   description: string;
   path: string;
+  /** Set for a route that shouldn't show up in search results (a campaign-specific QR landing, e.g.) — still gets a real OG block, since sharing the link directly (WhatsApp, printed QR) is exactly the point. */
+  noindex?: boolean;
 }): Metadata {
   const url = new URL(input.path, siteConfig.url).toString();
 
@@ -17,6 +19,7 @@ export function buildMetadata(input: {
     title: input.title,
     description: input.description,
     alternates: { canonical: url },
+    robots: input.noindex ? { index: false, follow: false } : undefined,
     openGraph: {
       title: input.title,
       description: input.description,
