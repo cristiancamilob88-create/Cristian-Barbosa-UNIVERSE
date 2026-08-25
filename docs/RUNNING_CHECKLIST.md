@@ -18,8 +18,8 @@ live only in chat history. Newest items at the top of each section.
 - **Probar la base de datos con datos reales, no solo seed** —
   Cristian's own words: "una vez empecemos a construir base de datos,
   hay que probarla" once real people (not test rows) start writing to
-  it. First real occasion: the Colegio La Letizia visit
-  (2026-08-27) — the `/bienvenida/colegio-la-letizia-2026` leads that
+  it. First real occasion: the Colegio de la Leticia — Envigado visit
+  (2026-08-27) — the `/bienvenida/colegio-la-leticia-2026` leads that
   land that day are the first real, non-test data through this exact
   path. Check `/admin/leads` and `/admin/social` after the visit to
   confirm real rows, real attribution, no surprises.
@@ -41,17 +41,17 @@ live only in chat history. Newest items at the top of each section.
 
 ## Closed
 
-- **Colegio La Letizia — QR landing for the 2026-08-27 visit**
+- **Colegio de la Leticia — Envigado — QR landing for the 2026-08-27 visit**
   (2026-08-25): `src/app/bienvenida/[slug]/page.tsx` (new, reusable for
   any future school/event QR), `src/server/db/repositories/qrSource.ts`
   (new read model), `campaign`/`qr_source` rows for
-  `colegio-la-letizia-2026`. Verified end to end locally: a real
+  `colegio-la-leticia-2026`. Verified end to end locally: a real
   `ContactForm` submission through this exact URL (with the real
   QR's utm params) produced a `lead`/`contact` correctly attributed to
-  `source=school`, `campaign=Colegio La Letizia`,
-  `qr=colegio-la-letizia-2026` — confirmed by querying the database
+  `source=school`, `campaign=Colegio de la Leticia — Envigado`,
+  `qr=colegio-la-leticia-2026` — confirmed by querying the database
   directly, not assumed. QR image generated
-  (`qr-colegio-la-letizia-2026.png`, sent to Cristian) encoding the
+  (`qr-colegio-la-leticia-2026.png`, sent to Cristian) encoding the
   real production URL. **Still needed**: the same `campaign`/`qr_source`
   rows written to the real production Supabase project (blocked on the
   Supabase MCP connector being enabled for this chat session — see this

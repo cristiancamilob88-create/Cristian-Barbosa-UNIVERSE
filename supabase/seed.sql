@@ -75,7 +75,7 @@ insert into campaign (slug, name, status) values
   ('music-launch', 'Lanzamiento musical', 'active'),
   -- Real school visit, 2026-08-27 (docs/RUNNING_CHECKLIST.md) — feeds
   -- the /bienvenida/[slug] QR landing's personalized greeting.
-  ('colegio-la-letizia-2026', 'Colegio La Letizia', 'active')
+  ('colegio-la-leticia-2026', 'Colegio de la Leticia — Envigado', 'active')
 on conflict (slug) do nothing;
 
 insert into qr_source (slug, campaign_id, source_id, destination_path)
@@ -93,9 +93,9 @@ on conflict (slug) do nothing;
 -- The slug here IS the /bienvenida/[slug] URL segment — the page looks
 -- this row up directly by that path param (src/server/db/repositories/qrSource.ts).
 insert into qr_source (slug, campaign_id, source_id, destination_path)
-select 'colegio-la-letizia-2026', c.id, s.id, '/bienvenida/colegio-la-letizia-2026'
+select 'colegio-la-leticia-2026', c.id, s.id, '/bienvenida/colegio-la-leticia-2026'
 from campaign c, source s
-where c.slug = 'colegio-la-letizia-2026' and s.slug = 'school'
+where c.slug = 'colegio-la-leticia-2026' and s.slug = 'school'
 on conflict (slug) do nothing;
 
 insert into product (slug, name, kind, external_provider) values

@@ -5,16 +5,16 @@ import { getActiveQrLanding } from "./qrSource";
 describe("getActiveQrLanding", () => {
   afterAll(closeTestPool);
 
-  it("resolves the seeded colegio-la-letizia-2026 QR with its campaign/source labels", async () => {
-    const landing = await getActiveQrLanding(getTestPool(), "colegio-la-letizia-2026");
+  it("resolves the seeded colegio-la-leticia-2026 QR with its campaign/source labels", async () => {
+    const landing = await getActiveQrLanding(getTestPool(), "colegio-la-leticia-2026");
     expect(landing).not.toBeNull();
-    expect(landing?.campaignName).toBe("Colegio La Letizia");
+    expect(landing?.campaignName).toBe("Colegio de la Leticia — Envigado");
     expect(landing?.sourceLabel).toBe("Colegio");
   });
 
   it("is case/whitespace-insensitive, same convention as resolveQrId", async () => {
-    const landing = await getActiveQrLanding(getTestPool(), "  Colegio-La-Letizia-2026  ");
-    expect(landing?.slug).toBe("colegio-la-letizia-2026");
+    const landing = await getActiveQrLanding(getTestPool(), "  Colegio-La-Leticia-2026  ");
+    expect(landing?.slug).toBe("colegio-la-leticia-2026");
   });
 
   it("returns null for an unregistered slug — a QR must be pre-registered, never auto-created", async () => {
