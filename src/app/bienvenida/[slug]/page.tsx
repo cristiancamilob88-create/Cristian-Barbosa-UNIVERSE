@@ -71,24 +71,40 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           personalized PageHero below, not replacing it: this is the
           "wow" moment, the greeting is the personalization. */}
       {/*
-        Crop tuned separately per breakpoint, not one value for both:
-        this is a tall portrait photo, so the same object-position
-        lands in a completely different part of the image depending on
-        how wide vs. tall the container is (verified by screenshotting
-        both — a shared value that looked right on mobile showed only
-        background on desktop's much wider/shorter hero). Mobile: tight
-        crop favoring chest/abs per Cristian's own ask ("que se me haga
-        más el abdomen, no tanto la cara"). Desktop: taller box, less
-        extreme position, same intent.
+        The source file itself is pre-cropped (public/brand/cristian-hero-01.jpg
+        was replaced with a version cropped to face-through-abs, sky
+        already removed) instead of fighting object-position per
+        breakpoint against a tall portrait source — that approach broke
+        on desktop the first two times (verified by screenshot each
+        time, not assumed) because the same percentage lands in a wildly
+        different part of a portrait photo depending on how wide vs.
+        tall the container is. Cristian's correction after seeing v1:
+        wanted face AND chest AND abs visible together, only the
+        sky/mountains cut — not a face-vs-abs tradeoff. Pre-cropping the
+        source to roughly that framing (aspect ~1.14, much closer to a
+        typical hero banner) means one modest object-position now works
+        for both breakpoints, verified against real screenshots again.
       */}
-      <section className="relative h-[34vh] min-h-[240px] w-full overflow-hidden lg:h-[48vh]">
+      {/*
+        Desktop switches to object-contain, not another cropped
+        object-position: on a very wide/short viewport, showing
+        face-through-abs via object-cover would need a hero taller than
+        the viewport itself (verified by the numbers, not guessed — a
+        cover crop that fits the full face-to-abs span works out to
+        >100vh at 1440px wide). object-contain shows the whole photo,
+        letterboxed by bg-ink (matches the page background, so the
+        bars read as intentional framing, not a bug) — the only way to
+        keep Cristian's actual ask (face AND chest AND abs, only the
+        sky cut) true on both a phone and a wide desktop.
+      */}
+      <section className="relative h-[46vh] min-h-[320px] w-full overflow-hidden bg-ink lg:h-[70vh]">
         <Image
           src="/brand/cristian-hero-01.jpg"
           alt="Cristian Barbosa"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[58%_100%] lg:object-[62%_84%]"
+          className="object-cover object-[52%_30%] lg:object-contain"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
         <div className="relative flex h-full flex-col justify-end px-6 pb-10 sm:px-8">

@@ -6,7 +6,13 @@
  * Palette (named, not generic Tailwind defaults):
  *   ink    — near-black background, gym-floor rubber, not pure #000
  *   chalk  — off-white foreground, gymnast's chalk dust
- *   ember  — signature accent: effort, heat, stage light
+ *   ember  — signature accent: effort, heat, stage light. Updated
+ *            2026-08-25 to a true red, sampled directly from the real
+ *            logo's red glow (same method as tide's blue) — Cristian's
+ *            own correction: the site-wide accent was leaning orange,
+ *            he wants it matching the logo's actual red, site-wide
+ *            (every page uses this one token, so this one change is
+ *            the whole site's red, not a per-page edit).
  *   rust   — pressed/hover state of ember, darker ember
  *   tide   — second signature accent, added 2026-08-25 from Cristian's
  *            own brand direction (his logo's red/blue duality) — bright
@@ -24,8 +30,8 @@
   --color-ink: #0b0d0c;
   --color-ink-raised: #141715;
   --color-chalk: #f3f1ea;
-  --color-ember: #ff5a1f;
-  --color-rust: #c8420f;
+  --color-ember: #f2241a;
+  --color-rust: #98170f;
   --color-tide: #1fb8e0;
   --color-tide-deep: #0f7a99;
   --color-steel: #8a9089;
