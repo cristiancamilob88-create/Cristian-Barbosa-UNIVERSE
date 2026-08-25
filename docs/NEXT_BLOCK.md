@@ -1,43 +1,40 @@
 # NEXT_BLOCK.md — what happens next, and why
 
-## Block 08.10 is closed. Immediate next step: Cristian redeploys on Vercel — NOT Block 09/10 yet
+## Block 08.10 is closed and the public preview is LIVE. NOT Block 09/10 yet
 
-Explicit instruction from Cristian: don't continue toward Block 09/10
-or automations until the public preview is actually up and verified.
-The one thing standing between "code is Vercel-ready" and "there's a
-real `https://*.vercel.app` URL" is a manual step only Cristian can do
-— this session has no Vercel MCP/API/CLI access.
+`https://cristian-barbosa-universe.vercel.app` is deployed and READY —
+confirmed directly (Vercel MCP connector, connected mid-block: real
+build logs, real runtime errors, a real fetch of the live page). Two
+real build failures were found and fixed on the way (commits
+`93eaae4`, `6f0e46f` — see docs/PROJECT_STATE.md for the full story).
+Explicit instruction from Cristian still holds: don't continue toward
+Block 09/10 or automations yet.
 
-### What Cristian needs to do manually in Vercel
+### The one thing left for Cristian to do manually in Vercel
 
-1. In the Vercel project's dashboard, set the environment variables
-   (Production, and Preview if desired) — values are Cristian's to
-   provide, never written here or anywhere in this repo:
-   - `DATABASE_URL` — the Supabase **connection pooler** string
-     (port 6543, "Transaction" mode), not the direct 5432 one — see
-     `docs/SUPABASE_PRODUCTION.md` §10 for why (serverless connection
-     limits).
-   - `NEXT_PUBLIC_SITE_URL` — the Vercel preview URL for now (or the
-     eventual domain, once connected).
-   - `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`,
-     `ANALYTICS_API_TOKEN` — generate per `.env.example`'s own
-     instructions (`node scripts/admin/hash-password.mjs`,
-     `openssl rand -hex 32`); without these, `/admin/*` simply reports
-     "not configured" and stays fail-closed — not a broken deploy.
-2. Trigger a redeploy (push already landed the `DATABASE_URL` fix and
-   the Node version pin — commit `93eaae4`; a redeploy from the latest
-   commit on `claude/cristian-barbosa-master-init-jxln6u` picks both up
-   automatically).
-3. Share the resulting `https://*.vercel.app` URL and, if it still
-   fails, the actual build log — this session could not see Vercel's
-   real error text (no MCP/PR-based access), so the fix applied is the
-   most plausible root cause found by static audit, not a confirmed
-   match against Cristian's literal error.
+Everything else is done. This is the single open item:
 
-### After a working preview URL exists
+- **`DATABASE_URL` is saved in Vercel's env vars as an empty string**,
+  not the real Supabase connection string — confirmed via a live
+  runtime error (`ZodError: DATABASE_URL too_small`) and a live 500 on
+  `/redes`. Go to the Vercel project's env var settings and replace it
+  with the real Supabase **connection pooler** string (port 6543,
+  "Transaction" mode, not the direct 5432 one — docs/SUPABASE_PRODUCTION.md
+  §10, serverless connection limits). No redeploy needed after —
+  Vercel picks up a changed env var on the next request/build
+  automatically; a redeploy is still fine if it doesn't.
+- Everything else (`NEXT_PUBLIC_SITE_URL`, `ADMIN_PASSWORD_HASH`,
+  `ADMIN_SESSION_SECRET`, `ANALYTICS_API_TOKEN`) is either already
+  correctly set or intentionally optional (unset = that feature
+  fails closed, not broken — `/admin/*` just says "not configured").
 
-Per Cristian's own sequencing (Fase 8): navigate the real preview →
-report any UX errors found → fix those → load real assets
+### After `DATABASE_URL` is fixed
+
+Re-check `/redes`, `/api/lead`, `/api/checkout/[offerSlug]`,
+`/go/[slug]`, `/admin`'s dashboard sections, `/api/analytics/*` — all
+DB-backed, all currently either failing or running in their fail-closed
+state because of the blank `DATABASE_URL`. Then: navigate the real
+preview → report any UX errors found → fix those → load real assets
 (`docs/ASSETS_AND_BRAND.md`) → define visual identity → visual
 optimization pass → connect the domain. Block 09/10 stay parked until
 Cristian says otherwise.

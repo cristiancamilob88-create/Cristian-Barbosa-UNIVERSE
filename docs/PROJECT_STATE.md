@@ -18,26 +18,43 @@ ref `yskfntcurmqqxjuvqoto`).
 is now a navigable commercial experience end to end, on desktop and
 mobile, for every one of the 9 departments the brief named.
 
-**Block 08.10 — CERRADO** (public preview + Vercel readiness audit).
-Cristian's first Vercel deployment attempt failed; this block audited
-the repo against Vercel's requirements (no guessing — code/config
-inspected first, per the block's own rule), found and fixed the one
-real blocking bug, and documented everything else. See "Estado
-detallado" below for the explicit status fields.
+**Block 08.10 — CERRADO, then extended live** (public preview + Vercel
+readiness audit). Cristian's first 3 Vercel deployment attempts all
+failed. The Vercel MCP connector (connected mid-block) gave direct
+access to real build logs and runtime error clusters — the actual
+build failure was `new URL("")` in `src/app/layout.tsx`
+(`ERR_INVALID_URL`): `src/config/site.ts` read
+`process.env.NEXT_PUBLIC_SITE_URL` directly instead of through
+`src/lib/env.ts`'s validated export, and Vercel has that var saved as
+an **empty string**, not unset — `??` only falls back on
+null/undefined, so the empty string reached `new URL()` uncaught.
+Fixed (commit `6f0e46f`) and **confirmed live**: the production
+deployment for that commit is READY, aliased to
+`cristian-barbosa-universe.vercel.app`, serving real 200s.
+
+**Known follow-up, not a code bug**: `DATABASE_URL` is *also* saved as
+an empty string in Vercel (same class of issue) — `getPool()` now
+throws its own clear error instead of crashing the build (Block
+08.10's earlier fix), but any DB-backed **page** that doesn't catch
+that throw still surfaces as a 500 to visitors. Confirmed live:
+`/redes` (force-dynamic, queries `social_profile` directly) returns
+500 right now. `/`, `/entrenar`, `/admin`, `/admin/login` — none of
+which touch the DB on the happy path — all serve correctly. This is
+not a missing fallback to build defensively around; it's Cristian
+needing to paste the real Supabase pooler connection string into
+Vercel's `DATABASE_URL` (see docs/NEXT_BLOCK.md's manual steps).
 
 ## Estado detallado (Block 08.10)
 
-- **PUBLIC PREVIEW**: READY (not DEPLOYED) — the app builds and runs
-  correctly with zero env vars configured (the exact state of a fresh
-  Vercel import), verified locally end to end. No live
-  `https://*.vercel.app` URL exists yet from this session — deploying
-  requires Cristian's Vercel dashboard (no Vercel MCP/API/CLI access
-  in this session).
-- **VERCEL**: FAILED → fix pushed, not yet re-verified against a real
-  Vercel build (this session cannot trigger or observe a Vercel
-  deployment — no MCP/API access, no PR exists to inspect GitHub-posted
-  check runs). Root cause found and fixed: see "What Block 08.10
-  shipped" below.
+- **PUBLIC PREVIEW**: **DEPLOYED** — `https://cristian-barbosa-universe.vercel.app`
+  is live, confirmed by direct fetch (200, full real HTML, `x-vercel-cache: PRERENDER`).
+  The Vercel MCP connector was connected mid-block, giving direct
+  access to the project/deployments/build logs/runtime errors — this
+  status is observed, not inferred.
+- **VERCEL**: **DEPLOYED**, with one open config gap — `DATABASE_URL`
+  saved blank (see above). 3 straight ERROR deployments before commit
+  `6f0e46f`; READY since. Confirmed via the real build logs (not
+  guessed) and the real runtime-error clusters.
 - **SUPABASE**: PRODUCTION READY — unchanged from Block 06/07/08,
   migrations `0001`–`0007` + seed live and verified
   (`docs/SUPABASE_PRODUCTION.md`). No new migration in this block.
