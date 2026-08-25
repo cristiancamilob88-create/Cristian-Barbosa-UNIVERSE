@@ -39,3 +39,12 @@ export function formatRatio(value: number | null | undefined): string {
 export function formatDateTime(iso: string): string {
   return dateTimeFormatter.format(new Date(iso));
 }
+
+/** `null`/`undefined` render as an em dash — "no samples yet", never a fabricated 0:00. */
+export function formatDuration(seconds: number | null | undefined): string {
+  if (seconds === null || seconds === undefined) return "—";
+  const total = Math.round(seconds);
+  const minutes = Math.floor(total / 60);
+  const remainingSeconds = total % 60;
+  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+}

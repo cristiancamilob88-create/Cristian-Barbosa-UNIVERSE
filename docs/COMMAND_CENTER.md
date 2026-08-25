@@ -344,6 +344,27 @@ ten pages. Revenue and Products additionally render an explicit "Sin
 ventas registradas todavía." message when `orders` has no paid rows in
 range — never a chart or number implying revenue that doesn't exist.
 
+**Real bug found and fixed, 2026-08-25**: 8 of the 10 sections (every
+one except Funnel and Revenue) rendered `<AnalyticsBoundary>{(data) =>
+...}</AnalyticsBoundary>` directly inside their `page.tsx` Server
+Component. That's invalid — React Server Components cannot pass a
+function as a prop to a Client Component (`AnalyticsBoundary` is one,
+`"use client"`, since it calls `useAnalyticsQuery`), and a render-prop's
+`children` *is* a function. `npm run build`/`next dev` never caught
+this because the affected routes are dynamic (`ƒ`), so build-time static
+generation never actually renders them — the crash only fires at
+request time in production (`next start`/Vercel), confirmed by
+reproducing it on the already-deployed code before this fix, not
+assumed. Funnel and Revenue were accidentally correct: both needed
+`useState` for a preset/attribution toggle, which had already forced
+their content into a separate `"use client"` file
+(`FunnelPageContent.tsx`/`RevenuePageContent.tsx`), sidestepping the
+issue by construction. Fix: every section now follows that same split —
+`page.tsx` stays a Server Component holding only `metadata` and
+`SectionHeader`; a new `{Section}PageContent.tsx` (`"use client"`) holds
+the `AnalyticsBoundary` usage and everything data-dependent. Same
+pattern everywhere now, not two different ones.
+
 ## 9. Responsive
 
 No table has a fixed width — `src/components/admin/Table.tsx` scrolls

@@ -95,6 +95,8 @@ export async function fetchAnalytics<T>(path: string, range: RangeQuery, extra?:
 export interface AnalyticsOverview {
   visitors: number;
   sessions: number;
+  avgSessionDurationSeconds: number;
+  avgPagesPerSession: number;
   pageViews: number;
   landingViews: number;
   ctaClicks: number;
@@ -190,6 +192,7 @@ export interface LandingRow {
   ctaClicks: number;
   leadConversions: number;
   purchaseConversions: number;
+  avgDwellSeconds: number | null;
 }
 
 export interface LandingsResponse {

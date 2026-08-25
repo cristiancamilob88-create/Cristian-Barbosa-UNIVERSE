@@ -3,6 +3,20 @@ import { getTestPool, resetActivityTables, closeTestPool, simulateVisit, testDat
 import { getEventCounts, getLandingPerformance } from "./engagement";
 import { recordInteraction } from "@/server/db/repositories/interaction";
 
+/** Inserts an interaction with an explicit created_at, to control dwell-time gaps precisely — same pattern as sessions.integration.test.ts. */
+async function insertInteractionAt(
+  client: import("pg").PoolClient,
+  visitorId: string,
+  eventName: "page_view" | "landing_view" | "cta_click",
+  route: string,
+  at: Date,
+) {
+  await client.query(
+    `insert into interaction (visitor_id, event_name, route, created_at) values ($1, $2, $3, $4)`,
+    [visitorId, eventName, route, at.toISOString()],
+  );
+}
+
 describe("getEventCounts", () => {
   beforeEach(resetActivityTables);
   afterAll(closeTestPool);
@@ -98,6 +112,48 @@ describe("getLandingPerformance", () => {
       expect(entrenarRow?.views).toBe(1);
       expect(entrenarRow?.ctaClicks).toBe(1);
       expect(entrenarRow?.leadConversions).toBe(1);
+    } finally {
+      client.release();
+    }
+  });
+
+  it("computes average dwell time from the gap to each visitor's next interaction", async () => {
+    const client = await getTestPool().connect();
+    try {
+      const { visitorId } = await simulateVisit(client, { utmSource: "instagram" });
+      const base = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago, safely inside every preset
+
+      // 90 seconds on /entrenar before clicking a CTA there, then 45
+      // seconds on /musica before the trail ends (no "next" event —
+      // excluded, not counted as 0).
+      await insertInteractionAt(client, visitorId, "landing_view", "/entrenar", base);
+      await insertInteractionAt(client, visitorId, "cta_click", "/entrenar", new Date(base.getTime() + 90_000));
+      await insertInteractionAt(client, visitorId, "page_view", "/musica", new Date(base.getTime() + 90_000 + 45_000));
+
+      const rows = await getLandingPerformance(client, testDateRange());
+      const entrenarRow = rows.find((r) => r.route === "/entrenar");
+      const musicaRow = rows.find((r) => r.route === "/musica");
+
+      expect(entrenarRow?.avgDwellSeconds).toBe(90);
+      expect(musicaRow?.avgDwellSeconds).toBeNull();
+    } finally {
+      client.release();
+    }
+  });
+
+  it("excludes a gap over the 30-minute session threshold from dwell time", async () => {
+    const client = await getTestPool().connect();
+    try {
+      const { visitorId } = await simulateVisit(client, { utmSource: "instagram" });
+      const base = new Date(Date.now() - 60 * 60 * 1000);
+
+      await insertInteractionAt(client, visitorId, "landing_view", "/entrenar", base);
+      // 31 minutes later — a tab left open, not real reading time.
+      await insertInteractionAt(client, visitorId, "page_view", "/musica", new Date(base.getTime() + 31 * 60_000));
+
+      const rows = await getLandingPerformance(client, testDateRange());
+      const entrenarRow = rows.find((r) => r.route === "/entrenar");
+      expect(entrenarRow?.avgDwellSeconds).toBeNull();
     } finally {
       client.release();
     }

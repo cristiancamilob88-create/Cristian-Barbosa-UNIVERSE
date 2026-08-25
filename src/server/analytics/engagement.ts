@@ -43,6 +43,13 @@ export interface LandingRow {
   ctaClicks: number;
   leadConversions: number;
   purchaseConversions: number;
+  /**
+   * Average dwell time on this route, in seconds — `null` when no
+   * sample exists yet (never a fabricated 0). See the query comment
+   * below for how this is derived; asked for by Cristian 2026-08-25
+   * ("cuánto tiempo... observando cada página").
+   */
+  avgDwellSeconds: number | null;
 }
 
 /**
@@ -52,6 +59,22 @@ export interface LandingRow {
  * page a contact actually *entered on*, which is what "does /entrenar
  * convert better than /musica" means; a lead created from /contacto
  * itself isn't a pillar landing.
+ *
+ * `avgDwellSeconds` is the same lag()-window-function idea as
+ * `sessions.ts`'s gap-sessionization, just grouped by route instead of
+ * by session: for every `page_view`/`landing_view` on a route, dwell
+ * time is the gap until that same visitor's *next* interaction
+ * (whatever route/event it is — a CTA click on the same page still
+ * means they were engaged on it). No new tracking, no new event, no
+ * vendor — this is derived entirely from data already being recorded.
+ * Two real limits, both inherent to deriving this from event gaps
+ * rather than an exit beacon: the last event of a session has no
+ * "next" event, so it contributes no sample (excluded, never guessed
+ * at); and a gap over the same 30-minute inactivity threshold used for
+ * sessions is excluded too (a tab left open isn't "reading the page for
+ * 45 minutes"). A route with a real dwell-time answer some day but none
+ * yet resolves to `null` here, formatted as an em dash
+ * (`formatDuration`), never a fabricated 0:00.
  */
 export async function getLandingPerformance(
   db: Pool | PoolClient,
@@ -64,6 +87,7 @@ export async function getLandingPerformance(
     cta_clicks: string;
     lead_conversions: string;
     purchase_conversions: string;
+    avg_dwell_seconds: string | null;
   }>(
     `
     with views as (
@@ -73,6 +97,25 @@ export async function getLandingPerformance(
              count(*) filter (where event_name = 'cta_click') as cta_clicks
       from interaction
       where created_at between $1 and $2 and route is not null
+      group by route
+    ),
+    ordered as (
+      select route, event_name, created_at,
+             lead(created_at) over (partition by visitor_id order by created_at) as next_created_at
+      from interaction
+      where created_at between $1 and $2
+    ),
+    dwell as (
+      select route, extract(epoch from (next_created_at - created_at)) as dwell_seconds
+      from ordered
+      where event_name in ('page_view', 'landing_view')
+        and route is not null
+        and next_created_at is not null
+        and next_created_at - created_at <= interval '30 minutes'
+    ),
+    dwell_agg as (
+      select route, avg(dwell_seconds) as avg_dwell_seconds
+      from dwell
       group by route
     ),
     leads as (
@@ -95,10 +138,12 @@ export async function getLandingPerformance(
       v.unique_visitors,
       v.cta_clicks,
       coalesce(l.lead_conversions, 0) as lead_conversions,
-      coalesce(p.purchase_conversions, 0) as purchase_conversions
+      coalesce(p.purchase_conversions, 0) as purchase_conversions,
+      d.avg_dwell_seconds
     from views v
     left join leads l on l.route = v.route
     left join purchases p on p.route = v.route
+    left join dwell_agg d on d.route = v.route
     order by v.views desc
     `,
     [range.from.toISOString(), range.to.toISOString()],
@@ -111,5 +156,6 @@ export async function getLandingPerformance(
     ctaClicks: Number(row.cta_clicks),
     leadConversions: Number(row.lead_conversions),
     purchaseConversions: Number(row.purchase_conversions),
+    avgDwellSeconds: row.avg_dwell_seconds !== null ? Number(row.avg_dwell_seconds) : null,
   }));
 }

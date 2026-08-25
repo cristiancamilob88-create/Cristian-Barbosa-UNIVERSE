@@ -15,6 +15,8 @@ import type { InteractionEventName } from "@/server/db/repositories/interaction"
 export interface AnalyticsOverview {
   visitors: number;
   sessions: number;
+  avgSessionDurationSeconds: number;
+  avgPagesPerSession: number;
   pageViews: number;
   landingViews: number;
   ctaClicks: number;
@@ -69,6 +71,8 @@ export async function getAnalyticsOverview(
   return {
     visitors,
     sessions: sessionSummary.sessions,
+    avgSessionDurationSeconds: sessionSummary.avgDurationSeconds,
+    avgPagesPerSession: sessionSummary.avgPagesPerSession,
     pageViews: get("page_view").count,
     landingViews: get("landing_view").count,
     ctaClicks: get("cta_click").count,

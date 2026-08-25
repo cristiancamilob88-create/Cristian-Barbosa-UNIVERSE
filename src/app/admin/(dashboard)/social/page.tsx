@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
-import { AnalyticsBoundary } from "@/components/admin/AnalyticsBoundary";
-import { Table } from "@/components/admin/Table";
-import { formatInteger } from "@/lib/format";
-import type { OverviewResponse } from "@/lib/adminAnalytics";
+import { SocialPageContent } from "./SocialPageContent";
 
 export const metadata: Metadata = { title: "Social routing" };
 
@@ -14,7 +11,9 @@ export const metadata: Metadata = { title: "Social routing" };
  * not 9, and this data already has a home (docs/COMMAND_CENTER.md,
  * "Endpoints used, and why not more"). Measures only Universe → click →
  * redirect → destination — never what happens inside Instagram/Facebook/
- * TikTok themselves (docs/SOCIAL_ROUTING.md).
+ * TikTok themselves (docs/SOCIAL_ROUTING.md). Kept as a Server Component
+ * only for `metadata` — see OverviewPageContent.tsx's doc comment for
+ * why the content itself moved to a Client Component.
  */
 export default function AdminSocialPage() {
   return (
@@ -24,20 +23,7 @@ export default function AdminSocialPage() {
         title="/go/[slug] performance"
         description="Clicks salientes desde el Universe hacia cada destino externo — no medimos qué pasa dentro de Instagram/Facebook/TikTok."
       />
-      <AnalyticsBoundary<OverviewResponse> path="overview" isEmpty={(r) => r.social.length === 0}>
-        {({ social }) => (
-          <Table
-            keyFor={(row) => `${row.platform}-${row.slug}`}
-            columns={[
-              { header: "Plataforma", render: (r) => r.platform },
-              { header: "Slug (/go/...)", render: (r) => r.slug },
-              { header: "Clicks", align: "right", render: (r) => formatInteger(r.clicks) },
-              { header: "Visitantes únicos", align: "right", render: (r) => formatInteger(r.uniqueVisitors) },
-            ]}
-            rows={social}
-          />
-        )}
-      </AnalyticsBoundary>
+      <SocialPageContent />
     </>
   );
 }

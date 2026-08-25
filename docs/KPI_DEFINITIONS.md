@@ -14,6 +14,8 @@ ranges").
 |---|---|
 | **Visitors** | `COUNT(DISTINCT visitor_id)` across ALL `interaction` rows in range (any event). **Not** the same as "acquisition by source" (docs/REPORTING.md), which counts only visitors whose `visitor.first_touch_captured_at` falls in range — Visitors here includes returning visitors too. |
 | **Sessions** | Count of gap-sessionized groups (30-min inactivity threshold) across all visitors in range — see docs/ANALYTICS_ENGINE.md, "Session model". |
+| **Duración promedio** | `AVG(session duration)`, where a session's duration is `MAX(created_at) - MIN(created_at)` across its events — 0 for a genuine one-event session, not `null` (there's a real answer, it's just zero). Computed by `getSessionSummary()` (`src/server/analytics/sessions.ts`); surfaced on the Overview since 2026-08-25 — the query existed earlier but its result was discarded before reaching the API response. |
+| **Páginas / sesión** | `AVG(page_count)` per gap-sessionized group, same source as Duración promedio. |
 | **Page Views** | `COUNT(*)` of `interaction` where `event_name = 'page_view'`. |
 | **Landing Views** | `COUNT(*)` of `interaction` where `event_name = 'landing_view'`. |
 | **CTA Clicks** | `COUNT(*)` where `event_name = 'cta_click'`. |
@@ -52,6 +54,12 @@ Only computed "cuando exista información suficiente" (denominator > 0),
 | **Revenue per Visitor** | Revenue ÷ Visitors |
 | **Revenue per Lead** | Revenue ÷ Leads |
 | **Revenue per Purchase** | Revenue ÷ Purchases |
+
+## Per-route metrics (Landings section, not part of the Overview object)
+
+| KPI | Definition |
+|---|---|
+| **Tiempo promedio (por ruta)** | For every `page_view`/`landing_view` on a route, the gap until that same visitor's next interaction (any route/event) — averaged per route. Excludes the last event of a session (no "next" event to measure against) and any gap over the 30-minute session threshold (a left-open tab, not real reading time). `null` — rendered as an em dash, never 0:00 — until at least one sample exists for that route. Computed by `getLandingPerformance()` (`src/server/analytics/engagement.ts`), added 2026-08-25 answering "cuánto tiempo pasa la gente en cada página" — no new tracking, derived entirely from `interaction.route`/`created_at`, already recorded since Block 02/03. |
 
 ## What's deliberately not defined yet
 

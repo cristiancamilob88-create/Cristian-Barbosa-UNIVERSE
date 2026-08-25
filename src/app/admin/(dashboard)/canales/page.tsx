@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
-import { AnalyticsBoundary } from "@/components/admin/AnalyticsBoundary";
-import { PerformanceTable } from "@/components/admin/PerformanceTable";
-import type { PerformanceResponse } from "@/lib/adminAnalytics";
+import { CanalesPageContent } from "./CanalesPageContent";
 
 export const metadata: Metadata = { title: "Canales" };
 
@@ -21,6 +19,10 @@ export const metadata: Metadata = { title: "Canales" };
  * data exists to compute them from yet (docs/KPI_DEFINITIONS.md,
  * "What's deliberately not defined yet") — this table is exactly where
  * those columns will attach once a real ad platform is connected.
+ *
+ * Kept as a Server Component only for `metadata` — see
+ * OverviewPageContent.tsx's doc comment for why the content itself
+ * moved to a Client Component.
  */
 export default function AdminCanalesPage() {
   return (
@@ -30,9 +32,7 @@ export default function AdminCanalesPage() {
         title="Canales"
         description="Instagram, Facebook, TikTok, YouTube, WhatsApp, eventos, QR, campañas pagadas — lado a lado. Sin CAC/ROAS todavía: no hay gasto publicitario real conectado."
       />
-      <AnalyticsBoundary<PerformanceResponse> path="sources" isEmpty={(r) => r.data.length === 0}>
-        {(res) => <PerformanceTable rows={res.data} labelHeader="Canal" />}
-      </AnalyticsBoundary>
+      <CanalesPageContent />
     </>
   );
 }

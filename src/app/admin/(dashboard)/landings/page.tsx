@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
-import { AnalyticsBoundary } from "@/components/admin/AnalyticsBoundary";
-import { Table } from "@/components/admin/Table";
-import { formatInteger, formatRatio } from "@/lib/format";
-import type { LandingsResponse, LandingRow } from "@/lib/adminAnalytics";
+import { LandingsPageContent } from "./LandingsPageContent";
 
 export const metadata: Metadata = { title: "Landings" };
 
@@ -12,7 +9,9 @@ export const metadata: Metadata = { title: "Landings" };
  * actually seen in `interaction` — works for every current pillar route
  * and any future one automatically, nothing here lists `/entrenar`,
  * `/musica`, etc. by name (docs/COMMAND_CENTER.md, "Routes are never
- * hardcoded").
+ * hardcoded"). Kept as a Server Component only for `metadata` — see
+ * OverviewPageContent.tsx's doc comment for why the content itself
+ * moved to a Client Component.
  */
 export default function AdminLandingsPage() {
   return (
@@ -20,29 +19,9 @@ export default function AdminLandingsPage() {
       <SectionHeader
         tag="Landings"
         title="Rendimiento por ruta"
-        description="Views, visitantes únicos, CTA clicks y conversión a lead/compra — atribuido a la primera ruta en la que entró cada contacto."
+        description="Views, visitantes únicos, tiempo promedio en la página, CTA clicks y conversión a lead/compra — atribuido a la primera ruta en la que entró cada contacto."
       />
-      <AnalyticsBoundary<LandingsResponse> path="landings" isEmpty={(r) => r.data.length === 0}>
-        {(res) => (
-          <Table<LandingRow>
-            keyFor={(row) => row.route}
-            columns={[
-              { header: "Ruta", render: (r) => r.route },
-              { header: "Views", align: "right", render: (r) => formatInteger(r.views) },
-              { header: "Visitantes únicos", align: "right", render: (r) => formatInteger(r.uniqueVisitors) },
-              { header: "CTA clicks", align: "right", render: (r) => formatInteger(r.ctaClicks) },
-              { header: "Leads", align: "right", render: (r) => formatInteger(r.leadConversions) },
-              { header: "Compras", align: "right", render: (r) => formatInteger(r.purchaseConversions) },
-              {
-                header: "Conversión",
-                align: "right",
-                render: (r) => formatRatio(r.uniqueVisitors > 0 ? r.leadConversions / r.uniqueVisitors : null),
-              },
-            ]}
-            rows={res.data}
-          />
-        )}
-      </AnalyticsBoundary>
+      <LandingsPageContent />
     </>
   );
 }
