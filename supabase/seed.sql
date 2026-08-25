@@ -75,7 +75,13 @@ insert into campaign (slug, name, status) values
   ('music-launch', 'Lanzamiento musical', 'active'),
   -- Real school visit, 2026-08-27 (docs/RUNNING_CHECKLIST.md) — feeds
   -- the /bienvenida/[slug] QR landing's personalized greeting.
-  ('colegio-la-leticia-2026', 'Colegio de la Leticia — Envigado', 'active')
+  ('colegio-la-leticia-2026', 'Colegio de la Leticia — Envigado', 'active'),
+  -- A real, deliberate test scan (Cristian asking a friend to scan a
+  -- QR today, 2026-08-25, before the real Leticia visit) — a separate
+  -- campaign so this test traffic never mixes into colegio-la-leticia-2026's
+  -- real numbers. Name says "prueba" on purpose, so it reads as a test
+  -- anywhere it shows up in /admin, not a second real event.
+  ('prueba-interna-2026-08-25', 'Prueba interna — QR test', 'active')
 on conflict (slug) do nothing;
 
 insert into qr_source (slug, campaign_id, source_id, destination_path)
@@ -96,6 +102,15 @@ insert into qr_source (slug, campaign_id, source_id, destination_path)
 select 'colegio-la-leticia-2026', c.id, s.id, '/bienvenida/colegio-la-leticia-2026'
 from campaign c, source s
 where c.slug = 'colegio-la-leticia-2026' and s.slug = 'school'
+on conflict (slug) do nothing;
+
+-- 'other' source, not 'school' — this scan isn't attributed to any
+-- real venue, it's a friend scanning to confirm the whole circuit
+-- works before the real Leticia QR gets used on real kids.
+insert into qr_source (slug, campaign_id, source_id, destination_path)
+select 'prueba-interna-2026-08-25', c.id, s.id, '/bienvenida/prueba-interna-2026-08-25'
+from campaign c, source s
+where c.slug = 'prueba-interna-2026-08-25' and s.slug = 'other'
 on conflict (slug) do nothing;
 
 insert into product (slug, name, kind, external_provider) values
