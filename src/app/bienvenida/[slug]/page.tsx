@@ -71,7 +71,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           personalized PageHero below, not replacing it: this is the
           "wow" moment, the greeting is the personalization. */}
       {/*
-        The source file itself is pre-cropped (public/brand/cristian-hero-01.jpg
+        The source file itself is pre-cropped (public/brand/cristian-hero-02.jpg
         was replaced with a version cropped to face-through-abs, sky
         already removed) instead of fighting object-position per
         breakpoint against a tall portrait source — that approach broke
@@ -99,7 +99,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
       */}
       <section className="relative h-[46vh] min-h-[320px] w-full overflow-hidden bg-ink lg:h-[70vh]">
         <Image
-          src="/brand/cristian-hero-01.jpg"
+          src="/brand/cristian-hero-02.jpg"
           alt="Cristian Barbosa"
           fill
           priority
