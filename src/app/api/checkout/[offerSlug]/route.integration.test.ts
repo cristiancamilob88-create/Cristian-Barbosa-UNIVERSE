@@ -1,11 +1,16 @@
+import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { getTestPool, resetActivityTables, closeTestPool } from "@/server/db/testHelpers.integration";
 import { GET } from "./route";
 
-function makeRequest(offerSlug: string, cookie = ""): NextRequest {
+// Each test gets its own synthetic IP so the module-level rate limiter
+// (keyed by x-forwarded-for) never leaks state between tests — same
+// convention as /api/lead's own test file.
+function makeRequest(offerSlug: string, options: { cookie?: string; ip?: string } = {}): NextRequest {
+  const ip = options.ip ?? randomUUID();
   return new NextRequest(`https://cristianbarbosa.test/api/checkout/${offerSlug}`, {
-    headers: cookie ? { cookie } : {},
+    headers: { "x-forwarded-for": ip, ...(options.cookie ? { cookie: options.cookie } : {}) },
   });
 }
 
@@ -113,5 +118,17 @@ describe("GET /api/checkout/[offerSlug]", () => {
 
     const response = await GET(makeRequest(offerSlug), { params: Promise.resolve({ offerSlug }) });
     expect(response.headers.get("location")).toContain("/productos");
+  });
+
+  it("rate-limits a flood of requests from the same IP", async () => {
+    const ip = randomUUID();
+    const responses = [];
+    for (let i = 0; i < 31; i++) {
+      responses.push(
+        await GET(makeRequest("does-not-exist", { ip }), { params: Promise.resolve({ offerSlug: "does-not-exist" }) }),
+      );
+    }
+    const statuses = responses.map((r) => r.status);
+    expect(statuses.filter((s) => s === 429).length).toBeGreaterThan(0);
   });
 });

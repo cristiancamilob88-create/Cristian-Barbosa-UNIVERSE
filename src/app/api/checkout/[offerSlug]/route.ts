@@ -6,6 +6,15 @@ import { resolveVisitorContext } from "@/server/db/visitorContext";
 import { getActiveOfferBySlug } from "@/server/db/repositories/offer";
 import { recordInteraction } from "@/server/db/repositories/interaction";
 import { resolveCheckoutDestination } from "@/server/commerce/checkout";
+import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
+
+// Higher ceiling than /api/lead's — this is a GET/redirect a visitor can
+// legitimately hit several times in one browsing session (multiple
+// offers, a shared office/carrier IP), not a form submission. Still
+// bounded: every request does a DB read (offer lookup) plus a write
+// (checkout_started), so an unbounded burst is real DB load, not just
+// noise.
+const checkoutRateLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 30 });
 
 /**
  * The one entry point into "offer → checkout → order → attribution →
@@ -24,6 +33,13 @@ import { resolveCheckoutDestination } from "@/server/commerce/checkout";
  * same prefetch-inflation reasoning as GoLink.
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ offerSlug: string }> }) {
+  if (checkoutRateLimiter.isRateLimited(getRequestIp(request))) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." },
+      { status: 429 },
+    );
+  }
+
   const { offerSlug } = await params;
 
   const offer = await getActiveOfferBySlug(getPool(), offerSlug);

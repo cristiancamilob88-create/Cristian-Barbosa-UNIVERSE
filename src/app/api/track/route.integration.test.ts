@@ -1,12 +1,21 @@
+import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { getTestPool, resetActivityTables, closeTestPool } from "@/server/db/testHelpers.integration";
 import { POST } from "./route";
 
-function makeRequest(body: unknown, cookie = ""): NextRequest {
+// Each test gets its own synthetic IP so the module-level rate limiter
+// (keyed by x-forwarded-for) never leaks state between tests — same
+// convention as /api/lead's own test file.
+function makeRequest(body: unknown, options: { cookie?: string; ip?: string } = {}): NextRequest {
+  const ip = options.ip ?? randomUUID();
   return new NextRequest("https://cristianbarbosa.test/api/track", {
     method: "POST",
-    headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) },
+    headers: {
+      "content-type": "application/json",
+      "x-forwarded-for": ip,
+      ...(options.cookie ? { cookie: options.cookie } : {}),
+    },
     body: JSON.stringify(body),
   });
 }
@@ -37,7 +46,7 @@ describe("POST /api/track", () => {
 
   it("reuses an existing cb_visitor cookie instead of minting a new one", async () => {
     const cookie = "cb_visitor=22222222-2222-4222-8222-222222222222";
-    const response = await POST(makeRequest({ eventName: "interest_selected" }, cookie));
+    const response = await POST(makeRequest({ eventName: "interest_selected" }, { cookie }));
     expect(response.status).toBe(200);
     expect(response.cookies.get("cb_visitor")).toBeUndefined();
 
@@ -45,5 +54,15 @@ describe("POST /api/track", () => {
       "select visitor_id from interaction where event_name = 'interest_selected'",
     );
     expect(rows.rows[0].visitor_id).toBe("22222222-2222-4222-8222-222222222222");
+  });
+
+  it("rate-limits a flood of events from the same IP", async () => {
+    const ip = randomUUID();
+    const responses = [];
+    for (let i = 0; i < 61; i++) {
+      responses.push(await POST(makeRequest({ eventName: "page_view", route: "/" }, { ip })));
+    }
+    const statuses = responses.map((r) => r.status);
+    expect(statuses.filter((s) => s === 429).length).toBeGreaterThan(0);
   });
 });

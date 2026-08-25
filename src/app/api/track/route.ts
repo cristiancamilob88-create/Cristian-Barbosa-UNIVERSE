@@ -4,6 +4,7 @@ import { visitorCookieOptions, VISITOR_COOKIE } from "@/lib/attribution";
 import { withTransaction } from "@/server/db/transaction";
 import { resolveVisitorContext } from "@/server/db/visitorContext";
 import { recordInteraction, INTERACTION_EVENT_NAMES } from "@/server/db/repositories/interaction";
+import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
 
 /**
  * Persistence sink for a subset of client-fired analytics events — see
@@ -25,7 +26,21 @@ const trackSchema = z.object({
   metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
 });
 
+// Highest ceiling of the four rate-limited routes: this fires on
+// ordinary browsing (page_view, cta_click), so a real visitor can hit it
+// many times a minute just by clicking around — the limit exists to stop
+// a scripted flood, not to constrain normal use.
+const trackRateLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 60 });
+
 export async function POST(request: NextRequest) {
+  if (trackRateLimiter.isRateLimited(getRequestIp(request))) {
+    // Same "never surface as a user-facing error" contract as a failed
+    // persist below — the client-side track() call ignores the response
+    // entirely (src/lib/analytics.ts), so 429 vs 200 is purely for
+    // server-side observability, not behavior.
+    return NextResponse.json({ ok: false }, { status: 429 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();

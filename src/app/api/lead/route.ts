@@ -9,6 +9,7 @@ import { linkVisitorToContact } from "@/server/db/repositories/visitor";
 import { createLead } from "@/server/db/repositories/lead";
 import { createB2bOpportunity, type B2bCategory } from "@/server/db/repositories/b2bOpportunity";
 import { recordInteraction } from "@/server/db/repositories/interaction";
+import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
 
 /**
  * Lead intake endpoint for the /contacto form. Persists the full flow
@@ -78,24 +79,12 @@ const TOPIC_TO_B2B_CATEGORY: Record<string, B2bCategory | undefined> = {
   marcas: "brands",
 };
 
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_REQUESTS = 5;
-const requestLog = new Map<string, number[]>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const timestamps = (requestLog.get(ip) ?? []).filter(
-    (t) => now - t < RATE_LIMIT_WINDOW_MS,
-  );
-  timestamps.push(now);
-  requestLog.set(ip, timestamps);
-  return timestamps.length > RATE_LIMIT_MAX_REQUESTS;
-}
+const leadRateLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 5 });
 
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = getRequestIp(request);
 
-  if (isRateLimited(ip)) {
+  if (leadRateLimiter.isRateLimited(ip)) {
     return NextResponse.json(
       { ok: false, error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." },
       { status: 429 },
