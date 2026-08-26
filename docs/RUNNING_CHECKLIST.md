@@ -7,14 +7,11 @@ live only in chat history. Newest items at the top of each section.
 
 ## Open
 
-- **Probar una automatización real** (2026-08-25) — Cristian wants at
-  least one real automation exercised once there's real data flowing
-  (not simulated). Blocked on Decision Gate 5 (email/WhatsApp
-  automation vendor, docs/NEXT_BLOCK.md) — needs a vendor chosen before
-  there's anything to test. Candidate first real trigger once chosen:
-  a welcome message/sequence fired off `lead_submitted` from the
-  `/bienvenida/[slug]` landing (docs/ATTRIBUTION.md, "QR that lands on
-  a personalized page").
+- **Probar una automatización real** (2026-08-25) — updated: the email
+  half of this is now real code (closed below, docs/AUTOMATIONS.md),
+  just waiting on Cristian's `GMAIL_USER`/`GMAIL_APP_PASSWORD` and his
+  own welcome-email text per topic before it can actually fire on a
+  real registration.
 - **Probar la base de datos con datos reales, no solo seed** —
   Cristian's own words: "una vez empecemos a construir base de datos,
   hay que probarla". Updated 2026-08-25: no longer waiting for the
@@ -49,17 +46,35 @@ live only in chat history. Newest items at the top of each section.
   not started; asked Cristian to prioritize the three together
   (Contactos / mensajes automáticos / esto), he picked Contactos first
   (closed below).
-- **Mensajes automáticos (WhatsApp/correo) al registrarse + invitación
-  semanal a la comunidad** (2026-08-25) — same message as above. This
-  is the same automation item already open since earlier the same day
-  (see the entry above about a real automation) — still blocked on
-  Decision Gate 5 (vendor choice, docs/NEXT_BLOCK.md). Now that
-  `/admin/contactos` exists (closed below), Cristian can already do
-  this manually — reach out himself using the real phone/email now
-  visible there — while the vendor decision is still open.
+- **Mensajes automáticos — la parte de WhatsApp** (2026-08-25, updated):
+  the lifecycle map is confirmed and the email half is built
+  (docs/AUTOMATIONS.md) — WhatsApp is the one piece still blocked, on
+  Cristian getting a phone number dedicated to this (his current
+  WhatsApp Business number is mixed personal/family — recommended
+  against connecting it; a Twilio virtual number needs no physical SIM
+  and was the researched, recommended path). Once he has that number,
+  the WhatsApp send follows the exact same pattern already built for
+  email (`sendWelcomeEmail()`'s fail-silently-if-unconfigured shape).
 
 ## Closed
 
+- **Welcome-email automation — real code, pending Cristian's Gmail
+  credentials + his own message text** (2026-08-25): full record and
+  reasoning in docs/AUTOMATIONS.md. `sendWelcomeEmail()`
+  (`src/server/notifications/`) fires from `/api/lead` after a
+  successful registration, via Gmail SMTP — chosen over Resend because
+  Resend can't email real recipients without a verified domain
+  (confirmed against Resend's own docs), and Cristian didn't have a
+  domain yet. One placeholder template per topic, refuses to send
+  itself until Cristian replaces the placeholder text — never invented
+  copy. WhatsApp research (Twilio virtual number vs. Meta direct vs.
+  unofficial/ban-risk libraries, and why his current mixed personal/
+  business number shouldn't be the one connected) is also recorded
+  there, decision still pending on his end. Verified with a real
+  `/api/lead` POST against a real production build: lead saved
+  correctly, email step skipped and logged (Gmail not configured yet)
+  without affecting the response. 137 unit tests (12 new)/100
+  integration tests/production build all green before push.
 - **`/admin/contactos` — real name/email/teléfono per registro**
   (2026-08-25): Cristian's own request — "quiero ver esa base de datos
   de esas personas." New page, new `src/server/admin/` module, new

@@ -48,6 +48,19 @@ const serverEnvSchema = z.object({
   // Signs/verifies the admin session cookie (HMAC-SHA256, src/server/auth/session.ts).
   // Generate with `openssl rand -hex 32`.
   ADMIN_SESSION_SECRET: z.string().min(32).optional(),
+  // Welcome-email automation (2026-08-25, Cristian's own request — see
+  // docs/AUTOMATIONS.md), sent via Gmail SMTP: no domain purchase
+  // needed to start (Resend/similar require a verified domain to email
+  // real recipients, confirmed against Resend's own docs — Gmail SMTP
+  // has no such requirement). Both optional: unset means
+  // sendWelcomeEmail() skips and logs, never breaks /api/lead's actual
+  // job (saving the lead) — same fail-open-for-the-user, fail-closed-
+  // for-the-feature posture as every other optional integration here.
+  GMAIL_USER: z.string().email().optional(),
+  // A Google "App Password" (16 chars, spaces optional) — never
+  // Cristian's real Gmail password. Requires 2-Step Verification on
+  // first; docs/AUTOMATIONS.md has the exact steps.
+  GMAIL_APP_PASSWORD: z.string().min(16).optional(),
 });
 
 export function getServerEnv() {
@@ -63,5 +76,7 @@ export function getServerEnv() {
     ANALYTICS_API_TOKEN: process.env.ANALYTICS_API_TOKEN || undefined,
     ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH || undefined,
     ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET || undefined,
+    GMAIL_USER: process.env.GMAIL_USER || undefined,
+    GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD || undefined,
   });
 }
