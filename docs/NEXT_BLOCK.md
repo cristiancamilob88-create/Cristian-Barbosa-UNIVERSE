@@ -67,8 +67,12 @@ scratch first.
 3. Payment provider for música/productos digitales — blocks a real
    `entitlement` writer.
 4. Droppy API vs. manual fulfillment — blocks Block 09's real close.
-5. Email/WhatsApp automation vendor — deliberately deferred until the
-   Block 10 lifecycle map exists.
+5. Email/WhatsApp automation vendor — **partially resolved, 2026-08-25**:
+   the lifecycle map exists now (docs/AUTOMATIONS.md) and email is
+   decided + built (Gmail SMTP, not Resend — no domain purchased yet).
+   WhatsApp is still open, pending Cristian getting a phone number
+   dedicated to it (his current one is mixed personal/business) — full
+   reasoning and researched options in docs/AUTOMATIONS.md.
 
 ## What NOT to rebuild when either block starts
 
