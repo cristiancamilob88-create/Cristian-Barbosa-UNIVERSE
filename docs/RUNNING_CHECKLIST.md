@@ -46,15 +46,14 @@ live only in chat history. Newest items at the top of each section.
   not started; asked Cristian to prioritize the three together
   (Contactos / mensajes automáticos / esto), he picked Contactos first
   (closed below).
-- **Mensajes automáticos — la parte de WhatsApp** (2026-08-25, updated):
-  the lifecycle map is confirmed and the email half is built
-  (docs/AUTOMATIONS.md) — WhatsApp is the one piece still blocked, on
-  Cristian getting a phone number dedicated to this (his current
-  WhatsApp Business number is mixed personal/family — recommended
-  against connecting it; a Twilio virtual number needs no physical SIM
-  and was the researched, recommended path). Once he has that number,
-  the WhatsApp send follows the exact same pattern already built for
-  email (`sendWelcomeEmail()`'s fail-silently-if-unconfigured shape).
+- **Mensajes automáticos — código de WhatsApp ya construido, falta
+  activarlo** (2026-08-25, updated): Cristian creó su cuenta de Twilio;
+  `sendWelcomeWhatsApp()` está construido y probado (docs/AUTOMATIONS.md)
+  con el mismo patrón que el correo — falla en silencio hasta que
+  reciba `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_WHATSAPP_FROM`
+  reales. Falta: Cristian une el Sandbox de Twilio (o consigue un
+  número aprobado real) y pega esas 3 variables en Vercel + escribe el
+  texto real de cada tema (mismos 8 espacios que el correo).
 
 ## Closed
 

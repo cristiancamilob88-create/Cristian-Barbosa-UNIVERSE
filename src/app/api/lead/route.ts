@@ -11,6 +11,7 @@ import { createB2bOpportunity, type B2bCategory } from "@/server/db/repositories
 import { recordInteraction } from "@/server/db/repositories/interaction";
 import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
 import { sendWelcomeEmail } from "@/server/notifications/email";
+import { sendWelcomeWhatsApp } from "@/server/notifications/whatsapp";
 
 /**
  * Lead intake endpoint for the /contacto form. Persists the full flow
@@ -186,9 +187,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Fire-and-forget, after the transaction has already committed: the
-    // lead is saved either way — see sendWelcomeEmail()'s own doc
-    // comment for why this never throws back into this handler.
+    // lead is saved either way — see sendWelcomeEmail()'s/
+    // sendWelcomeWhatsApp()'s own doc comments for why neither ever
+    // throws back into this handler.
     void sendWelcomeEmail({ name, email, topic });
+    void sendWelcomeWhatsApp({ name, phone, topic });
 
     const response = NextResponse.json({ ok: true });
     if (isNewVisitorId) {

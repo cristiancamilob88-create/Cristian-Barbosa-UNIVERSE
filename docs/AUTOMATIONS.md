@@ -9,7 +9,7 @@ default pick.
 
 | # | Trigger | Message | Canal | Estado |
 |---|---|---|---|---|
-| 1 | `lead_submitted` (cualquier tema) | Bienvenida, personalizada por tema (mismos 8 valores de `ContactForm`'s `topics`) | Correo **y** WhatsApp, los dos | **Correo: construido** (esta fase). WhatsApp: pendiente, ver abajo. |
+| 1 | `lead_submitted` (cualquier tema) | Bienvenida, personalizada por tema (mismos 8 valores de `ContactForm`'s `topics`) | Correo **y** WhatsApp, los dos | **Ambos construidos** — ver abajo. |
 | 2 | Han pasado 7 días desde el registro (o desde el último recordatorio) de un contacto, y ese contacto no ha hecho clic en el link de la comunidad de WhatsApp | Invitación a unirse a la comunidad | WhatsApp y/o correo | No construido todavía — depende de la decisión de WhatsApp de abajo. |
 
 Nota honesta sobre el trigger 2: no hay forma de saber con certeza si
@@ -69,31 +69,51 @@ revisar (Resend, ya con dominio) si eso deja de ser cierto.
   transacción ya guardó todo — `void sendWelcomeEmail(...)`, sin
   bloquear ni poder romper la respuesta al visitante.
 
-## WhatsApp — investigado, decisión todavía pendiente
+## Implementado — WhatsApp (2026-08-25, Twilio)
 
-Cristian ya tiene WhatsApp Business (la app), pero **eso no es lo mismo
-que la plataforma necesaria para enviar mensajes automáticos** — la app
-es para que un humano escriba manualmente. Enviar mensajes sin que
-alguien los escriba requiere la "WhatsApp Business Platform" (API),
-un canal técnico aparte.
+Cristian creó su cuenta de Twilio. `src/server/notifications/whatsapp.ts`
+— `sendWelcomeWhatsApp()`, mismo contrato que `sendWelcomeEmail()`
+(nunca revienta `/api/lead`, se salta en silencio con un
+`console.warn` si algo no está listo): sin credenciales configuradas,
+con el texto de ese tema todavía en placeholder
+(`src/server/notifications/whatsappTemplates.ts`,
+`isPendingWhatsAppTemplate()`), o si el teléfono no se pudo normalizar
+a formato internacional (`src/server/notifications/phone.ts` —
+asume `+57` para un celular colombiano de 10 dígitos sin prefijo,
+nunca adivina para otros países).
 
-Su número actual de WhatsApp Business es de uso mixto (negocio y
-familia/personal) — **no se recomienda conectarlo**: un número
-migrado a la Platform deja de poder usarse con la app normal para
-chatear manualmente; todo el tráfico de ese número (automático o no)
-tendría que pasar por la API de ahí en adelante.
+Arranca contra el **WhatsApp Sandbox de Twilio** (gratis, instantáneo,
+sin verificación de negocio de Meta) y pasa a un número real aprobado
+más adelante sin cambiar nada de código — solo la variable
+`TWILIO_WHATSAPP_FROM`. Una diferencia real que hay que saber: fuera
+del Sandbox, un mensaje que la persona no inició (como este, de
+bienvenida) necesita una **plantilla aprobada por Meta**, no texto
+libre — el Sandbox sí permite texto libre para probar ya mismo.
 
-Opciones reales evaluadas para el número, sin necesidad de una SIM
-física:
+## WhatsApp — investigación del número (contexto de la decisión de arriba)
+
+Cristian ya tiene WhatsApp Business (la app), pero eso no es lo mismo
+que la plataforma necesaria para enviar mensajes automáticos — la app
+es para que un humano escriba manualmente. Su número actual es de uso
+mixto (negocio y familia/personal) — no se recomendó conectarlo ese
+mismo número: un número migrado a la Platform deja de poder usarse con
+la app normal para chatear manualmente.
+
+Opciones evaluadas para conseguir un número dedicado, sin necesidad de
+una SIM física (Twilio, la opción elegida arriba, fue la recomendada):
 
 | Opción | Necesita SIM física | Riesgo | Notas |
 |---|---|---|---|
-| **Número virtual vía Twilio** | No — se renta en la nube, unos minutos | Ninguno, es el canal oficial | Recomendado. Unos pocos dólares/mes + costo por conversación de Meta. Meta solo pide poder recibir un SMS/llamada de verificación una vez, algo que un número virtual de Twilio sí puede hacer. |
-| **Meta Cloud API directamente** (sin Twilio de por medio) | No | Ninguno, oficial | Más barato a largo plazo, configuración inicial más técnica (Business Manager, permisos de app) — Twilio simplifica ese primer paso. |
-| **n8n** | — | — | No resuelve el problema del número — por debajo sigue necesitando una de las dos opciones oficiales de arriba. Para el alcance actual (2 disparadores bien definidos), agregarlo sería una pieza más que mantener sin necesidad real (docs/ARCHITECTURE.md §10-11, "no agregar vendor sin revisar primero"). |
-| **Automatización no oficial** (librerías tipo whatsapp-web.js/Baileys, que simulan una sesión de WhatsApp Web) | No | **Alto — riesgo real de que Meta banee el número permanentemente**, sin aviso | Explícitamente NO recomendado para un negocio real, aunque técnicamente existe. |
+| **Twilio** (elegida) | No | Ninguno, oficial | Cristian ya creó la cuenta. Solo credenciales/API, sin panel visual propio de WhatsApp — el control está en el código. |
+| **WATI** | No | Ninguno, oficial (mismo canal de Meta por debajo) | Pensada para dueños de negocio no técnicos — tiene su propio panel visual (bandeja de entrada, plantillas, automatizaciones simples sin código). Cobra su propia suscripción mensual además del costo de Meta. Buena alternativa si Cristian quiere poder tocar/ajustar cosas él mismo sin pasar siempre por código. |
+| **360dialog / Gupshup** | No | Ninguno, oficiales | Otros proveedores del mismo tipo que Twilio, a veces con precio más plano por volumen. No más simples de configurar que Twilio. |
+| **Meta Cloud API directamente** (sin intermediario) | No | Ninguno, oficial | Más barato a largo plazo, configuración inicial más técnica (Business Manager, permisos de app) — no es "más fácil" que Twilio. |
+| **n8n** | — | — | No resuelve el problema del número — por debajo sigue necesitando una de las opciones oficiales de arriba. Para el alcance actual (2 disparadores bien definidos), agregarlo sería una pieza más que mantener sin necesidad real (docs/ARCHITECTURE.md §10-11, "no agregar vendor sin revisar primero"). |
+| **Automatización no oficial** (whatsapp-web.js/Baileys, simulan WhatsApp Web) | No | **Alto — riesgo real de baneo permanente**, sin aviso | Explícitamente NO recomendado para un negocio real. |
 
-**Pendiente de Cristian**: decidir si consigue un número virtual (vía
-Twilio, sin trámite físico) dedicado a esto. En cuanto lo tenga, se
-construye el envío de WhatsApp con el mismo patrón de `sendWelcomeEmail()`
-(falla en silencio si no está configurado, nunca rompe el flujo real).
+**La complejidad real no es "cuál herramienta"** — las 4 primeras
+opciones son solo distintas puertas hacia el mismo sistema oficial de
+Meta, y todas heredan el mismo requisito de verificación de negocio
+para producción real. Twilio ya está creado y ya tiene código
+funcionando (arriba) — cambiar de proveedor ahora perdería ese avance
+sin resolver nada estructuralmente distinto.

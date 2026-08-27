@@ -61,6 +61,16 @@ const serverEnvSchema = z.object({
   // Cristian's real Gmail password. Requires 2-Step Verification on
   // first; docs/AUTOMATIONS.md has the exact steps.
   GMAIL_APP_PASSWORD: z.string().min(16).optional(),
+  // WhatsApp welcome message via Twilio (2026-08-25) — same
+  // fail-closed-for-the-feature, never-fail-the-lead posture as the
+  // Gmail vars above. All three optional; unset means
+  // sendWelcomeWhatsApp() skips and logs.
+  TWILIO_ACCOUNT_SID: z.string().min(10).optional(),
+  TWILIO_AUTH_TOKEN: z.string().min(10).optional(),
+  // E.164 with the whatsapp: prefix Twilio expects, e.g.
+  // "whatsapp:+14155238886" (their sandbox number) or your own approved
+  // WhatsApp sender once you have one.
+  TWILIO_WHATSAPP_FROM: z.string().min(10).optional(),
 });
 
 export function getServerEnv() {
@@ -78,5 +88,8 @@ export function getServerEnv() {
     ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET || undefined,
     GMAIL_USER: process.env.GMAIL_USER || undefined,
     GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD || undefined,
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID || undefined,
+    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN || undefined,
+    TWILIO_WHATSAPP_FROM: process.env.TWILIO_WHATSAPP_FROM || undefined,
   });
 }
