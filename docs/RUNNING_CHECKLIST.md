@@ -46,14 +46,18 @@ live only in chat history. Newest items at the top of each section.
   not started; asked Cristian to prioritize the three together
   (Contactos / mensajes automáticos / esto), he picked Contactos first
   (closed below).
-- **Mensajes automáticos — código de WhatsApp ya construido, falta
-  activarlo** (2026-08-25, updated): Cristian creó su cuenta de Twilio;
-  `sendWelcomeWhatsApp()` está construido y probado (docs/AUTOMATIONS.md)
-  con el mismo patrón que el correo — falla en silencio hasta que
-  reciba `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_WHATSAPP_FROM`
-  reales. Falta: Cristian une el Sandbox de Twilio (o consigue un
-  número aprobado real) y pega esas 3 variables en Vercel + escribe el
-  texto real de cada tema (mismos 8 espacios que el correo).
+- **Mensajes automáticos — código de WhatsApp ya construido (Meta
+  directo), falta activarlo** (2026-08-25, updated dos veces el mismo
+  día: primero Twilio, después cambiado a Meta Cloud API directamente
+  a pedido de Cristian — sin problema en hacer la verificación de
+  negocio él mismo, y evita la comisión extra de Twilio).
+  `sendWelcomeWhatsApp()` está construido y probado
+  (docs/AUTOMATIONS.md) con el mismo patrón que el correo — falla en
+  silencio hasta que reciba `META_WHATSAPP_ACCESS_TOKEN`/
+  `META_WHATSAPP_PHONE_NUMBER_ID` reales. Falta: Cristian genera esas
+  dos credenciales en developers.facebook.com (pasos exactos en
+  docs/AUTOMATIONS.md), las pega en Vercel, y escribe el texto real de
+  cada tema (mismos 8 espacios que el correo).
 
 ## Closed
 
