@@ -41,6 +41,12 @@ export function Footer() {
           <GoLink slug={goLinks.youtube} className="text-sm text-steel hover:text-ember">
             YouTube
           </GoLink>
+          <GoLink slug={goLinks.x} className="text-sm text-steel hover:text-ember">
+            X (Twitter)
+          </GoLink>
+          <GoLink slug={goLinks.linkedin} className="text-sm text-steel hover:text-ember">
+            LinkedIn
+          </GoLink>
         </div>
       </Container>
 

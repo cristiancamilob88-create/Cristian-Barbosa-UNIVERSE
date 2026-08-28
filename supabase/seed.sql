@@ -66,7 +66,13 @@ insert into social_profile (slug, platform, label, url, display_order, category)
   -- Distinct from whatsapp-community: this is the single commercial
   -- number for shows/coaching/marcas/productos/consultas (docs/
   -- MASTER_BRIEF_BLOCK_07_10.md, "07.12"), not the free community chat.
-  ('whatsapp-commercial', 'whatsapp', 'WhatsApp comercial', 'https://wa.me/message/JIT2DR5FHC5TD1', 11, 'commercial')
+  ('whatsapp-commercial', 'whatsapp', 'WhatsApp comercial', 'https://wa.me/message/JIT2DR5FHC5TD1', 11, 'commercial'),
+  -- Added 2026-08-28, Cristian's own link — the query string
+  -- (utm_source=share_via&utm_content=profile&utm_medium=member_ios)
+  -- is LinkedIn's own share-sheet tracking from the iOS app, not part
+  -- of the actual profile URL, so it's stripped here rather than
+  -- stored verbatim.
+  ('linkedin-main', 'linkedin', 'LinkedIn', 'https://www.linkedin.com/in/cristian-barbosa-8828891bb/', 12, 'social')
 on conflict (slug) do nothing;
 
 insert into campaign (slug, name, status) values

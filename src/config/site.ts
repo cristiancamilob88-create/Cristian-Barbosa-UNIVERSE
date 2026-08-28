@@ -154,6 +154,7 @@ export const goLinks = {
   tiktokSecondary: "tiktok-secondary",
   youtube: "youtube-main",
   x: "x-main",
+  linkedin: "linkedin-main",
   facebook: "facebook-main",
   facebookSecondary: "facebook-secondary",
   facebookSubscription: "facebook-subscription",
