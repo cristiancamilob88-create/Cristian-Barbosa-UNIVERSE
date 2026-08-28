@@ -96,6 +96,14 @@ export default function ShowsPage() {
             tag="SHOWS"
             title="Shows"
             description="Un show construido sobre disciplina física real, adaptado al formato de tu evento o institución."
+            // Neon glow, Cristian's own request 2026-08-28 ("tipo efecto
+            // neón") — a layered ember text-shadow (tight bright core +
+            // two wider, softer halos), the classic neon-tube look. Ember
+            // is already this design system's "stage light" accent
+            // (globals.css), so a warm glow fits the theme instead of
+            // fighting it. Only /shows opts in — every other PageHero
+            // call site is unaffected.
+            glowClassName="[text-shadow:0_0_8px_rgba(242,36,26,0.9),0_0_24px_rgba(242,36,26,0.55),0_0_48px_rgba(242,36,26,0.3)]"
           >
             <div className="mt-8 flex flex-wrap gap-4">
             {/* Solid bg-ink/70 backdrop added 2026-08-28 — Cristian's
