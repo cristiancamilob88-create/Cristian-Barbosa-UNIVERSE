@@ -7,11 +7,19 @@ live only in chat history. Newest items at the top of each section.
 
 ## Open
 
-- **Probar una automatización real** (2026-08-25) — updated: the email
-  half of this is now real code (closed below, docs/AUTOMATIONS.md),
-  just waiting on Cristian's `GMAIL_USER`/`GMAIL_APP_PASSWORD` and his
-  own welcome-email text per topic before it can actually fire on a
-  real registration.
+- **Confirmar que el correo real de bienvenida sí llega, con el fix
+  de `after()` ya puesto** (2026-08-28) — Cristian ya tenía Gmail
+  configurado en Vercel e hizo la primera prueba real; no llegó nada
+  y los logs no mostraban ni un warning. Causa real encontrada y
+  arreglada (docs/AUTOMATIONS.md, "Bug real encontrado y arreglado"):
+  `/api/lead` disparaba el correo/WhatsApp con `void fn()`
+  fire-and-forget, y Vercel puede congelar la función serverless justo
+  cuando manda la respuesta — cortando ese envío a la mitad, antes de
+  loguear nada. Cambiado a `after()` de Next (`src/server/afterResponse.ts`),
+  verificado real con un POST contra `next start` (el log ahora sí
+  muestra los warnings esperados). Falta: que Cristian repita el
+  registro real una vez este fix esté desplegado, para confirmar que
+  el correo llega de verdad esta vez.
 - **Probar la base de datos con datos reales, no solo seed** —
   Cristian's own words: "una vez empecemos a construir base de datos,
   hay que probarla". Updated 2026-08-25: no longer waiting for the

@@ -10,6 +10,7 @@ import { createLead } from "@/server/db/repositories/lead";
 import { createB2bOpportunity, type B2bCategory } from "@/server/db/repositories/b2bOpportunity";
 import { recordInteraction } from "@/server/db/repositories/interaction";
 import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
+import { runAfterResponse } from "@/server/afterResponse";
 import { sendWelcomeEmail } from "@/server/notifications/email";
 import { sendWelcomeWhatsApp } from "@/server/notifications/whatsapp";
 
@@ -186,12 +187,18 @@ export async function POST(request: NextRequest) {
       };
     });
 
-    // Fire-and-forget, after the transaction has already committed: the
-    // lead is saved either way — see sendWelcomeEmail()'s/
+    // Runs after the response is sent, via runAfterResponse() (Next's
+    // after() under the hood) — NOT a bare `void fn()` fire-and-forget.
+    // The lead is saved either way; see sendWelcomeEmail()'s/
     // sendWelcomeWhatsApp()'s own doc comments for why neither ever
-    // throws back into this handler.
-    void sendWelcomeEmail({ name, email, topic });
-    void sendWelcomeWhatsApp({ name, phone, topic });
+    // throws back into this handler, and runAfterResponse()'s own doc
+    // comment for the real bug a bare `void` call had here (2026-08-28).
+    runAfterResponse(async () => {
+      await Promise.all([
+        sendWelcomeEmail({ name, email, topic }),
+        sendWelcomeWhatsApp({ name, phone, topic }),
+      ]);
+    });
 
     const response = NextResponse.json({ ok: true });
     if (isNewVisitorId) {

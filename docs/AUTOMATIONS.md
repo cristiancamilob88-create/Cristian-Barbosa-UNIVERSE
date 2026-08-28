@@ -69,6 +69,32 @@ objetivo es cerrar la venta en conversación directa, no navegar
 contenido primero. Todos los 8 terminan con una línea compartida
 invitando a `/redes` (idea de Cristian).
 
+## Bug real encontrado y arreglado — el correo no se disparaba en producción (2026-08-28)
+
+Cristian hizo la primera prueba real (registro con correo propio en
+producción, Gmail ya configurado en Vercel) y **no llegó nada** — ni el
+correo, ni ningún rastro en los logs de Vercel, ni un warning ni un
+error. La causa real, confirmada (no adivinada): `/api/lead/route.ts`
+llamaba `sendWelcomeEmail()`/`sendWelcomeWhatsApp()` como
+"fire-and-forget" (`void sendWelcomeEmail(...)`) — en un entorno
+serverless como Vercel, la ejecución de la función puede congelarse
+apenas se manda la respuesta al visitante, y ese envío sin `await`
+puede quedar cortado a la mitad, antes de llegar siquiera a loguear un
+error. Por eso no había nada que ver en los logs — la ejecución nunca
+llegó tan lejos.
+
+Arreglado con `after()` de Next.js (`src/server/afterResponse.ts`),
+la solución oficial de Next para exactamente este caso — usa el
+`waitUntil` de Vercel por debajo para mantener viva la función hasta
+que el correo/WhatsApp realmente termine de enviarse. Verificado real,
+no solo en teoría: build de producción + `next start` + un POST real a
+`/api/lead` — el mismo request ahora sí muestra los dos warnings
+esperados en el log (antes no mostraba nada). `after()` no funciona
+fuera de un request real de Next (como cuando las pruebas de
+integración llaman `POST()` directamente) — `runAfterResponse()` cae de
+vuelta al fire-and-forget original solo en ese caso, así que las
+pruebas siguen funcionando igual que antes.
+
 ## Implementado esta fase
 
 - `src/server/notifications/email.ts` — `sendWelcomeEmail()`, transporte
