@@ -70,15 +70,34 @@ export default function ShowsPage() {
           aria-hidden="true"
           fill
           priority
-          className="object-cover opacity-40"
+          className="object-cover opacity-30"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
-        <PageHero
-          tag="SHOWS"
-          title="Shows"
-          description="Un show construido sobre disciplina física real, adaptado al formato de tu evento o institución."
-        >
-          <div className="mt-8 flex flex-wrap gap-4">
+        <div className="absolute inset-0 bg-ink/60" />
+        {/*
+          The REAL bug behind the muted title (found by sampling actual
+          rendered pixels, not by re-guessing gradient values a 3rd
+          time): the Image and the scrim div above are `absolute`, which
+          puts them in the browser's "positioned, z-index:auto" paint
+          bucket. PageHero's <section> has no `position` of its own
+          (static) — and per the CSS painting-order spec, static in-flow
+          content paints BEFORE positioned siblings in the same stacking
+          context, no matter its order in the DOM. So the image + scrim
+          were painting ON TOP of the title, not behind it — the text
+          was never actually covering the art, no matter how the
+          gradient/opacity was tuned. Wrapping PageHero in its own
+          `relative z-10` promotes it into that same positioned bucket,
+          where DOM order (this div comes after the image/scrim) finally
+          decides paint order correctly. Confirmed by sampling real pixel
+          RGB values before and after — text-chalk (#f3f1ea) now actually
+          reaches the screen at the title's position, not before.
+        */}
+        <div className="relative z-10">
+          <PageHero
+            tag="SHOWS"
+            title="Shows"
+            description="Un show construido sobre disciplina física real, adaptado al formato de tu evento o institución."
+          >
+            <div className="mt-8 flex flex-wrap gap-4">
             {/* Solid bg-ink/70 backdrop added 2026-08-28 — Cristian's
                 own report: over the new brand-art hero background,
                 these outline-only buttons (border + text color, no
@@ -96,8 +115,9 @@ export default function ShowsPage() {
             >
               Quiero hablar con Cristian
             </GoLink>
-          </div>
-        </PageHero>
+            </div>
+          </PageHero>
+        </div>
       </div>
       {/* Contacto directo — Cristian's own request, 2026-08-28: the
           page only had a WhatsApp button (behind a click), not the
