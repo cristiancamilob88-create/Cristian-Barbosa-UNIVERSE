@@ -79,22 +79,49 @@ export default function ShowsPage() {
           description="Un show construido sobre disciplina física real, adaptado al formato de tu evento o institución."
         >
           <div className="mt-8 flex flex-wrap gap-4">
+            {/* Solid bg-ink/70 backdrop added 2026-08-28 — Cristian's
+                own report: over the new brand-art hero background,
+                these outline-only buttons (border + text color, no
+                fill until hover) lost contrast and "no resaltaban". */}
             <TrackedLink
               event={{ name: "cta_click", cta: "intent_shows", topic: "shows" }}
               href="/contacto?topic=shows"
-              className="inline-flex w-fit items-center border border-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+              className="inline-flex w-fit items-center border border-ember bg-ink/70 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember backdrop-blur-sm transition-colors hover:bg-ember hover:text-ink"
             >
               Quiero contratar un show
             </TrackedLink>
             <GoLink
               slug={goLinks.whatsappCommercial}
-              className="inline-flex w-fit items-center border border-chalk px-6 py-3 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+              className="inline-flex w-fit items-center border border-chalk bg-ink/70 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-chalk backdrop-blur-sm transition-colors hover:bg-chalk hover:text-ink"
             >
               Quiero hablar con Cristian
             </GoLink>
           </div>
         </PageHero>
       </div>
+      {/* Contacto directo — Cristian's own request, 2026-08-28: the
+          page only had a WhatsApp button (behind a click), not the
+          actual email/phone visible as text. All three now shown
+          together, right under the hero. */}
+      <section className="border-t border-steel-dim/40 py-10">
+        <Container>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Contacto directo</p>
+          <div className="mt-4 flex flex-col gap-3 text-sm text-steel sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
+            <a href="mailto:cristiancamilob88@gmail.com" className="text-chalk transition-colors hover:text-ember">
+              cristiancamilob88@gmail.com
+            </a>
+            <a href="tel:+573026342927" className="text-chalk transition-colors hover:text-ember">
+              +57 302 634 2927
+            </a>
+            <GoLink
+              slug={goLinks.whatsappCommercial}
+              className="text-chalk underline underline-offset-4 transition-colors hover:text-ember"
+            >
+              Escríbeme por WhatsApp
+            </GoLink>
+          </div>
+        </Container>
+      </section>
       <section className="py-16">
         <Container>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Para quién</p>
