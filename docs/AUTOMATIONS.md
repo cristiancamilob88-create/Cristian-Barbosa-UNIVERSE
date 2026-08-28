@@ -96,6 +96,18 @@ actual es de uso mixto (negocio y familia/personal); se le recomendó
 no conectar ese mismo número a la Cloud API (una vez migrado, deja de
 poder usarse con la app normal) — necesita un número dedicado.
 
+### Texto real — escrito y aprobado (2026-08-28)
+
+Los 8 mensajes de `whatsappTemplates.ts` ya no son placeholder — Cristian
+los revisó y aprobó en el chat ("me gustan los mensajes") antes de que
+quedaran en el código. Los 8 apuntan a `https://cristian-barbosa-
+universe.vercel.app` (el dominio real hoy — Cristian no tiene dominio
+propio comprado todavía) y, salvo Productos (que además manda a
+`/productos`), todos terminan invitando a `/comunidad` — esa página ya
+tiene su propio botón hacia el grupo de WhatsApp, así que un solo link
+cumple las dos cosas que Cristian pidió: que la persona pise el sitio, y
+que quede invitada a la comunidad, sin mandar dos links separados.
+
 ### Implementado
 
 `src/server/notifications/whatsapp.ts` — `sendWelcomeWhatsApp()`, habla

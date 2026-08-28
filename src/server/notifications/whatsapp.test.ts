@@ -44,9 +44,14 @@ describe("sendWelcomeWhatsApp", () => {
     process.env.META_WHATSAPP_ACCESS_TOKEN = "a".repeat(30);
     process.env.META_WHATSAPP_PHONE_NUMBER_ID = "1234567890";
     vi.resetModules();
-    const { sendWelcomeWhatsApp } = await import("./whatsapp");
+    const whatsappModule = await import("./whatsapp");
+    const templatesModule = await import("./whatsappTemplates");
+    // The shipped templates are real copy now (2026-08-28, Cristian
+    // approved them) — force this one topic back to a placeholder so the
+    // test still exercises the guard, not the real templates' content.
+    templatesModule.WELCOME_WHATSAPP_TEMPLATES.entrenar = { body: "[PENDIENTE — x]" };
 
-    await sendWelcomeWhatsApp({ name: "Ana", phone: "3001234567", topic: "entrenar" });
+    await whatsappModule.sendWelcomeWhatsApp({ name: "Ana", phone: "3001234567", topic: "entrenar" });
 
     expect(fetchMock).not.toHaveBeenCalled();
   });
