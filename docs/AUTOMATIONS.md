@@ -53,6 +53,22 @@ revisar (Resend, ya con dominio) si eso deja de ser cierto.
    en las variables de entorno de Vercel, igual que se hizo con
    `ADMIN_PASSWORD_HASH` — Settings → Environment Variables → Redeploy.
 
+### Texto real — escrito y aprobado (2026-08-28)
+
+Los 8 correos ya no son placeholder. Decisión de Cristian, afinada en
+varias rondas de chat: cada tema manda a la página del sitio que ya
+tiene el CTA correcto integrado (`/entrenar`, `/shows`, `/marcas`,
+`/productos`, `/musica`, o `/` para "Otro") — más simple de mantener
+(si el link de WhatsApp/Facebook cambia, se edita la página, no los 8
+correos) y la persona ve contexto antes de dar el clic. La única
+excepción es **Coaching personalizado**, que manda directo a
+`/go/whatsapp-commercial` (mismo número que usa Shows/Marcas — Cristian
+confirmó que es el mismo WhatsApp personal/comercial que ya usa para
+clientes, `+57 302 634 2927`, nunca escrito en el repo) porque ahí el
+objetivo es cerrar la venta en conversación directa, no navegar
+contenido primero. Todos los 8 terminan con una línea compartida
+invitando a `/redes` (idea de Cristian).
+
 ## Implementado esta fase
 
 - `src/server/notifications/email.ts` — `sendWelcomeEmail()`, transporte

@@ -21,12 +21,13 @@ describe("WELCOME_EMAIL_TEMPLATES", () => {
     }
   });
 
-  it("every shipped template is still a placeholder — none invented here", () => {
-    // This test's own failure is the signal that a real template landed:
-    // flip it (or delete it) the day a topic's placeholder is replaced
-    // with Cristian's real copy.
+  // 2026-08-28: Cristian reviewed and approved these 8 texts in chat
+  // before they were written here — still not invented unilaterally,
+  // just no longer a placeholder. If a topic ever goes back to
+  // `[PENDIENTE...]`, this test catches the regression.
+  it("every shipped template is real — none left as a placeholder", () => {
     for (const template of Object.values(WELCOME_EMAIL_TEMPLATES)) {
-      expect(isPendingTemplate(template)).toBe(true);
+      expect(isPendingTemplate(template)).toBe(false);
     }
   });
 });

@@ -48,12 +48,14 @@ describe("sendWelcomeEmail", () => {
     process.env.GMAIL_USER = "cristian@example.com";
     process.env.GMAIL_APP_PASSWORD = "abcd efgh ijkl mnop";
     vi.resetModules();
-    const { sendWelcomeEmail } = await import("./email");
+    const emailModule = await import("./email");
+    const templatesModule = await import("./emailTemplates");
+    // The shipped templates are real copy now (2026-08-28, Cristian
+    // approved them) — force this one topic back to a placeholder so the
+    // test still exercises the guard, not the real templates' content.
+    templatesModule.WELCOME_EMAIL_TEMPLATES.entrenar = { subject: "[PENDIENTE] x", body: "[PENDIENTE — x]" };
 
-    // Every shipped template is a placeholder today (emailTemplates.test.ts
-    // asserts this directly) — this call exercises that real state, not a
-    // contrived one.
-    await sendWelcomeEmail({ name: "Ana", email: "ana@example.com", topic: "entrenar" });
+    await emailModule.sendWelcomeEmail({ name: "Ana", email: "ana@example.com", topic: "entrenar" });
 
     expect(sendMail).not.toHaveBeenCalled();
   });
