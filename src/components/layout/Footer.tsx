@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { GoLink } from "@/components/ui/GoLink";
 import { navItems, secondaryNavItems, siteConfig, goLinks } from "@/config/site";
@@ -8,9 +9,12 @@ export function Footer() {
     <footer className="mt-24 border-t border-steel-dim/40">
       <Container className="grid gap-10 py-16 sm:grid-cols-3">
         <div>
-          <p className="font-display text-2xl font-black uppercase tracking-tight text-chalk">
-            {siteConfig.name}
-          </p>
+          <div className="flex items-center gap-2.5">
+            <Image src="/icon.png" alt="" aria-hidden="true" width={32} height={32} className="rounded-sm" />
+            <p className="font-display text-2xl font-black uppercase tracking-tight text-chalk">
+              {siteConfig.name}
+            </p>
+          </div>
           <p className="mt-3 max-w-xs text-sm text-steel">{siteConfig.tagline}</p>
         </div>
 

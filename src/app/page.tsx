@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { Container } from "@/components/ui/Container";
 import { navItems, siteConfig } from "@/config/site";
@@ -31,8 +32,20 @@ const tickerWords = [
 export default function HomePage() {
   return (
     <>
-      <section className="border-b border-steel-dim/40 pb-14 pt-20 sm:pt-28">
-        <Container>
+      {/* Logo watermarked into the hero background — same technique
+          Cristian approved on /bienvenida/[slug] ("como si perdiera
+          transparencia"), reused here on the homepage hero per his
+          2026-08-28 request to start filling the empty/text-only
+          sections with the real logo. Text/layout underneath untouched. */}
+      <section className="relative overflow-hidden border-b border-steel-dim/40 pb-14 pt-20 sm:pt-28">
+        <Image
+          src="/brand/cristian-logo-01.png"
+          alt=""
+          aria-hidden="true"
+          fill
+          className="pointer-events-none select-none object-cover opacity-[0.08]"
+        />
+        <Container className="relative">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">
             {siteConfig.universeName}
           </p>
