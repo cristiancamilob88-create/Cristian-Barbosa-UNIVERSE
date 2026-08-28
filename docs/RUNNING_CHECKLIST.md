@@ -28,10 +28,6 @@ live only in chat history. Newest items at the top of each section.
   per-category in docs/ASSETS_AND_BRAND.md — update that file's
   REAL/PENDIENTE/PLACEHOLDER column as each one arrives, don't just
   drop files in without updating the tracker.
-- **Favicon** — currently the default Next.js/Vercel starter icon
-  (docs/ASSETS_AND_BRAND.md category 2, "Logo secundario"). Swap once
-  a real icon/logo exists. Zero dependency on hosting — a same-day fix
-  whenever the asset is ready.
 - **Visual/brand identity pass** — Cristian's own framing (2026-08-25):
   "empezar a trabajar arquitectura visual" is the phase after this
   point, before automations/strategy. No specific brief yet — next
@@ -61,6 +57,11 @@ live only in chat history. Newest items at the top of each section.
 
 ## Closed
 
+- **Favicon real** (2026-08-25, confirmado 2026-08-28): estaba marcado
+  "abierto" en este archivo por error — docs/ASSETS_AND_BRAND.md
+  categoría 2 ya lo tenía como REAL desde el 2026-08-25 (`favicon.ico`/
+  `icon.png`/`apple-icon.png`, el emblema CB real, no el triángulo de
+  Vercel). Corregido aquí para que ambos archivos digan lo mismo.
 - **Welcome-email automation — real code, pending Cristian's Gmail
   credentials + his own message text** (2026-08-25): full record and
   reasoning in docs/AUTOMATIONS.md. `sendWelcomeEmail()`
