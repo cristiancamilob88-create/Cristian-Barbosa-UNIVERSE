@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
@@ -46,6 +47,20 @@ const bridgeItems = navItems.filter((item) => bridgeSlugs.includes(item.href));
 export default function AboutPage() {
   return (
     <>
+      {/* Real photo (Cristian's own send, 2026-08-28 — solo shot, no
+          consent question, unlike the fan photos that went to /shows).
+          Same full-bleed hero technique as /bienvenida/[slug]. */}
+      <section className="relative h-[42vh] min-h-[300px] w-full overflow-hidden bg-ink lg:h-[60vh]">
+        <Image
+          src="/brand/cristian-mountain-flex.jpg"
+          alt="Cristian Barbosa"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[50%_48%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
+      </section>
       <PageHero
         tag="ABOUT"
         title="Historia"
