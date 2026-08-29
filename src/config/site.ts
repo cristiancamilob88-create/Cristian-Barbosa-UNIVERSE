@@ -48,6 +48,12 @@ export interface NavItem {
  * The commercial routes of the universe. This list drives the main nav,
  * the homepage pillar grid, and sitemap.ts — add a route here once and it
  * shows up everywhere it needs to.
+ *
+ * Order is Cristian's own, given explicitly (2026-08-28): entrenar,
+ * comunidad, coaching, shows, música, productos, historia, redes, then
+ * marcas/eventos at the end (his own call — he didn't mention those two
+ * when listing the order, so they stay last rather than guessing a
+ * position for them).
  */
 export const navItems: NavItem[] = [
   {
@@ -67,6 +73,26 @@ export const navItems: NavItem[] = [
     intentId: "intent_community",
   },
   {
+    // Not a separate page — same /entrenar page, jumping straight to its
+    // "Coaching personalizado" card via #coaching. Cristian explicitly
+    // wants both: this dedicated card here AND the same offer still
+    // reachable as part of "Quiero entrenar" (kept unchanged above).
+    tag: "COACHING",
+    label: "Coaching",
+    href: "/entrenar#coaching",
+    description: "Programación, seguimiento y contacto directo con Cristian.",
+    intent: "Quiero coaching personalizado",
+    intentId: "intent_coaching",
+  },
+  {
+    tag: "SHOWS",
+    label: "Shows",
+    href: "/shows",
+    description: "Shows en vivo para empresas, colegios, universidades y eventos.",
+    intent: "Quiero contratar un show",
+    intentId: "intent_shows",
+  },
+  {
     tag: "MUSIC",
     label: "Música",
     href: "/musica",
@@ -83,12 +109,20 @@ export const navItems: NavItem[] = [
     intentId: "intent_products",
   },
   {
-    tag: "SHOWS",
-    label: "Shows",
-    href: "/shows",
-    description: "Shows en vivo para empresas, colegios, universidades y eventos.",
-    intent: "Quiero contratar un show",
-    intentId: "intent_shows",
+    tag: "ABOUT",
+    label: "Historia",
+    href: "/about",
+    description: "Quién es Cristian Barbosa.",
+    intent: "Quiero conocer su historia",
+    intentId: "intent_story",
+  },
+  {
+    tag: "NETWORK",
+    label: "Redes",
+    href: "/redes",
+    description: "Todos los canales oficiales, en un solo lugar.",
+    intent: "Quiero seguir a Cristian",
+    intentId: "intent_social",
   },
   {
     tag: "BRANDS",
@@ -106,25 +140,9 @@ export const navItems: NavItem[] = [
     intent: "Quiero ver la agenda",
     intentId: "intent_events",
   },
-  {
-    tag: "NETWORK",
-    label: "Redes",
-    href: "/redes",
-    description: "Todos los canales oficiales, en un solo lugar.",
-    intent: "Quiero seguir a Cristian",
-    intentId: "intent_social",
-  },
 ];
 
 export const secondaryNavItems: NavItem[] = [
-  {
-    tag: "ABOUT",
-    label: "Historia",
-    href: "/about",
-    description: "Quién es Cristian Barbosa.",
-    intent: "Quiero conocer su historia",
-    intentId: "intent_story",
-  },
   {
     tag: "CONTACT",
     label: "Contacto",

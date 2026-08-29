@@ -137,7 +137,13 @@ export default function EntrenarPage() {
               </TrackedLink>
             </div>
 
-            <div className="flex flex-col justify-between gap-4 bg-ink p-8">
+            {/* id="coaching" — the homepage's new "Coaching" card
+                (site.ts) links straight to /entrenar#coaching, per
+                Cristian's request 2026-08-28: its own entry point, same
+                page and offer as before. scroll-mt accounts for the
+                sticky header (h-16) so the anchor doesn't land the card
+                flush under it. */}
+            <div id="coaching" className="flex scroll-mt-24 flex-col justify-between gap-4 bg-ink p-8">
               <div>
                 <p className="font-mono text-xs uppercase tracking-widest text-ember">Premium</p>
                 <h2 className="mt-3 font-display text-xl font-black uppercase tracking-tight text-chalk">
