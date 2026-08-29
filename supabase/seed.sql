@@ -74,9 +74,14 @@ insert into social_profile (slug, platform, label, url, display_order, category)
   -- stored verbatim.
   ('linkedin-main', 'linkedin', 'LinkedIn', 'https://www.linkedin.com/in/cristian-barbosa-8828891bb/', 12, 'social'),
   -- Added 2026-08-28, Cristian's own PayPal donate link. Needs
-  -- 0008_social_platform_paypal_nequi.sql applied first (adds 'paypal'
-  -- to the platform check constraint).
-  ('paypal-donate', 'paypal', 'Apóyame por PayPal', 'https://www.paypal.com/donate/?hosted_button_id=SQTHQU8SA2KG6', 13, 'support')
+  -- 0008_social_platform_paypal_nequi.sql applied first (adds
+  -- 'paypal'/'nequi' to the platform check constraint).
+  ('paypal-donate', 'paypal', 'Apóyame por PayPal', 'https://www.paypal.com/donate/?hosted_button_id=SQTHQU8SA2KG6', 13, 'support'),
+  -- Nequi/Wompi link — confirmed by Cristian (2026-08-28) as reusable
+  -- and open-amount before shipping, not the first one he tried (which
+  -- he generated again after realizing the first might have been
+  -- single-use/fixed-amount).
+  ('nequi-donate', 'nequi', 'Apóyame por Nequi', 'https://checkout.nequi.wompi.co/l/pH9urU', 14, 'support')
 on conflict (slug) do nothing;
 
 insert into campaign (slug, name, status) values

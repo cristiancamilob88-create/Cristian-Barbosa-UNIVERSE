@@ -7,7 +7,7 @@ import { navItems, secondaryNavItems, siteConfig, goLinks } from "@/config/site"
 export function Footer() {
   return (
     <footer className="mt-24 border-t border-steel-dim/40">
-      <Container className="grid gap-10 py-16 sm:grid-cols-3">
+      <Container className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2.5">
             <Image src="/icon.png" alt="" aria-hidden="true" width={32} height={32} className="rounded-sm" />
@@ -48,23 +48,34 @@ export function Footer() {
             LinkedIn
           </GoLink>
         </div>
+
+        {/*
+          Support/donate block, added 2026-08-28 at Cristian's request,
+          promoted from a tiny link in the bottom bar (his own words:
+          "está muy escondido") into its own labeled column here — same
+          visual tier as Universo/Conecta, not just a footnote. Still
+          deliberately NOT on /shows or any commercial page (his earlier
+          framing: it shouldn't compete with "hire me" CTAs) — the
+          Footer is the one place it's guaranteed to show up on every
+          page without getting in front of a real commercial CTA.
+          Ember-colored (not the muted steel the other columns use) so
+          it actually stands out, per his "más relevante" ask.
+        */}
+        <div className="flex flex-col gap-2">
+          <p className="font-mono text-xs uppercase tracking-wider text-steel-dim">Apóyame</p>
+          <GoLink slug={goLinks.paypalDonate} className="text-sm font-semibold text-ember hover:text-chalk">
+            PayPal
+          </GoLink>
+          <GoLink slug={goLinks.nequiDonate} className="text-sm font-semibold text-ember hover:text-chalk">
+            Nequi
+          </GoLink>
+        </div>
       </Container>
 
       <Container className="flex flex-wrap items-center justify-between gap-2 border-t border-steel-dim/40 py-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs text-steel-dim">
-            © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
-          </p>
-          {/*
-            Support/donate link, added 2026-08-28 at Cristian's request —
-            deliberately here, not on /shows or any commercial page: he
-            didn't want it competing with "hire me" CTAs. Same muted tier
-            as the admin login link below, on every page via Footer.
-          */}
-          <GoLink slug={goLinks.paypalDonate} className="text-xs text-steel-dim hover:text-steel">
-            Quiero aportar
-          </GoLink>
-        </div>
+        <p className="text-xs text-steel-dim">
+          © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
+        </p>
         {/*
           Admin login link, added 2026-08-25 at Cristian's own request —
           he needs a findable way back into /admin without remembering

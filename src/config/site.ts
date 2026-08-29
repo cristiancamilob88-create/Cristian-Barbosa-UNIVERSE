@@ -179,9 +179,12 @@ export const goLinks = {
   facebook: "facebook-main",
   facebookSecondary: "facebook-secondary",
   facebookSubscription: "facebook-subscription",
-  /** Voluntary support/donate link (Cristian's own PayPal donate
-   * button, 2026-08-28) — a GoLink, not a CheckoutLink: this isn't a
-   * priced offer in the commerce catalog, it's an outbound link like
-   * any social channel, just to a donation page instead of a profile. */
+  /** Voluntary support/donate links (Cristian's own PayPal + Nequi
+   * links, 2026-08-28) — GoLinks, not CheckoutLinks: neither is a
+   * priced offer in the commerce catalog, both are outbound links like
+   * any social channel, just to a donation page instead of a profile.
+   * Both confirmed reusable + open-amount before shipping, not assumed
+   * — see docs/RUNNING_CHECKLIST.md. */
   paypalDonate: "paypal-donate",
+  nequiDonate: "nequi-donate",
 } as const;
