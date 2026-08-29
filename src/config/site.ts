@@ -49,12 +49,14 @@ export interface NavItem {
  * the homepage pillar grid, and sitemap.ts — add a route here once and it
  * shows up everywhere it needs to.
  *
- * Order is Cristian's own, updated 2026-08-28 (second pass, same day):
+ * Order is Cristian's own, updated 2026-08-28 (third pass, same day):
  * entrenar, comunidad, coaching, shows, música, marcas, eventos,
- * productos, redes, historia. Productos moved to near-last on purpose —
+ * productos, historia, redes. Productos moved to near-last on purpose —
  * his own words: the checkout/payment gateway and shipping (Dropi or
  * similar) aren't configured yet, so it's not the page he wants leading
- * people right now.
+ * people right now. Historia/Redes swapped from the previous pass
+ * (Claude's suggestion, Cristian agreed): "seguir en redes" reads as
+ * the natural closing action after "conoce mi historia", not before it.
  */
 export const navItems: NavItem[] = [
   {
@@ -126,20 +128,20 @@ export const navItems: NavItem[] = [
     intentId: "intent_products",
   },
   {
-    tag: "NETWORK",
-    label: "Redes",
-    href: "/redes",
-    description: "Todos los canales oficiales, en un solo lugar.",
-    intent: "Quiero seguir a Cristian",
-    intentId: "intent_social",
-  },
-  {
     tag: "ABOUT",
     label: "Historia",
     href: "/about",
     description: "Quién es Cristian Barbosa.",
     intent: "Quiero conocer su historia",
     intentId: "intent_story",
+  },
+  {
+    tag: "NETWORK",
+    label: "Redes",
+    href: "/redes",
+    description: "Todos los canales oficiales, en un solo lugar.",
+    intent: "Quiero seguir a Cristian",
+    intentId: "intent_social",
   },
 ];
 
