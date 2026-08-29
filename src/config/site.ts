@@ -49,11 +49,12 @@ export interface NavItem {
  * the homepage pillar grid, and sitemap.ts — add a route here once and it
  * shows up everywhere it needs to.
  *
- * Order is Cristian's own, given explicitly (2026-08-28): entrenar,
- * comunidad, coaching, shows, música, productos, historia, redes, then
- * marcas/eventos at the end (his own call — he didn't mention those two
- * when listing the order, so they stay last rather than guessing a
- * position for them).
+ * Order is Cristian's own, updated 2026-08-28 (second pass, same day):
+ * entrenar, comunidad, coaching, shows, música, marcas, eventos,
+ * productos, redes, historia. Productos moved to near-last on purpose —
+ * his own words: the checkout/payment gateway and shipping (Dropi or
+ * similar) aren't configured yet, so it's not the page he wants leading
+ * people right now.
  */
 export const navItems: NavItem[] = [
   {
@@ -101,30 +102,6 @@ export const navItems: NavItem[] = [
     intentId: "intent_music",
   },
   {
-    tag: "SHOP",
-    label: "Productos",
-    href: "/productos",
-    description: "Productos físicos y digitales — ropa, accesorios, cursos.",
-    intent: "Quiero ver los productos",
-    intentId: "intent_products",
-  },
-  {
-    tag: "ABOUT",
-    label: "Historia",
-    href: "/about",
-    description: "Quién es Cristian Barbosa.",
-    intent: "Quiero conocer su historia",
-    intentId: "intent_story",
-  },
-  {
-    tag: "NETWORK",
-    label: "Redes",
-    href: "/redes",
-    description: "Todos los canales oficiales, en un solo lugar.",
-    intent: "Quiero seguir a Cristian",
-    intentId: "intent_social",
-  },
-  {
     tag: "BRANDS",
     label: "Marcas",
     href: "/marcas",
@@ -139,6 +116,30 @@ export const navItems: NavItem[] = [
     description: "Agenda de próximas apariciones y eventos.",
     intent: "Quiero ver la agenda",
     intentId: "intent_events",
+  },
+  {
+    tag: "SHOP",
+    label: "Productos",
+    href: "/productos",
+    description: "Productos físicos y digitales — ropa, accesorios, cursos.",
+    intent: "Quiero ver los productos",
+    intentId: "intent_products",
+  },
+  {
+    tag: "NETWORK",
+    label: "Redes",
+    href: "/redes",
+    description: "Todos los canales oficiales, en un solo lugar.",
+    intent: "Quiero seguir a Cristian",
+    intentId: "intent_social",
+  },
+  {
+    tag: "ABOUT",
+    label: "Historia",
+    href: "/about",
+    description: "Quién es Cristian Barbosa.",
+    intent: "Quiero conocer su historia",
+    intentId: "intent_story",
   },
 ];
 
