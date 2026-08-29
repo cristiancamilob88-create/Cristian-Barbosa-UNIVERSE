@@ -51,9 +51,20 @@ export function Footer() {
       </Container>
 
       <Container className="flex flex-wrap items-center justify-between gap-2 border-t border-steel-dim/40 py-6">
-        <p className="text-xs text-steel-dim">
-          © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-xs text-steel-dim">
+            © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
+          </p>
+          {/*
+            Support/donate link, added 2026-08-28 at Cristian's request —
+            deliberately here, not on /shows or any commercial page: he
+            didn't want it competing with "hire me" CTAs. Same muted tier
+            as the admin login link below, on every page via Footer.
+          */}
+          <GoLink slug={goLinks.paypalDonate} className="text-xs text-steel-dim hover:text-steel">
+            Quiero aportar
+          </GoLink>
+        </div>
         {/*
           Admin login link, added 2026-08-25 at Cristian's own request —
           he needs a findable way back into /admin without remembering

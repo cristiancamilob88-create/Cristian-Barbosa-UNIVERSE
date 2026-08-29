@@ -179,4 +179,9 @@ export const goLinks = {
   facebook: "facebook-main",
   facebookSecondary: "facebook-secondary",
   facebookSubscription: "facebook-subscription",
+  /** Voluntary support/donate link (Cristian's own PayPal donate
+   * button, 2026-08-28) — a GoLink, not a CheckoutLink: this isn't a
+   * priced offer in the commerce catalog, it's an outbound link like
+   * any social channel, just to a donation page instead of a profile. */
+  paypalDonate: "paypal-donate",
 } as const;

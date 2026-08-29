@@ -72,7 +72,11 @@ insert into social_profile (slug, platform, label, url, display_order, category)
   -- is LinkedIn's own share-sheet tracking from the iOS app, not part
   -- of the actual profile URL, so it's stripped here rather than
   -- stored verbatim.
-  ('linkedin-main', 'linkedin', 'LinkedIn', 'https://www.linkedin.com/in/cristian-barbosa-8828891bb/', 12, 'social')
+  ('linkedin-main', 'linkedin', 'LinkedIn', 'https://www.linkedin.com/in/cristian-barbosa-8828891bb/', 12, 'social'),
+  -- Added 2026-08-28, Cristian's own PayPal donate link. Needs
+  -- 0008_social_platform_paypal_nequi.sql applied first (adds 'paypal'
+  -- to the platform check constraint).
+  ('paypal-donate', 'paypal', 'Apóyame por PayPal', 'https://www.paypal.com/donate/?hosted_button_id=SQTHQU8SA2KG6', 13, 'support')
 on conflict (slug) do nothing;
 
 insert into campaign (slug, name, status) values
