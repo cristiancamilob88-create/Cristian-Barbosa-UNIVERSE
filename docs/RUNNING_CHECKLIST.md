@@ -7,6 +7,19 @@ live only in chat history. Newest items at the top of each section.
 
 ## Open
 
+- **Dropi (o similar) para el catálogo/pasarela/envíos de Productos**
+  (2026-08-28) — Cristian preguntó si hay un MCP o conexión directa.
+  Investigado (no ejecutado, explícitamente no urgente ahora — sus
+  propias palabras: "todavía no lo vamos a tocar"): Dropi es real,
+  tiene API propia y +160,000 productos, pero sus integraciones "de
+  un clic" son solo para Shopify/WooCommerce/Tiendanube — este sitio
+  es Next.js a medida, así que sería hablar directo con su API REST,
+  no un conector listo. Ningún MCP encontrado para Dropi específicamente
+  (revisar el registro de MCP otra vez si esto se retoma en serio).
+  Coincide con docs/ARCHITECTURE.md Block 06 ("Real commerce
+  integration"), ya identificado como pendiente, sin proveedor de pago
+  elegido todavía. Retomar cuando Productos deje de estar "casi de
+  último" en la portada.
 - **Confirmar que el correo real de bienvenida sí llega, con el fix
   de `after()` ya puesto** (2026-08-28) — Cristian ya tenía Gmail
   configurado en Vercel e hizo la primera prueba real; no llegó nada
