@@ -106,11 +106,20 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           sizes="100vw"
           // The fine-tuned crop (52% 30%) was measured against the
           // default photo specifically (see the comment above) — a
-          // per-campaign override (0012) uses a plain centered crop
-          // instead, since it wasn't tuned for any other photo.
+          // per-campaign override (0012) gets its own tuned position.
+          // For cristian-mountain-flex.jpg: Cristian's own correction
+          // (2026-09-04) — "el cielo no me importa, me importa mi
+          // cuerpo" — most of the frame is sky above the pose, so a
+          // plain center crop buried the muscles low in frame, right
+          // where the title's gradient/text sit. 90% anchors near the
+          // bottom of the source instead, verified against real crops
+          // at both a phone-width and a wider box (src/scripts one-off,
+          // not checked in) before landing on this value. Desktop
+          // keeps object-contain — this fix targets the phone view,
+          // the realistic case for someone scanning a printed QR.
           className={
             landing.heroImageUrl
-              ? "object-cover object-center lg:object-contain"
+              ? "object-cover object-[50%_90%] lg:object-contain"
               : "object-cover object-[52%_30%] lg:object-contain"
           }
         />
