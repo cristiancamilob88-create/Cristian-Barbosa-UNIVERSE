@@ -169,6 +169,16 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
                 Unirme — {landing.secondaryWhatsappLabel ?? "grupo exclusivo"}
               </GoLink>
             )}
+            {/* Redes, right alongside the WhatsApp CTA (Cristian's ask,
+                2026-09-04) — /redes is an internal route (TrackedLink,
+                not GoLink), same intentId as its own navItems entry. */}
+            <TrackedLink
+              href="/redes"
+              event={{ name: "cta_click", cta: "intent_social", topic: "network" }}
+              className="inline-flex items-center border border-chalk px-6 py-3 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+            >
+              Seguir en redes
+            </TrackedLink>
           </div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
           <InstagramEmbed
