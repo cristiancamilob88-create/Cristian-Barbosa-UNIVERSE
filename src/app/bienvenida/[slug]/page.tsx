@@ -133,6 +133,19 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         />
       </div>
 
+      {/* Short per-campaign announcement (0010) — Cristian's request
+          2026-09-04, before sharing the Concordia link: what today's
+          event actually is. Only renders when the campaign has one set;
+          every other /bienvenida/[slug] page is unaffected. */}
+      {landing.eventDescription && (
+        <section className="border-b border-steel-dim/40 bg-ink-raised py-8">
+          <Container className="text-center">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Hoy</p>
+            <p className="mt-2 text-lg text-chalk">{landing.eventDescription}</p>
+          </Container>
+        </section>
+      )}
+
       <section className="border-b border-steel-dim/40 py-16">
         <Container className="flex flex-col items-center gap-6 text-center">
           {/* WhatsApp CTA(s) above the video, not below (Cristian's

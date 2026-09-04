@@ -134,6 +134,14 @@ set secondary_whatsapp_slug = null,
     secondary_whatsapp_label = null
 where slug = 'concordia-2026';
 
+-- Event announcement (0010), added 2026-09-04 at Cristian's explicit
+-- request, before he shares the link — his own words, cleaned up into
+-- a written sentence, no fact added beyond what he confirmed (the act,
+-- and its 15+ municipios track record).
+update campaign
+set event_description = 'Hoy, Cristian Barbosa presenta un espectáculo artístico del Circo Santiago de Chile, que ha estado presente en más de 15 municipios.'
+where slug = 'concordia-2026';
+
 insert into qr_source (slug, campaign_id, source_id, destination_path)
 select 'aura-2026-main', c.id, s.id, '/entrenar'
 from campaign c, source s

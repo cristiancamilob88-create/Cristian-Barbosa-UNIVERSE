@@ -17,6 +17,8 @@ export interface QrLanding {
   /** social_profile.slug for a second, campaign-specific WhatsApp card (0009) — null means not shown. */
   secondaryWhatsappSlug: string | null;
   secondaryWhatsappLabel: string | null;
+  /** Short per-campaign announcement line (0010) — null means no announcement block shown. */
+  eventDescription: string | null;
 }
 
 interface QrLandingRow {
@@ -26,12 +28,14 @@ interface QrLandingRow {
   instagram_reel_url: string | null;
   secondary_whatsapp_slug: string | null;
   secondary_whatsapp_label: string | null;
+  event_description: string | null;
 }
 
 export async function getActiveQrLanding(db: Pool | PoolClient, slug: string): Promise<QrLanding | null> {
   const result = await db.query<QrLandingRow>(
     `select qs.slug, c.name as campaign_name, s.label as source_label,
-            c.instagram_reel_url, c.secondary_whatsapp_slug, c.secondary_whatsapp_label
+            c.instagram_reel_url, c.secondary_whatsapp_slug, c.secondary_whatsapp_label,
+            c.event_description
      from qr_source qs
      left join campaign c on c.id = qs.campaign_id
      left join source s on s.id = qs.source_id
@@ -47,5 +51,6 @@ export async function getActiveQrLanding(db: Pool | PoolClient, slug: string): P
     instagramReelUrl: row.instagram_reel_url,
     secondaryWhatsappSlug: row.secondary_whatsapp_slug,
     secondaryWhatsappLabel: row.secondary_whatsapp_label,
+    eventDescription: row.event_description,
   };
 }
