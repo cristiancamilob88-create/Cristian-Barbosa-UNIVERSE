@@ -21,6 +21,10 @@ import { useState } from "react";
  * not via `fetch()`+blob — each endpoint sets its own `Content-Type`/
  * `Content-Disposition` and the httpOnly admin session cookie rides
  * along automatically on a same-origin request either way.
+ *
+ * The sticker sheet (`/stickers` — 12 small cut-out QRs on one Letter
+ * page, `src/server/admin/qrStickerSheet.ts`) was added 2026-09-04 for
+ * a live event: hand them out, stick them around the venue.
  */
 export function QrGeneratorPanel() {
   const [slugInput, setSlugInput] = useState("");
@@ -30,6 +34,7 @@ export function QrGeneratorPanel() {
   const encodedSlug = generatedSlug ? encodeURIComponent(generatedSlug) : null;
   const cardUrl = encodedSlug ? `/api/admin/qr/${encodedSlug}/card` : null;
   const imageUrl = encodedSlug ? `/api/admin/qr/${encodedSlug}/image` : null;
+  const stickersUrl = encodedSlug ? `/api/admin/qr/${encodedSlug}/stickers` : null;
 
   function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -94,6 +99,12 @@ export function QrGeneratorPanel() {
               className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
             >
               Descargar solo el QR
+            </a>
+            <a
+              href={stickersUrl!}
+              className="inline-flex w-fit items-center border border-tide px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
+            >
+              Descargar hoja de stickers (12)
             </a>
           </div>
         </div>
