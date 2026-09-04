@@ -7,14 +7,18 @@ import { useState } from "react";
  * (2026-08-28) after two QR images (colegio-la-leticia-2026,
  * concordia-2026) were generated ad hoc outside the app each time, per
  * docs/ATTRIBUTION.md's own note that this was worth promoting to a
- * real admin action once it kept happening.
+ * real admin action once it kept happening. The branded card
+ * (`/card` — logo + QR on the ink background, `src/server/admin/
+ * qrCard.ts`) was added the same day as a second option, after
+ * Cristian asked for something nicer than the bare code to look at
+ * when someone opens the image ("te queda bonita la imagen").
  *
  * Deliberately a plain slug text field, not a dropdown fetched from
  * `/api/analytics/qr` — every registered slug is already visible as
  * the first column of the performance table right below this panel,
  * and this is a single-user internal tool where that lookup cost is
  * fine. The image itself is fetched by the browser (`<img>`/`<a>` src),
- * not via `fetch()`+blob — the endpoint sets its own `Content-Type`/
+ * not via `fetch()`+blob — each endpoint sets its own `Content-Type`/
  * `Content-Disposition` and the httpOnly admin session cookie rides
  * along automatically on a same-origin request either way.
  */
@@ -23,7 +27,9 @@ export function QrGeneratorPanel() {
   const [generatedSlug, setGeneratedSlug] = useState<string | null>(null);
   const [imgError, setImgError] = useState(false);
 
-  const imageUrl = generatedSlug ? `/api/admin/qr/${encodeURIComponent(generatedSlug)}/image` : null;
+  const encodedSlug = generatedSlug ? encodeURIComponent(generatedSlug) : null;
+  const cardUrl = encodedSlug ? `/api/admin/qr/${encodedSlug}/card` : null;
+  const imageUrl = encodedSlug ? `/api/admin/qr/${encodedSlug}/image` : null;
 
   function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -65,27 +71,35 @@ export function QrGeneratorPanel() {
         </button>
       </form>
 
-      {imageUrl && !imgError && (
-        <div className="flex flex-col items-start gap-3 border-t border-steel-dim/40 pt-4">
+      {cardUrl && !imgError && (
+        <div className="flex flex-wrap items-start gap-6 border-t border-steel-dim/40 pt-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- an
               authenticated admin API route, not a next/image-eligible
               static/remote asset */}
           <img
-            src={imageUrl}
-            alt={`Código QR para ${generatedSlug}`}
+            src={cardUrl}
+            alt={`Tarjeta con QR para ${generatedSlug}`}
             onError={() => setImgError(true)}
-            className="h-48 w-48 border border-steel-dim/40 bg-chalk p-2"
+            className="h-72 w-auto border border-steel-dim/40 bg-ink"
           />
-          <a
-            href={imageUrl}
-            className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
-          >
-            Descargar PNG
-          </a>
+          <div className="flex flex-col gap-3">
+            <a
+              href={cardUrl}
+              className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+            >
+              Descargar tarjeta (con logo)
+            </a>
+            <a
+              href={imageUrl!}
+              className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+            >
+              Descargar solo el QR
+            </a>
+          </div>
         </div>
       )}
 
-      {imageUrl && imgError && (
+      {cardUrl && imgError && (
         <p role="alert" className="border-t border-steel-dim/40 pt-4 text-sm text-rust">
           No existe un QR registrado con el slug &quot;{generatedSlug}&quot;.
         </p>

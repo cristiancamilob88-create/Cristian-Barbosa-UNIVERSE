@@ -28,13 +28,16 @@ export function buildQrDestinationUrl(siteUrl: string, destination: QrDestinatio
  * correction ("H") and a generous margin — this is meant to survive
  * being printed small on a flyer or sticker, not just scanned on a
  * screen (same settings used for the earlier ad hoc QRs, see
- * docs/ATTRIBUTION.md).
+ * docs/ATTRIBUTION.md). `width` is configurable so `qrCard.ts` can
+ * render directly at its card layout's target size instead of
+ * downscaling the standalone 1200px image (resizing would blur/
+ * anti-alias the QR's square modules).
  */
-export async function renderQrPng(destinationUrl: string): Promise<Buffer> {
+export async function renderQrPng(destinationUrl: string, width = 1200): Promise<Buffer> {
   return QRCode.toBuffer(destinationUrl, {
     errorCorrectionLevel: "H",
     type: "png",
-    width: 1200,
+    width,
     margin: 3,
   });
 }
