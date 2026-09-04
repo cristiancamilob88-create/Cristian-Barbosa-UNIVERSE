@@ -234,6 +234,18 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
             >
               Seguir en redes
             </TrackedLink>
+            {/* Explicit link to the homepage (Cristian's ask, 2026-09-04):
+                the header logo already goes home, but that's an implicit
+                pattern not every visitor recognizes — an explicit button
+                up top, not just the "Ver todo el universo" card buried
+                after the form further down. */}
+            <TrackedLink
+              href="/"
+              event={{ name: "cta_click", cta: "ver_universo_completo", topic: "general" }}
+              className="inline-flex items-center border border-steel px-6 py-3 text-sm font-semibold uppercase tracking-wide text-steel transition-colors hover:bg-steel hover:text-ink"
+            >
+              Ver todo el universo
+            </TrackedLink>
           </div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
           <InstagramEmbed
