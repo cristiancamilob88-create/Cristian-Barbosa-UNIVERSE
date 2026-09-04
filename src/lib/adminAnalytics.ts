@@ -185,6 +185,25 @@ export interface QrResponse {
   data: QrPerformanceRow[];
 }
 
+export interface CampaignDetailRow {
+  campaignSlug: string;
+  campaignName: string;
+  status: string;
+  visits: number;
+  landingViews: number;
+  ctaClicks: number;
+  whatsappClicks: number;
+  leads: number;
+  purchases: number;
+  revenueCents: number;
+}
+
+export interface CampaignDetailResponse {
+  ok: true;
+  range: ResolvedRange;
+  data: CampaignDetailRow[];
+}
+
 export interface LandingRow {
   route: string;
   views: number;

@@ -9,6 +9,7 @@ const ADMIN_NAV_ITEMS = [
   { href: "/admin/fuentes", label: "Fuentes" },
   { href: "/admin/social", label: "Social" },
   { href: "/admin/qr", label: "QR" },
+  { href: "/admin/campanas", label: "Campañas" },
   { href: "/admin/landings", label: "Páginas" },
   { href: "/admin/funnel", label: "Embudo" },
   { href: "/admin/leads", label: "Registros" },
