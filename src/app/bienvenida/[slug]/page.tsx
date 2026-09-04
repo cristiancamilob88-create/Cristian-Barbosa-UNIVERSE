@@ -147,7 +147,16 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           tag="BIENVENIDA"
           title={`¡Hola, ${greeting}!`}
           description="Gracias por escanear el código — este es el universo completo de Cristian Barbosa: entrenamiento, comunidad, música, shows y lo que viene. Déjanos tus datos para entrar directo a la comunidad, o explora todo desde aquí."
-        />
+        >
+          <TrackedLink
+            href="/"
+            event={{ name: "cta_click", cta: "ver_universo_completo", topic: "general" }}
+            className="mt-6 inline-flex items-center gap-2 border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+          >
+            Ver todo el universo — menú principal
+            <span aria-hidden="true">→</span>
+          </TrackedLink>
+        </PageHero>
       </div>
 
       {/* Short per-campaign announcement (0010) — Cristian's request
