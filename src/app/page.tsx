@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { Container } from "@/components/ui/Container";
+import { Reveal } from "@/components/ui/Reveal";
 import { navItems, siteConfig } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
 
@@ -46,21 +47,28 @@ export default function HomePage() {
           className="pointer-events-none select-none object-cover opacity-[0.08]"
         />
         <Container className="relative">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">
-            {siteConfig.universeName}
-          </p>
-          <h1 className="mt-4 max-w-3xl font-display text-5xl font-black uppercase leading-[0.95] tracking-tight text-chalk sm:text-7xl">
-            Un atleta.
-            <br />
-            Un artista.
-            <br />
-            <span className="text-ember">Un universo entero.</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-steel">
-            Cristian Barbosa entrena, compite, crea música, sube al escenario y construye
-            marca — calistenia, coaching, comunidad, shows y proyectos, todo conectado.
-            Elige por dónde quieres entrar.
-          </p>
+          {/* First motion piece (2026-08-28, Cristian's "quiero algo
+              así, brutal") — GSAP ScrollTrigger, tried here first
+              before rolling out sitewide. Fires immediately on load
+              since the hero is already in view — the intended effect,
+              a real page-open moment, not a scroll-triggered one here. */}
+          <Reveal>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">
+              {siteConfig.universeName}
+            </p>
+            <h1 className="mt-4 max-w-3xl font-display text-5xl font-black uppercase leading-[0.95] tracking-tight text-chalk sm:text-7xl">
+              Un atleta.
+              <br />
+              Un artista.
+              <br />
+              <span className="text-ember">Un universo entero.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-lg text-steel">
+              Cristian Barbosa entrena, compite, crea música, sube al escenario y construye
+              marca — calistenia, coaching, comunidad, shows y proyectos, todo conectado.
+              Elige por dónde quieres entrar.
+            </p>
+          </Reveal>
         </Container>
       </section>
 
@@ -84,23 +92,24 @@ export default function HomePage() {
             ¿Qué quieres hacer?
           </h2>
           <div className="mt-6 grid gap-px overflow-hidden rounded-none border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-2 lg:grid-cols-3">
-            {navItems.map((item) => (
-              <TrackedLink
-                key={item.href}
-                href={item.href}
-                event={{ name: "cta_click", cta: item.intentId, topic: item.tag.toLowerCase() }}
-                className="group flex flex-col justify-between gap-8 bg-ink p-8 transition-colors hover:bg-ink-raised"
-              >
-                <span className="font-mono text-xs uppercase tracking-widest text-ember">
-                  {item.tag}
-                </span>
-                <div>
-                  <h3 className="font-display text-2xl font-black uppercase tracking-tight text-chalk group-hover:text-ember">
-                    {item.intent}
-                  </h3>
-                  <p className="mt-2 text-sm text-steel">{item.description}</p>
-                </div>
-              </TrackedLink>
+            {navItems.map((item, i) => (
+              <Reveal key={item.href} delay={(i % 3) * 0.08} className="bg-ink">
+                <TrackedLink
+                  href={item.href}
+                  event={{ name: "cta_click", cta: item.intentId, topic: item.tag.toLowerCase() }}
+                  className="group flex h-full flex-col justify-between gap-8 p-8 transition-colors hover:bg-ink-raised"
+                >
+                  <span className="font-mono text-xs uppercase tracking-widest text-ember">
+                    {item.tag}
+                  </span>
+                  <div>
+                    <h3 className="font-display text-2xl font-black uppercase tracking-tight text-chalk group-hover:text-ember">
+                      {item.intent}
+                    </h3>
+                    <p className="mt-2 text-sm text-steel">{item.description}</p>
+                  </div>
+                </TrackedLink>
+              </Reveal>
             ))}
           </div>
         </Container>

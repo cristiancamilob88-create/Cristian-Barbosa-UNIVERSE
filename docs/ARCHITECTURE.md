@@ -209,9 +209,17 @@ instruction to avoid "diseño genérico de SaaS":
 - **Signature element** — a CSS-only horizontal ticker of the universe's
   pillars under the homepage hero (scoreboard/lower-third reference,
   static under `prefers-reduced-motion`).
-- **Explicitly deferred**: advanced motion (GSAP/Framer choreography) and
-  3D/WebGL, per Product Vision — the skills exist in the library but are
-  not installed into this project yet.
+- **Motion — no longer deferred, 2026-08-28**: Cristian explicitly asked
+  to start ("quiero algo así, brutal" — Apple/premium-site scroll feel).
+  `gsap` + `ScrollTrigger` installed; `src/components/ui/Reveal.tsx` is
+  the first reusable piece (fade/slide-up on scroll into view, respects
+  `prefers-reduced-motion` same as the ticker above), shipped first on
+  the homepage hero + pillar grid only — sitewide rollout is next,
+  pending his sign-off on the feel. **3D/WebGL is still deferred**: he
+  wants one real 3D signature piece (his logo, rotating, in the
+  homepage hero) as a separate follow-up, not sitewide 3D — flagged
+  explicitly as a mobile-performance risk given his traffic comes
+  mostly from Instagram/WhatsApp on phones.
 
 ## 9. Security
 
