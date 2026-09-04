@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SectionHeader } from "@/components/admin/SectionHeader";
+import { QrGeneratorPanel } from "@/components/admin/QrGeneratorPanel";
 import { QrPageContent } from "./QrPageContent";
 
 export const metadata: Metadata = { title: "QR" };
@@ -11,6 +12,10 @@ export const metadata: Metadata = { title: "QR" };
  * (docs/COMMAND_CENTER.md, "QR is never hardcoded"). Kept as a Server
  * Component only for `metadata` — see OverviewPageContent.tsx's doc
  * comment for why the content itself moved to a Client Component.
+ *
+ * `QrGeneratorPanel` added 2026-08-28 (Cristian's own ask) — the
+ * "generate" action docs/ATTRIBUTION.md flagged as worth adding once
+ * ad hoc QR images kept happening per-event.
  */
 export default function AdminQrPage() {
   return (
@@ -20,6 +25,7 @@ export default function AdminQrPage() {
         title="Rendimiento de QR"
         description="Shows, universidades, colegios, ferias, eventos — cada código registrado, de scan a compra."
       />
+      <QrGeneratorPanel />
       <QrPageContent />
     </>
   );
