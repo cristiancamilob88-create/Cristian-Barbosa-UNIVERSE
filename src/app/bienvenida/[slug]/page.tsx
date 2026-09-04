@@ -140,6 +140,26 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
             url={landing.instagramReelUrl ?? "https://www.instagram.com/reel/DQcWOQMCUuN/"}
             title="Presentación de Cristian Barbosa"
           />
+          {/* WhatsApp CTAs promoted up next to the video (Cristian's ask,
+              2026-08-28) — a visitor scanning the QR shouldn't have to
+              scroll past the form to join. The full cards further down
+              stay as-is; these are a fast path, not a replacement. */}
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <GoLink
+              slug={goLinks.whatsappCommunity}
+              className="inline-flex items-center border border-tide px-6 py-3 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
+            >
+              Unirme a la comunidad
+            </GoLink>
+            {landing.secondaryWhatsappSlug && (
+              <GoLink
+                slug={landing.secondaryWhatsappSlug}
+                className="inline-flex items-center border border-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+              >
+                Unirme — {landing.secondaryWhatsappLabel ?? "grupo exclusivo"}
+              </GoLink>
+            )}
+          </div>
         </Container>
       </section>
 
