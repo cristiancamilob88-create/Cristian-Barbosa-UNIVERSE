@@ -99,12 +99,20 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
       */}
       <section className="relative h-[46vh] min-h-[320px] w-full overflow-hidden bg-ink lg:h-[70vh]">
         <Image
-          src="/brand/cristian-hero-02.jpg"
+          src={landing.heroImageUrl ?? "/brand/cristian-hero-02.jpg"}
           alt="Cristian Barbosa"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[52%_30%] lg:object-contain"
+          // The fine-tuned crop (52% 30%) was measured against the
+          // default photo specifically (see the comment above) — a
+          // per-campaign override (0012) uses a plain centered crop
+          // instead, since it wasn't tuned for any other photo.
+          className={
+            landing.heroImageUrl
+              ? "object-cover object-center lg:object-contain"
+              : "object-cover object-[52%_30%] lg:object-contain"
+          }
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
         <div className="relative flex h-full flex-col justify-end px-6 pb-10 sm:px-8">
@@ -151,13 +159,32 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           themselves. Only renders when the campaign has one set. */}
       {landing.pressUrl && (
         <section className="border-b border-steel-dim/40 py-6">
-          <Container className="text-center">
+          <Container className="flex flex-col items-center gap-3 text-center">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">En los medios</p>
+            {/* Real photo of the coverage (0012), when the campaign has
+                one — a verifiable clipping reads stronger than the link
+                alone. The link/label stays too either way. */}
+            {landing.pressImageUrl && (
+              <TrackedLink
+                href={landing.pressUrl}
+                external
+                event={{ name: "cta_click", cta: "press_link", topic: "press" }}
+                className="block w-full max-w-xs overflow-hidden border border-steel-dim/40"
+              >
+                <Image
+                  src={landing.pressImageUrl}
+                  alt={landing.pressLabel ?? "Recorte de prensa"}
+                  width={480}
+                  height={640}
+                  className="h-auto w-full object-cover"
+                />
+              </TrackedLink>
+            )}
             <TrackedLink
               href={landing.pressUrl}
               external
               event={{ name: "cta_click", cta: "press_link", topic: "press" }}
-              className="mt-2 inline-block text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
+              className="inline-block text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
             >
               {landing.pressLabel ?? "Leer la entrevista"} →
             </TrackedLink>

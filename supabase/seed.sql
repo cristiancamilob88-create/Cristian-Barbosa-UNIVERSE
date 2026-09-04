@@ -150,6 +150,14 @@ set press_url = 'https://www.elcolombiano.com/amp/deportes/cristian-barbosa-cali
     press_label = 'Entrevista con El Colombiano'
 where slug = 'concordia-2026';
 
+-- Hero photo override + real photo of the press clipping (0012),
+-- Cristian's own request (2026-09-04): a more representative hero shot,
+-- and the actual newspaper photo next to the press_url link above.
+update campaign
+set hero_image_url = '/brand/cristian-mountain-flex.jpg',
+    press_image_url = '/brand/press-el-colombiano.jpg'
+where slug = 'concordia-2026';
+
 insert into qr_source (slug, campaign_id, source_id, destination_path)
 select 'aura-2026-main', c.id, s.id, '/entrenar'
 from campaign c, source s
