@@ -19,6 +19,9 @@ export interface QrLanding {
   secondaryWhatsappLabel: string | null;
   /** Short per-campaign announcement line (0010) — null means no announcement block shown. */
   eventDescription: string | null;
+  /** Optional real press coverage link (0011) — null means no "En los medios" block shown. */
+  pressUrl: string | null;
+  pressLabel: string | null;
 }
 
 interface QrLandingRow {
@@ -29,13 +32,15 @@ interface QrLandingRow {
   secondary_whatsapp_slug: string | null;
   secondary_whatsapp_label: string | null;
   event_description: string | null;
+  press_url: string | null;
+  press_label: string | null;
 }
 
 export async function getActiveQrLanding(db: Pool | PoolClient, slug: string): Promise<QrLanding | null> {
   const result = await db.query<QrLandingRow>(
     `select qs.slug, c.name as campaign_name, s.label as source_label,
             c.instagram_reel_url, c.secondary_whatsapp_slug, c.secondary_whatsapp_label,
-            c.event_description
+            c.event_description, c.press_url, c.press_label
      from qr_source qs
      left join campaign c on c.id = qs.campaign_id
      left join source s on s.id = qs.source_id
@@ -52,5 +57,7 @@ export async function getActiveQrLanding(db: Pool | PoolClient, slug: string): P
     secondaryWhatsappSlug: row.secondary_whatsapp_slug,
     secondaryWhatsappLabel: row.secondary_whatsapp_label,
     eventDescription: row.event_description,
+    pressUrl: row.press_url,
+    pressLabel: row.press_label,
   };
 }

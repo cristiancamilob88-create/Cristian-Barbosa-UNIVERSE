@@ -146,6 +146,25 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         </section>
       )}
 
+      {/* Real press coverage (0011) — Cristian's request 2026-09-04:
+          a verifiable link beats asking a visitor to go search Google
+          themselves. Only renders when the campaign has one set. */}
+      {landing.pressUrl && (
+        <section className="border-b border-steel-dim/40 py-6">
+          <Container className="text-center">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">En los medios</p>
+            <TrackedLink
+              href={landing.pressUrl}
+              external
+              event={{ name: "cta_click", cta: "press_link", topic: "press" }}
+              className="mt-2 inline-block text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
+            >
+              {landing.pressLabel ?? "Leer la entrevista"} →
+            </TrackedLink>
+          </Container>
+        </section>
+      )}
+
       <section className="border-b border-steel-dim/40 py-16">
         <Container className="flex flex-col items-center gap-6 text-center">
           {/* WhatsApp CTA(s) above the video, not below (Cristian's

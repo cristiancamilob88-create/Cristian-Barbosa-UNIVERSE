@@ -142,6 +142,14 @@ update campaign
 set event_description = 'Hoy, Cristian Barbosa presenta un espectáculo artístico del Circo Santiago de Chile, que ha estado presente en más de 15 municipios.'
 where slug = 'concordia-2026';
 
+-- Real press coverage (0011), the actual El Colombiano article
+-- Cristian sent (2026-09-04) — verified as a real, live URL before
+-- adding, not invented.
+update campaign
+set press_url = 'https://www.elcolombiano.com/amp/deportes/cristian-barbosa-caliestania-envigado-practica-que-crece-en-area-metropolitana-PP33788025',
+    press_label = 'Entrevista con El Colombiano'
+where slug = 'concordia-2026';
+
 insert into qr_source (slug, campaign_id, source_id, destination_path)
 select 'aura-2026-main', c.id, s.id, '/entrenar'
 from campaign c, source s
