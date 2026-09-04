@@ -137,7 +137,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         <Container className="flex flex-col items-center gap-6 text-center">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
           <InstagramEmbed
-            url="https://www.instagram.com/reel/DQcWOQMCUuN/"
+            url={landing.instagramReelUrl ?? "https://www.instagram.com/reel/DQcWOQMCUuN/"}
             title="Presentación de Cristian Barbosa"
           />
         </Container>
@@ -173,6 +173,29 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
                 Unirme por WhatsApp
               </GoLink>
             </div>
+
+            {/* Second, campaign-specific WhatsApp group (0009) —
+                Cristian's request 2026-08-28: a niche group for a
+                specific school/event, alongside (not instead of) the
+                general community group above. Only renders when a
+                campaign actually has one configured. */}
+            {landing.secondaryWhatsappSlug && (
+              <div className="flex flex-col gap-4 bg-ink p-6 ring-1 ring-inset ring-ember/40">
+                <div>
+                  <p className="font-mono text-xs uppercase tracking-widest text-ember">Grupo exclusivo</p>
+                  <h3 className="mt-2 font-display text-lg font-black uppercase tracking-tight text-chalk">
+                    {landing.secondaryWhatsappLabel ?? "Grupo de WhatsApp"}
+                  </h3>
+                  <p className="mt-2 text-sm text-steel">Solo para quienes escanearon aquí.</p>
+                </div>
+                <GoLink
+                  slug={landing.secondaryWhatsappSlug}
+                  className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+                >
+                  Unirme por WhatsApp
+                </GoLink>
+              </div>
+            )}
 
             <div className="flex flex-col gap-4 bg-ink p-6">
               <div>

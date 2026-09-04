@@ -3,6 +3,7 @@ import Image from "next/image";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { InstagramEmbed } from "@/components/ui/InstagramEmbed";
 import { navItems, siteConfig } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
 
@@ -85,6 +86,25 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      {/* Real video, Cristian's own reel with Westcol (2026-08-28) —
+          confirmed with him it's a real, consented collab before
+          shipping. Instagram embed, same reusable component
+          /bienvenida/[slug] already uses — no new dependency, no video
+          file in the repo (see that page's own comment for why not). */}
+      <section className="border-b border-steel-dim/40 py-16">
+        <Container className="flex flex-col items-center gap-6 text-center">
+          <Reveal>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <InstagramEmbed
+              url="https://www.instagram.com/reel/DU6rtrckrID/"
+              title="Cristian Barbosa con Westcol"
+            />
+          </Reveal>
+        </Container>
+      </section>
 
       <section className="py-16">
         <Container>

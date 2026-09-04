@@ -99,6 +99,24 @@ insert into campaign (slug, name, status) values
   ('prueba-interna-2026-08-25', 'Prueba interna — QR test', 'active')
 on conflict (slug) do nothing;
 
+-- Concordia, Antioquia (2026-08-28) — Cristian's own call after going
+-- back and forth in chat between a general town page and a
+-- school-specific one ("Institución Educativa de Jesús"): a general
+-- Concordia page, not tied to one school. Uses the Westcol reel
+-- (instagram_reel_url) instead of the generic one every other
+-- /bienvenida/[slug] shows. secondary_whatsapp_slug intentionally left
+-- null — the school-specific WhatsApp group link hasn't been provided
+-- yet; add it (plus its social_profile row) once Cristian sends it.
+insert into campaign (slug, name, status, instagram_reel_url) values
+  ('concordia-2026', 'Concordia — Antioquia', 'active', 'https://www.instagram.com/reel/DU6rtrckrID/')
+on conflict (slug) do nothing;
+
+insert into qr_source (slug, campaign_id, source_id, destination_path)
+select 'concordia-2026', c.id, s.id, '/bienvenida/concordia-2026'
+from campaign c, source s
+where c.slug = 'concordia-2026' and s.slug = 'event'
+on conflict (slug) do nothing;
+
 insert into qr_source (slug, campaign_id, source_id, destination_path)
 select 'aura-2026-main', c.id, s.id, '/entrenar'
 from campaign c, source s
