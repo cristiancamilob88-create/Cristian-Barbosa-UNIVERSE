@@ -81,7 +81,13 @@ insert into social_profile (slug, platform, label, url, display_order, category)
   -- and open-amount before shipping, not the first one he tried (which
   -- he generated again after realizing the first might have been
   -- single-use/fixed-amount).
-  ('nequi-donate', 'nequi', 'Apóyame por Nequi', 'https://checkout.nequi.wompi.co/l/pH9urU', 14, 'support')
+  ('nequi-donate', 'nequi', 'Apóyame por Nequi', 'https://checkout.nequi.wompi.co/l/pH9urU', 14, 'support'),
+  -- School-specific WhatsApp group for the Concordia landing (0009),
+  -- distinct from whatsapp-community. Cristian's own invite link
+  -- (2026-08-28); the query string (?s=cl&p=i&mlu=4&ilr=4) is
+  -- WhatsApp's own share-sheet tracking, not part of the real invite
+  -- URL, so it's stripped here — same precedent as linkedin-main above.
+  ('whatsapp-concordia-colegio', 'whatsapp', 'Grupo colegio — Concordia', 'https://chat.whatsapp.com/D1wl2HeiMKZDgPLYFd7jK5', 15, 'community')
 on conflict (slug) do nothing;
 
 insert into campaign (slug, name, status) values
@@ -104,9 +110,7 @@ on conflict (slug) do nothing;
 -- school-specific one ("Institución Educativa de Jesús"): a general
 -- Concordia page, not tied to one school. Uses the Westcol reel
 -- (instagram_reel_url) instead of the generic one every other
--- /bienvenida/[slug] shows. secondary_whatsapp_slug intentionally left
--- null — the school-specific WhatsApp group link hasn't been provided
--- yet; add it (plus its social_profile row) once Cristian sends it.
+-- /bienvenida/[slug] shows.
 insert into campaign (slug, name, status, instagram_reel_url) values
   ('concordia-2026', 'Concordia — Antioquia', 'active', 'https://www.instagram.com/reel/DU6rtrckrID/')
 on conflict (slug) do nothing;
@@ -116,6 +120,15 @@ select 'concordia-2026', c.id, s.id, '/bienvenida/concordia-2026'
 from campaign c, source s
 where c.slug = 'concordia-2026' and s.slug = 'event'
 on conflict (slug) do nothing;
+
+-- School-specific WhatsApp group, added once Cristian sent the real
+-- link (2026-08-28) — an UPDATE (not part of the INSERT above), same
+-- pattern as the whatsapp-community/instagram-main URL fixes near the
+-- top of this file, since the campaign row itself already exists.
+update campaign
+set secondary_whatsapp_slug = 'whatsapp-concordia-colegio',
+    secondary_whatsapp_label = 'Grupo del colegio'
+where slug = 'concordia-2026';
 
 insert into qr_source (slug, campaign_id, source_id, destination_path)
 select 'aura-2026-main', c.id, s.id, '/entrenar'
