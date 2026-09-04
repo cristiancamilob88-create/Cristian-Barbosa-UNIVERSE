@@ -135,15 +135,12 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
 
       <section className="border-b border-steel-dim/40 py-16">
         <Container className="flex flex-col items-center gap-6 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
-          <InstagramEmbed
-            url={landing.instagramReelUrl ?? "https://www.instagram.com/reel/DQcWOQMCUuN/"}
-            title="Presentación de Cristian Barbosa"
-          />
-          {/* WhatsApp CTAs promoted up next to the video (Cristian's ask,
-              2026-08-28) — a visitor scanning the QR shouldn't have to
-              scroll past the form to join. The full cards further down
-              stay as-is; these are a fast path, not a replacement. */}
+          {/* WhatsApp CTA(s) above the video, not below (Cristian's
+              correction, 2026-08-28: "la gente, pum, presione ahí" —
+              the join button should be the very first thing a visitor
+              can act on, before they even watch). The full cards
+              further down stay as-is; this is a fast path, not a
+              replacement. */}
           <div className="flex flex-wrap items-center justify-center gap-4">
             <GoLink
               slug={goLinks.whatsappCommunity}
@@ -160,6 +157,11 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
               </GoLink>
             )}
           </div>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
+          <InstagramEmbed
+            url={landing.instagramReelUrl ?? "https://www.instagram.com/reel/DQcWOQMCUuN/"}
+            title="Presentación de Cristian Barbosa"
+          />
         </Container>
       </section>
 

@@ -121,13 +121,17 @@ from campaign c, source s
 where c.slug = 'concordia-2026' and s.slug = 'event'
 on conflict (slug) do nothing;
 
--- School-specific WhatsApp group, added once Cristian sent the real
--- link (2026-08-28) — an UPDATE (not part of the INSERT above), same
--- pattern as the whatsapp-community/instagram-main URL fixes near the
--- top of this file, since the campaign row itself already exists.
+-- School-specific WhatsApp group, added 2026-08-28 once Cristian sent
+-- the real link, then removed 2026-09-04: the strategy changed (no
+-- in-person school access — outreach is now through the rector's own
+-- WhatsApp broadcast to parents across 5 institutions instead), so a
+-- niche "this school only" group no longer matches how people actually
+-- arrive at this page. whatsapp-concordia-colegio's social_profile row
+-- is left in place (harmless, unreferenced) in case a future campaign
+-- wants a niche group again — this just stops pointing Concordia at it.
 update campaign
-set secondary_whatsapp_slug = 'whatsapp-concordia-colegio',
-    secondary_whatsapp_label = 'Grupo del colegio'
+set secondary_whatsapp_slug = null,
+    secondary_whatsapp_label = null
 where slug = 'concordia-2026';
 
 insert into qr_source (slug, campaign_id, source_id, destination_path)
