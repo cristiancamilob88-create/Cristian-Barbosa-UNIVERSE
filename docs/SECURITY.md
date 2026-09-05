@@ -77,7 +77,7 @@ never counts against another's:
 | Endpoint | Limit | Why this number |
 |---|---|---|
 | `/admin/login` (`loginRateLimit.ts`) | 5/min/IP | Tightest — a single shared admin password is a high-value brute-force target |
-| `/api/lead` | 5/min/IP | A real visitor submits the contact form once, not repeatedly |
+| `/api/lead` | 30/min/IP | Raised from 5/min 2026-09-05 (Concordia event): a crowd sharing venue wifi / carrier NAT shares one IP, so a low cap turns real leads into false 429s at a live event — still bounded well below a scripted flood |
 | `/api/checkout/[offerSlug]` | 30/min/IP | A GET a visitor can legitimately hit several times browsing multiple offers; still bounded since every hit does a DB read + write |
 | `/api/track` | 60/min/IP | Fires on ordinary browsing (`page_view`, `cta_click`) — highest ceiling since a real visitor can trigger it often just by clicking around |
 

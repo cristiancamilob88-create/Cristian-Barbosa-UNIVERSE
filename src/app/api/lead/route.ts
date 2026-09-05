@@ -93,7 +93,12 @@ const TOPIC_TO_B2B_CATEGORY: Record<string, B2bCategory | undefined> = {
   marcas: "brands",
 };
 
-const leadRateLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 5 });
+// 30/min per IP, not 5 — raised 2026-09-05 for the Concordia event: many
+// real attendees submitting the form from the same venue wifi / carrier
+// NAT would otherwise share one IP and trip a low per-IP cap, turning
+// real leads into false 429s at exactly the moment this endpoint matters
+// most. Still low enough to stop a scripted flood.
+const leadRateLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 30 });
 
 export async function POST(request: NextRequest) {
   const ip = getRequestIp(request);

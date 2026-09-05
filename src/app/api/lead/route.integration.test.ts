@@ -208,7 +208,7 @@ describe("POST /api/lead", () => {
   it("rate-limits a burst of requests from the same IP", async () => {
     const ip = randomUUID();
     const responses = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 31; i++) {
       responses.push(
         await POST(
           makeRequest({ name: "Ana", email: `burst-${i}-${Date.now()}@example.com`, phone: testPhone(), topic: "general" }, { ip }),
