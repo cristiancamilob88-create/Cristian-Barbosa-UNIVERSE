@@ -25,7 +25,9 @@ carry. Summary of what changed:
 | `whatsapp_click` / `social_click` / `outbound_click` | Yes, server-side via `/go/[slug]` (`outbound_click` is new — see docs/ANALYTICS_ENGINE.md). |
 | `lead_submit` (client) / `lead_submitted` (DB) | `lead_submitted` yes, server-side; client `lead_submit` stays console-only (would double-count). |
 | `contact_created` | Yes, new — fires only when `findOrCreateContact()` actually creates a row. |
-| `interest_selected`, `product_view`, `offer_view`, `checkout_started`, `purchase`, `subscription_started`, `subscription_cancelled`, `event_registration` | Reserved, no writer yet. |
+| `checkout_started` | Yes, since Block 05 — `GET /api/checkout/[offerSlug]`. |
+| `purchase` | Yes, since Block 06 (2026-09-09) — `POST /api/webhooks/mercadopago`, only for a Mercado Pago–confirmed paid order (docs/COMMERCE.md §10). |
+| `interest_selected`, `product_view`, `offer_view`, `subscription_started`, `subscription_cancelled`, `event_registration` | Reserved, no writer yet. |
 
 ## `page_view`/`landing_view`: the Block 02 deferral, reversed
 

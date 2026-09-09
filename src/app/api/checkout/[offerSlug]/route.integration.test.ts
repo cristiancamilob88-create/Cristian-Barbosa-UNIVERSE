@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getTestPool, resetActivityTables, closeTestPool } from "@/server/db/testHelpers.integration";
 import { GET } from "./route";
 
@@ -118,6 +118,105 @@ describe("GET /api/checkout/[offerSlug]", () => {
 
     const response = await GET(makeRequest(offerSlug), { params: Promise.resolve({ offerSlug }) });
     expect(response.headers.get("location")).toContain("/productos");
+  });
+
+  describe("Mercado Pago offers (Block 06)", () => {
+    const originalToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      if (originalToken === undefined) delete process.env.MERCADOPAGO_ACCESS_TOKEN;
+      else process.env.MERCADOPAGO_ACCESS_TOKEN = originalToken;
+    });
+
+    async function makeMercadoPagoOffer(client: import("pg").PoolClient, priceCents: number | null) {
+      const product = await client.query(
+        "insert into product (slug, name, kind) values ($1, 'MP product', 'physical') returning id",
+        [`mp-product-${Date.now()}-${Math.random()}`],
+      );
+      const offerSlug = `mp-offer-${Date.now()}-${Math.random()}`;
+      await client.query(
+        `insert into offer (product_id, slug, name, active, checkout_provider, purchase_type, price_cents)
+         values ($1, $2, 'MP offer', true, 'mercadopago', 'one_time', $3)`,
+        [product.rows[0].id, offerSlug, priceCents],
+      );
+      return offerSlug;
+    }
+
+    it("redirects to the Mercado Pago preference's init_point when the API call succeeds", async () => {
+      process.env.MERCADOPAGO_ACCESS_TOKEN = "APP_USR-test-token";
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue({ ok: true, json: async () => ({ init_point: "https://www.mercadopago.com.co/checkout/fake" }) });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const client = await getTestPool().connect();
+      let offerSlug: string;
+      try {
+        offerSlug = await makeMercadoPagoOffer(client, 5000000);
+      } finally {
+        client.release();
+      }
+
+      const response = await GET(makeRequest(offerSlug), { params: Promise.resolve({ offerSlug }) });
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe("https://www.mercadopago.com.co/checkout/fake");
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+
+      const rows = await getTestPool().query(
+        "select metadata from interaction where event_name = 'checkout_started'",
+      );
+      expect(rows.rows[0].metadata).toMatchObject({ offerSlug, checkoutKind: "external" });
+    });
+
+    it("falls back to the /contacto quote flow when Mercado Pago's API call fails, never breaking the redirect", async () => {
+      process.env.MERCADOPAGO_ACCESS_TOKEN = "APP_USR-test-token";
+      const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 500, text: async () => "server error" });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const client = await getTestPool().connect();
+      let offerSlug: string;
+      try {
+        offerSlug = await makeMercadoPagoOffer(client, 5000000);
+      } finally {
+        client.release();
+      }
+
+      const response = await GET(makeRequest(offerSlug), { params: Promise.resolve({ offerSlug }) });
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toContain("/contacto");
+
+      const rows = await getTestPool().query(
+        "select metadata from interaction where event_name = 'checkout_started'",
+      );
+      // "unavailable", not "quote": this offer has no checkout_url set,
+      // which resolveCheckoutDestination() already treats as a
+      // misconfigured external provider — same /contacto redirect
+      // either way (quoteFallback()), just a different label.
+      expect(rows.rows[0].metadata).toMatchObject({ offerSlug, checkoutKind: "unavailable" });
+    });
+
+    it("falls back to the quote flow, never calling the API, for an offer with no real price", async () => {
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+      process.env.MERCADOPAGO_ACCESS_TOKEN = "APP_USR-test-token";
+
+      const client = await getTestPool().connect();
+      let offerSlug: string;
+      try {
+        offerSlug = await makeMercadoPagoOffer(client, null);
+      } finally {
+        client.release();
+      }
+
+      const response = await GET(makeRequest(offerSlug), { params: Promise.resolve({ offerSlug }) });
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toContain("/contacto");
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
   });
 
   it("rate-limits a flood of requests from the same IP", async () => {

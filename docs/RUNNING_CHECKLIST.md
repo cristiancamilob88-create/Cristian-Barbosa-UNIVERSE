@@ -7,19 +7,19 @@ live only in chat history. Newest items at the top of each section.
 
 ## Open
 
-- **Dropi (o similar) para el catálogo/pasarela/envíos de Productos**
-  (2026-08-28) — Cristian preguntó si hay un MCP o conexión directa.
-  Investigado (no ejecutado, explícitamente no urgente ahora — sus
-  propias palabras: "todavía no lo vamos a tocar"): Dropi es real,
-  tiene API propia y +160,000 productos, pero sus integraciones "de
-  un clic" son solo para Shopify/WooCommerce/Tiendanube — este sitio
-  es Next.js a medida, así que sería hablar directo con su API REST,
-  no un conector listo. Ningún MCP encontrado para Dropi específicamente
-  (revisar el registro de MCP otra vez si esto se retoma en serio).
-  Coincide con docs/ARCHITECTURE.md Block 06 ("Real commerce
-  integration"), ya identificado como pendiente, sin proveedor de pago
-  elegido todavía. Retomar cuando Productos deje de estar "casi de
-  último" en la portada.
+- **Dropi para el catálogo/inventario/envíos de productos físicos**
+  (abierto 2026-08-28, retomado 2026-09-09) — Cristian ya decidió la
+  pasarela de pagos (Mercado Pago, ver Closed) y confirmó que Dropi es
+  el siguiente paso para lo físico específicamente ("aquí entraríamos a
+  la parte de dropi para vincularlo"). Sigue sin ejecutarse — mismo
+  hallazgo de la investigación anterior: Dropi tiene API REST propia
+  (+160,000 productos) pero sus integraciones "de un clic" son solo
+  para Shopify/WooCommerce/Tiendanube, no para un sitio a medida como
+  este; ningún MCP encontrado para Dropi específicamente. Es una
+  integración separada de Mercado Pago, no bloqueada por ella — Mercado
+  Pago solo necesita un `offer` real con un precio real, sin importar
+  de dónde salga el producto. Falta: un producto físico real (nombre,
+  precio, si viene de Dropi o no) antes de escribir cualquier código.
 - **Confirmar que el correo real de bienvenida sí llega, con el fix
   de `after()` ya puesto** (2026-08-28) — Cristian ya tenía Gmail
   configurado en Vercel e hizo la primera prueba real; no llegó nada
@@ -78,6 +78,22 @@ live only in chat history. Newest items at the top of each section.
 
 ## Closed
 
+- **Mercado Pago — checkout real para físicos/infoproductos** (2026-09-09):
+  Cristian eligió Mercado Pago sobre Stripe/Nequi/Bancolombia (ya tiene
+  cuenta real) y decidió el alcance exacto: solo compras únicas
+  (físicos/infoproductos), la suscripción de Facebook ($29.900/mes)
+  sigue igual. `GET /api/checkout/[offerSlug]` crea una preferencia real
+  de Checkout Pro para cualquier offer con `checkout_provider =
+  'mercadopago'`; `POST /api/webhooks/mercadopago` es el primer escritor
+  real de `orders`/`order_items`, verificado con firma HMAC (nunca
+  confía en el webhook sin verificar). Registro completo en
+  docs/COMMERCE.md §10. 175 tests unitarios/126 de integración/build de
+  producción, más una prueba real por HTTP contra un servidor real
+  (firma válida vs. inválida) — todo verde. Falta: ningún offer real fue
+  cambiado a `checkout_provider = 'mercadopago'` todavía (no existe
+  producto físico/infoproducto real con precio real) — es infraestructura
+  lista, no una venta activa. Dropi (ver Open) es el siguiente paso para
+  tener ese producto físico real.
 - **Favicon real** (2026-08-25, confirmado 2026-08-28): estaba marcado
   "abierto" en este archivo por error — docs/ASSETS_AND_BRAND.md
   categoría 2 ya lo tenía como REAL desde el 2026-08-25 (`favicon.ico`/

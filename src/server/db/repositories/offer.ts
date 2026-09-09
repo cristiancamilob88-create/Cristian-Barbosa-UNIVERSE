@@ -75,6 +75,21 @@ export async function getActiveOfferBySlug(db: Pool | PoolClient, slug: string):
   return result.rows[0] ? toOffer(result.rows[0]) : null;
 }
 
+/**
+ * Looked up by id, not slug — the one caller (the Mercado Pago webhook,
+ * src/app/api/webhooks/mercadopago/route.ts) only has the id it itself
+ * embedded in the preference's `external_reference` at checkout time,
+ * never a slug. Deliberately not `active`-filtered like
+ * getActiveOfferBySlug(): an offer paid for while active shouldn't stop
+ * being a fulfillable order just because someone deactivated it a
+ * minute later — that's a business decision for a human, not a reason
+ * to silently drop a real payment.
+ */
+export async function getOfferById(db: Pool | PoolClient, id: string): Promise<OfferRow | null> {
+  const result = await db.query<RawOfferRow>(`select ${SELECT_COLUMNS} from offer where id = $1`, [id]);
+  return result.rows[0] ? toOffer(result.rows[0]) : null;
+}
+
 /** Every active offer for one product — e.g. a future product detail page listing its offers. */
 export async function listActiveOffersByProduct(db: Pool | PoolClient, productId: string): Promise<OfferRow[]> {
   const result = await db.query<RawOfferRow>(

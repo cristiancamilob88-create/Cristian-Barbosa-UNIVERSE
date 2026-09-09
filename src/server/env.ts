@@ -70,6 +70,21 @@ const serverEnvSchema = z.object({
   // integration here.
   META_WHATSAPP_ACCESS_TOKEN: z.string().min(20).optional(),
   META_WHATSAPP_PHONE_NUMBER_ID: z.string().min(5).optional(),
+  // Mercado Pago (Block 06 — real commerce, 2026-09-09, Cristian's own
+  // choice over Stripe: he already has a Mercado Pago account, and it's
+  // the dominant gateway in Colombia). Plain REST calls against Mercado
+  // Pago's own API (src/server/commerce/mercadopago.ts) — no SDK
+  // dependency, same "no new vendor SDK" convention as the WhatsApp
+  // integration above. Both optional: unset means an offer with
+  // checkout_provider = 'mercadopago' falls back to the same safe quote
+  // flow as 'unavailable' (src/app/api/checkout/[offerSlug]/route.ts),
+  // and the webhook refuses every request (fail closed — never accept
+  // an unsigned "payment approved" claim).
+  MERCADOPAGO_ACCESS_TOKEN: z.string().min(10).optional(),
+  // Signs the webhook Mercado Pago calls back on payment events ("Clave
+  // secreta" in your Mercado Pago dashboard → Tus integraciones → your
+  // app → Webhooks). Verified in src/server/commerce/mercadopago.ts.
+  MERCADOPAGO_WEBHOOK_SECRET: z.string().min(10).optional(),
 });
 
 export function getServerEnv() {
@@ -89,5 +104,7 @@ export function getServerEnv() {
     GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD || undefined,
     META_WHATSAPP_ACCESS_TOKEN: process.env.META_WHATSAPP_ACCESS_TOKEN || undefined,
     META_WHATSAPP_PHONE_NUMBER_ID: process.env.META_WHATSAPP_PHONE_NUMBER_ID || undefined,
+    MERCADOPAGO_ACCESS_TOKEN: process.env.MERCADOPAGO_ACCESS_TOKEN || undefined,
+    MERCADOPAGO_WEBHOOK_SECRET: process.env.MERCADOPAGO_WEBHOOK_SECRET || undefined,
   });
 }

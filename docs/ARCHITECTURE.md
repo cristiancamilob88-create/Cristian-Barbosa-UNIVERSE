@@ -312,11 +312,20 @@ Full model in docs/SECURITY.md. Summary:
    /api/analytics/subscriptions`) — see docs/COMMERCE.md. Still no real
    payment provider connected (no credentials exist) — `/productos`
    still routes to lead capture, not checkout.
-8. **Block 06 — Real commerce integration**: connect a real
-   checkout provider (Hotmart/Stripe/Mercado Pago — whichever Cristian
-   picks) by setting `offer.checkout_provider`/`checkout_url` on real
-   offer rows; first writes to `orders`/`order_items` from an actual
-   purchase; a real product/offer detail page with a live `CheckoutLink`.
+8. **Block 06 — Real commerce integration** ✅ **(infrastructure), 2026-09-09**:
+   Mercado Pago (Cristian's own choice — he already has a real account),
+   scoped to one-time físico/infoproducto purchases only; Facebook
+   Subscription (Block 07 below) stays untouched. `POST
+   /api/checkout/[offerSlug]` creates a real Checkout Pro preference for
+   any offer with `checkout_provider = 'mercadopago'`; `POST
+   /api/webhooks/mercadopago` is the first real writer of
+   `orders`/`order_items` from an actual confirmed payment. Full record:
+   docs/COMMERCE.md §10. **Not done yet**: no offer has actually been
+   flipped to `checkout_provider = 'mercadopago'` (no real
+   físico/infoproducto with a real price exists to attach it to), and
+   there's still no product/offer detail page with a live
+   `CheckoutLink` — `/productos` is still two lead-capture blocks.
+   Hotmart/Stripe remain unconnected (not asked for).
 9. **Block 07 — B2B funnels**: a real `/shows`/`/marcas` intake writing to
    `b2b_opportunity` (schema already exists, unused), stage-change
    notifications.
@@ -350,12 +359,15 @@ Full model in docs/SECURITY.md. Summary:
   `contact.auth_user_id`, which doesn't exist). `requireAnalyticsAuth()`'s
   bearer-token path is kept for non-browser callers, not as the
   dashboard's own mechanism anymore.
-- No real payment/checkout integration — Block 05 built the abstraction
-  (`resolveCheckoutDestination()`, `GET /api/checkout/[offerSlug]` —
-  docs/COMMERCE.md) but connected zero real providers (no credentials
-  exist); `orders`/`order_items`/`subscription` still have no real
-  writer, so Revenue/Productos/Suscripciones in the Command Center
-  render their honest empty states.
+- Real payment/checkout: Mercado Pago is now real infrastructure (Block
+  06 ✅, docs/COMMERCE.md §10) — `orders`/`order_items` have a real
+  writer for the first time. Still no real offer actually uses it (no
+  físico/infoproducto with a real price exists yet), so Revenue/
+  Productos/Suscripciones in the Command Center still render their
+  honest empty states today. `subscription` still has zero writer —
+  Facebook Subscription (Block 07) has no automated payment
+  confirmation, and Mercado Pago here is one-time purchases only.
+  Hotmart/Stripe remain unconnected.
 - No product/offer catalog management UI — rows are still managed by
   direct SQL/`seed.sql` (docs/COMMERCE.md).
 - No revenue-by-landing or revenue-by-intent read model (docs/COMMERCE.md §6).

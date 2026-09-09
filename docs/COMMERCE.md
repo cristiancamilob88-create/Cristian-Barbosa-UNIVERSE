@@ -271,3 +271,77 @@ No new `checkout_provider` enum value was added — `'manual'` already
 existed (Block 05) and is the honest description of "a real, priced
 offer with no automated payment confirmation," which is exactly what
 Facebook Subscription is today.
+
+## 10. Block 06 — Mercado Pago (real payment integration, 2026-09-09)
+
+The gap ARCHITECTURE.md §10 named ("connect a real checkout provider...
+first writes to orders/order_items from an actual purchase") — the
+`'mercadopago'` `checkout_provider` value already existed in the schema
+(Block 05's own enum, unused until now). Cristian's own decision,
+walked through directly: Stripe vs. Mercado Pago vs. Nequi/Bancolombia
+→ Mercado Pago (he already has a real account); Facebook Subscription
+stays exactly as-is (§9) — Mercado Pago is scoped to **one-time
+purchases only** (físicos/infoproductos), not a migration of the
+$29.900/mes subscription. Dropi (catalog/inventory/shipping for
+físicos) is a separate, later integration — see
+docs/RUNNING_CHECKLIST.md; nothing here depends on it, since Mercado
+Pago only needs a real offer with a real `price_cents`, regardless of
+where the product itself is fulfilled from.
+
+**Why a new file, not new columns**: Mercado Pago's Checkout Pro has no
+static per-offer URL the way Hotmart/Stripe/manual do — a "preference"
+is a one-time, network-created object per checkout attempt (its
+`init_point` is the actual pay link). `resolveCheckoutDestination()`
+stays pure/sync/no-network (its own doc comment's whole point); the
+dynamic preference call lives in
+`src/app/api/checkout/[offerSlug]/route.ts` instead, attempted before
+falling back to that function's normal (safe) resolution. Plain `fetch`
+against Mercado Pago's REST API, same "no new vendor SDK" convention as
+`src/server/notifications/whatsapp.ts`'s direct Meta Graph API calls —
+see `src/server/commerce/mercadopago.ts`'s own doc comment for the
+full shape (preference creation, payment lookup, webhook signature
+verification).
+
+**The order-writing path** (`POST /api/webhooks/mercadopago`) is the
+first real writer of `orders`/`order_items` in this app. Never trusts
+the webhook body's own claimed amount/status — always re-fetches the
+payment from Mercado Pago's `/v1/payments/{id}` first. The buyer's
+`contact` is created/matched at webhook time from the payer info
+Mercado Pago's own hosted checkout collects (email/name/phone) via the
+same `findOrCreateContact()` `/api/lead` already uses — no "register
+before you can buy" gate, and no guest-checkout placeholder contact
+needed. Idempotent by `(external_provider, external_order_id)`: a
+retried webhook delivery (Mercado Pago's own documented behavior) never
+double-writes an order. Deliberately **not** rate-limited
+(docs/SECURITY.md) — its real access control is the webhook signature,
+not request volume, and a per-IP limit would risk dropping Mercado
+Pago's own legitimate retries.
+
+**What this does NOT do**, on purpose:
+
+- No offer was flipped to `checkout_provider = 'mercadopago'` in
+  `seed.sql` — there is still no real físico/infoproducto with a real
+  price to attach it to (`/productos` is still two lead-capture blocks,
+  `digital-course-standard` still has no `price_cents`). The pipe is
+  built, tested, and verified end-to-end against a real HTTP request
+  with a real computed signature (fake credentials, since this session
+  has none of Cristian's real ones) — attaching it to a real offer is a
+  one-row `update offer set checkout_provider = 'mercadopago', ...`
+  once Cristian names a real product and price.
+- No Mercado Pago subscription (`preapproval`) support — a different
+  API from Checkout Pro, not needed since Facebook Subscription isn't
+  moving.
+- No dedicated post-purchase "gracias por tu compra" page —
+  `back_urls` (success/failure/pending) all point at the offer's own
+  `landing_path` today. A real confirmation page is a future, separate
+  addition.
+- No handling of `refunded`/`cancelled` order states from a later
+  Mercado Pago webhook event — `orders.status` already supports both
+  values (Block 02 schema), only `'paid'` is ever written today.
+- **Real end-to-end verification is still pending** — this session
+  confirmed the webhook's signature check and fail-safe paths against a
+  real HTTP request (fake credentials), and confirmed this environment
+  can actually reach `api.mercadopago.com`, but no real payment has ever
+  flowed through it. Same posture as the WhatsApp integration's own
+  "requires an approved template" gap: treat the first real purchase
+  and the first real webhook delivery as the real test, not this one.

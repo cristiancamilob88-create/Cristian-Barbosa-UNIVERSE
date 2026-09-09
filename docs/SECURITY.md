@@ -86,6 +86,16 @@ never counts against another's:
 there produces noisy analytics, not the DB load the four routes above
 carry. Revisit if that changes.
 
+`POST /api/webhooks/mercadopago` (Block 06, docs/COMMERCE.md §10) is
+also deliberately unlimited, for a different reason than `/go/[slug]`:
+its real access control is `verifyWebhookSignature()`
+(`src/server/commerce/mercadopago.ts`) — every request without a valid,
+correctly-signed `x-signature` is rejected with 401 before anything
+else runs, regardless of volume. A per-IP rate limit here would risk
+dropping Mercado Pago's own legitimate retry deliveries during a real
+traffic burst (their documented retry behavior), for no real security
+gain over the signature check already in place.
+
 **2026-08-25 audit**: walked a 20-point public web-security checklist
 (secrets in git, exposed APIs, RLS, front-only auth, missing rate
 limits, SQL injection, server validation, XSS, plaintext passwords,
