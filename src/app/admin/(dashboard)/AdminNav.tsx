@@ -11,6 +11,7 @@ const ADMIN_NAV_ITEMS = [
   { href: "/admin/qr", label: "QR" },
   { href: "/admin/campanas", label: "Campañas" },
   { href: "/admin/landings", label: "Páginas" },
+  { href: "/admin/ctas", label: "CTAs" },
   { href: "/admin/funnel", label: "Embudo" },
   { href: "/admin/leads", label: "Registros" },
   { href: "/admin/contactos", label: "Contactos" },

@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { getTestPool, resetActivityTables, closeTestPool, simulateVisit, testDateRange } from "@/server/db/testHelpers.integration";
-import { getEventCounts, getLandingPerformance } from "./engagement";
+import { getEventCounts, getLandingPerformance, getCtaPerformance } from "./engagement";
 import { recordInteraction } from "@/server/db/repositories/interaction";
 
 /** Inserts an interaction with an explicit created_at, to control dwell-time gaps precisely — same pattern as sessions.integration.test.ts. */
@@ -154,6 +154,90 @@ describe("getLandingPerformance", () => {
       const rows = await getLandingPerformance(client, testDateRange());
       const entrenarRow = rows.find((r) => r.route === "/entrenar");
       expect(entrenarRow?.avgDwellSeconds).toBeNull();
+    } finally {
+      client.release();
+    }
+  });
+});
+
+describe("getCtaPerformance", () => {
+  beforeEach(resetActivityTables);
+  afterAll(closeTestPool);
+
+  it("groups clicks by (cta, route), not just a single total", async () => {
+    const client = await getTestPool().connect();
+    try {
+      const visit1 = await simulateVisit(client, { utmSource: "instagram" });
+      const visit2 = await simulateVisit(client, { utmSource: "tiktok" });
+
+      // Same `cta` id, two different pages — a real shape (e.g.
+      // "ver_universo_completo" on multiple routes) that a single total
+      // can't tell apart.
+      await recordInteraction(client, {
+        visitorId: visit1.visitorId,
+        contactId: null,
+        eventName: "cta_click",
+        route: "/bienvenida/concordia-2026",
+        touch: visit1.touch,
+        metadata: { cta: "ver_universo_completo", topic: "general" },
+      });
+      await recordInteraction(client, {
+        visitorId: visit1.visitorId,
+        contactId: null,
+        eventName: "cta_click",
+        route: "/bienvenida/concordia-2026",
+        touch: visit1.touch,
+        metadata: { cta: "ver_universo_completo", topic: "general" },
+      });
+      await recordInteraction(client, {
+        visitorId: visit2.visitorId,
+        contactId: null,
+        eventName: "cta_click",
+        route: "/entrenar",
+        touch: visit2.touch,
+        metadata: { cta: "ver_universo_completo", topic: "general" },
+      });
+
+      const rows = await getCtaPerformance(client, testDateRange());
+
+      const bienvenidaRow = rows.find((r) => r.cta === "ver_universo_completo" && r.route === "/bienvenida/concordia-2026");
+      expect(bienvenidaRow).toEqual({
+        cta: "ver_universo_completo",
+        route: "/bienvenida/concordia-2026",
+        topic: "general",
+        clicks: 2,
+        uniqueVisitors: 1,
+      });
+
+      const entrenarRow = rows.find((r) => r.cta === "ver_universo_completo" && r.route === "/entrenar");
+      expect(entrenarRow).toEqual({
+        cta: "ver_universo_completo",
+        route: "/entrenar",
+        topic: "general",
+        clicks: 1,
+        uniqueVisitors: 1,
+      });
+    } finally {
+      client.release();
+    }
+  });
+
+  it("falls back to '(sin id)' when a cta_click carries no cta metadata", async () => {
+    const client = await getTestPool().connect();
+    try {
+      const { visitorId, touch } = await simulateVisit(client, { utmSource: "instagram" });
+
+      await recordInteraction(client, {
+        visitorId,
+        contactId: null,
+        eventName: "cta_click",
+        route: "/entrenar",
+        touch,
+      });
+
+      const rows = await getCtaPerformance(client, testDateRange());
+      const row = rows.find((r) => r.route === "/entrenar");
+      expect(row?.cta).toBe("(sin id)");
     } finally {
       client.release();
     }

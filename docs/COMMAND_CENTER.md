@@ -236,6 +236,7 @@ whether a legitimate admin can find the door, not who can open it.
 /admin/social             Social routing (Section 3)
 /admin/qr                 QR performance (Section 4)
 /admin/landings           Landing performance (Section 5)
+/admin/ctas               CTA click breakdown, by button + page (2026-09-09, §18)
 /admin/funnel             Funnel (Section 6)
 /admin/leads              Leads (Section 7)
 /admin/contactos          Real contact detail — name/email/phone (2026-08-25, §17)
@@ -264,6 +265,7 @@ No page queries Postgres or imports anything from `src/server/db/` or
 | Social | `GET /api/analytics/overview` (its `social` field) |
 | QR | `GET /api/analytics/qr` |
 | Landings | `GET /api/analytics/landings` |
+| CTAs | `GET /api/analytics/ctas` |
 | Funnel | `GET /api/analytics/funnel?preset=...` |
 | Leads | `GET /api/analytics/leads` (Block 04.1 — real recent-activity list) + `GET /api/analytics/overview` (KPI + leads-by-interest) + `sources`/`campaigns` (their `leads` column) |
 | Productos | `GET /api/analytics/products` |
@@ -652,3 +654,27 @@ built now, deliberately kept separate from everything else:
 Glossary matches the rest of the dashboard (§10's Spanish pass, same
 day): "Contactos" here is the real word for real PII — distinct from
 "Registros" (`/admin/leads`), which stays the aggregate/no-PII term.
+
+## 18. /admin/ctas — CTA click breakdown (2026-09-09)
+
+Cristian's own request, direct quote (paraphrased from Spanish): every
+other section's "Clics en CTA" is one total across every button on the
+site — he asked exactly which button that number means. It doesn't
+mean one: `cta_click` is one event name every `TrackedLink` fires, and
+`getCtaPerformance()` (`src/server/analytics/engagement.ts`) is the
+existing total broken down by the two things the schema actually
+records per click — the button's own `cta` id and the `route` it fired
+from — nothing new tracked, no new event, no new module. Ordinary
+`/api/analytics/*` shape (session-cookie or bearer auth, date range,
+aggregate-only), so it's an addition to `engagement.ts` + a route + a
+page, the same shape as every other section — no exception worth a
+"why this is structured differently" note like §17's.
+
+One honest limit, stated on the page itself, not just here: several
+different buttons can share one `cta` id on purpose (every "Ver todo
+el universo" button across the site uses `ver_universo_completo`), so
+`(cta, route)` is the finest breakdown this schema supports — it
+identifies the button and the page, not which of several same-`cta`
+buttons on that same page was clicked. Fixing that would mean giving
+every `TrackedLink` call site its own unique id, a call-site change,
+not an analytics one — not done here since nobody asked for it yet.

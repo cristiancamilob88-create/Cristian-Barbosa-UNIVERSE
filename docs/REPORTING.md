@@ -76,6 +76,24 @@ visitors, CTA clicks, lead/purchase conversion
 (`getLandingPerformance()`, `src/server/analytics/engagement.ts`).
 Conversion is attributed to `contact.first_touch_landing_path` (docs/CRM.md).
 
+## `GET /api/analytics/ctas`
+
+CTA click breakdown, added 2026-09-09 (`getCtaPerformance()`,
+`src/server/analytics/engagement.ts`, docs/COMMAND_CENTER.md §18) — the
+same `cta_click` rows every other section totals into one "Clics en
+CTA" number, grouped instead by `(cta, route)`: which button, on which
+page. `cta` is free text from `interaction.metadata`, not a dictionary
+id (`(sin id)` when a `cta_click` carries none). No conversion column:
+lead/purchase conversion is attributed to a route
+(`contact.first_touch_landing_path`), not a button.
+
+```json
+{ "data": [
+  { "cta": "ver_universo_completo", "route": "/bienvenida/concordia-2026", "topic": "general",
+    "clicks": 0, "uniqueVisitors": 0 }
+]}
+```
+
 ## `GET /api/analytics/products`
 
 Product/offer views (reserved — Block 04, docs/ANALYTICS_ENGINE.md) plus

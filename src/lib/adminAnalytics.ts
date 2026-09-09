@@ -220,6 +220,20 @@ export interface LandingsResponse {
   data: LandingRow[];
 }
 
+export interface CtaRow {
+  cta: string;
+  route: string | null;
+  topic: string | null;
+  clicks: number;
+  uniqueVisitors: number;
+}
+
+export interface CtasResponse {
+  ok: true;
+  range: ResolvedRange;
+  data: CtaRow[];
+}
+
 export interface ProductViewRow {
   productSlug: string;
   productName: string;

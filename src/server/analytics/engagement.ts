@@ -159,3 +159,65 @@ export async function getLandingPerformance(
     avgDwellSeconds: row.avg_dwell_seconds !== null ? Number(row.avg_dwell_seconds) : null,
   }));
 }
+
+export interface CtaRow {
+  /** The `cta` id every `TrackedLink` call site sets (e.g. `intent_training`, `ver_universo_completo`) — see docs/UNIVERSE_UX.md. */
+  cta: string;
+  route: string | null;
+  topic: string | null;
+  clicks: number;
+  uniqueVisitors: number;
+}
+
+/**
+ * CTA breakdown, added 2026-09-09 at Cristian's own request (he saw
+ * "Clics en CTA" totals on Overview/Landings/QR/Campañas and asked
+ * "exactamente cuando suma un clic en CTA, ese CTA cuál es?"). Those
+ * totals are `count(*) where event_name = 'cta_click'` — one number for
+ * every button on the site. This is the same underlying rows, grouped
+ * by (cta, route) instead of collapsed into one total, since `cta` is
+ * free text in `interaction.metadata` (not a dictionary table — same
+ * "no join" shape as `medium`, docs/ANALYTICS_ENGINE.md "Segmentation"),
+ * never itself unique: several different buttons can share one `cta` id
+ * on purpose (e.g. every "Ver todo el universo" button uses
+ * `ver_universo_completo`), so `route` is included as the next-best
+ * disambiguator the schema actually has — this still can't tell two
+ * same-`cta`-same-`route` buttons apart, and says so wherever it's
+ * surfaced rather than implying it can.
+ *
+ * No lead/purchase conversion column here, unlike `getLandingPerformance`:
+ * conversion is attributed to `contact.first_touch_landing_path` (a
+ * route, not a button), so a fabricated "CTA → lead" number would imply
+ * a link this schema doesn't actually track.
+ */
+export async function getCtaPerformance(db: Pool | PoolClient, range: ResolvedDateRange): Promise<CtaRow[]> {
+  const { rows } = await db.query<{
+    cta: string;
+    route: string | null;
+    topic: string | null;
+    clicks: string;
+    unique_visitors: string;
+  }>(
+    `
+    select
+      coalesce(metadata->>'cta', '(sin id)') as cta,
+      route,
+      metadata->>'topic' as topic,
+      count(*) as clicks,
+      count(distinct visitor_id) as unique_visitors
+    from interaction
+    where event_name = 'cta_click' and created_at between $1 and $2
+    group by cta, route, topic
+    order by clicks desc
+    `,
+    [range.from.toISOString(), range.to.toISOString()],
+  );
+
+  return rows.map((row) => ({
+    cta: row.cta,
+    route: row.route,
+    topic: row.topic,
+    clicks: Number(row.clicks),
+    uniqueVisitors: Number(row.unique_visitors),
+  }));
+}
