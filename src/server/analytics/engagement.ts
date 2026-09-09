@@ -178,12 +178,15 @@ export interface CtaRow {
  * by (cta, route) instead of collapsed into one total, since `cta` is
  * free text in `interaction.metadata` (not a dictionary table — same
  * "no join" shape as `medium`, docs/ANALYTICS_ENGINE.md "Segmentation"),
- * never itself unique: several different buttons can share one `cta` id
- * on purpose (e.g. every "Ver todo el universo" button uses
- * `ver_universo_completo`), so `route` is included as the next-best
- * disambiguator the schema actually has — this still can't tell two
- * same-`cta`-same-`route` buttons apart, and says so wherever it's
- * surfaced rather than implying it can.
+ * not guaranteed unique by the schema — a call site can still give two
+ * different buttons the same `cta` id (until 2026-09-09, every "Ver
+ * todo el universo" button on `/bienvenida/[slug]` did exactly that,
+ * sharing the literal id `ver_universo_completo` — the ambiguity
+ * Cristian asked about; each instance now carries its own suffix, e.g.
+ * `ver_universo_completo_top`). `route` is included as a disambiguator
+ * for whenever that happens again, but two same-`cta`-same-`route`
+ * buttons are still indistinguishable — the real fix is always a
+ * distinct id per call site, not a cleverer query here.
  *
  * No lead/purchase conversion column here, unlike `getLandingPerformance`:
  * conversion is attributed to `contact.first_touch_landing_path` (a

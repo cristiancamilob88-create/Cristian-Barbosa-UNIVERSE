@@ -150,7 +150,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         >
           <TrackedLink
             href="/"
-            event={{ name: "cta_click", cta: "ver_universo_completo", topic: "general" }}
+            event={{ name: "cta_click", cta: "ver_universo_completo_top", topic: "general" }}
             className="mt-6 inline-flex items-center gap-2 border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
           >
             Ver todo el universo — menú principal
@@ -186,7 +186,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
               <TrackedLink
                 href={landing.pressUrl}
                 external
-                event={{ name: "cta_click", cta: "press_link", topic: "press" }}
+                event={{ name: "cta_click", cta: "press_link_image", topic: "press" }}
                 className="block w-full max-w-xs overflow-hidden border border-steel-dim/40"
               >
                 <Image
@@ -201,7 +201,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
             <TrackedLink
               href={landing.pressUrl}
               external
-              event={{ name: "cta_click", cta: "press_link", topic: "press" }}
+              event={{ name: "cta_click", cta: "press_link_text", topic: "press" }}
               className="inline-block text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
             >
               {landing.pressLabel ?? "Leer la entrevista"} →
@@ -250,7 +250,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
                 after the form further down. */}
             <TrackedLink
               href="/"
-              event={{ name: "cta_click", cta: "ver_universo_completo", topic: "general" }}
+              event={{ name: "cta_click", cta: "ver_universo_completo_middle", topic: "general" }}
               className="inline-flex items-center border border-steel px-6 py-3 text-sm font-semibold uppercase tracking-wide text-steel transition-colors hover:bg-steel hover:text-ink"
             >
               Ver todo el universo
@@ -348,7 +348,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
                 </p>
               </div>
               <TrackedLink
-                event={{ name: "cta_click", cta: "ver_universo_completo", topic: "general" }}
+                event={{ name: "cta_click", cta: "ver_universo_completo_bottom", topic: "general" }}
                 href="/"
                 className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
               >

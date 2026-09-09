@@ -670,11 +670,33 @@ aggregate-only), so it's an addition to `engagement.ts` + a route + a
 page, the same shape as every other section — no exception worth a
 "why this is structured differently" note like §17's.
 
-One honest limit, stated on the page itself, not just here: several
-different buttons can share one `cta` id on purpose (every "Ver todo
-el universo" button across the site uses `ver_universo_completo`), so
-`(cta, route)` is the finest breakdown this schema supports — it
-identifies the button and the page, not which of several same-`cta`
-buttons on that same page was clicked. Fixing that would mean giving
-every `TrackedLink` call site its own unique id, a call-site change,
-not an analytics one — not done here since nobody asked for it yet.
+**Same-day follow-up**: this page shipped with an honest limit stated
+on it — several buttons can share one `cta` id on purpose (every "Ver
+todo el universo" button used the literal id `ver_universo_completo`),
+so `(cta, route)` couldn't tell which of several same-`cta` buttons on
+the same page was clicked. Cristian asked for the real fix rather than
+living with the caveat: every `TrackedLink` call site on
+`/bienvenida/[slug]` that repeated an id now gets its own —
+`ver_universo_completo_top`/`_middle`/`_bottom` (BIENVENIDA tag, CTA
+row, "Hay más" card) and `press_link_image`/`press_link_text` (the two
+El Colombiano links) — a call-site change, not an analytics one; no
+`getCtaPerformance()` change needed, the query already used whatever
+`cta` string existed. `(cta, route)` still isn't a schema-enforced
+uniqueness guarantee — nothing stops a future call site from repeating
+an id by accident — so the read model's `route` disambiguator and its
+doc comment stay as defense-in-depth, not because a live example needs
+them today.
+
+This generalizes to every current and future campaign for free:
+`/bienvenida/[slug]` is one shared template — every campaign row
+(`colegio-la-leticia-2026`, `concordia-2026`, and any new one) renders
+the same JSX, so a unique id given to a call site here applies to all
+of them at once, not per-campaign. The homepage (`/`) never had this
+problem: its CTAs come from `src/config/site.ts`'s `navItems`, each
+already carrying its own unique `intentId` (enforced by
+`site.config.test.ts`) — one `TrackedLink` per nav item, not several
+literal instances sharing a hand-typed string. The general rule going
+forward: a page with more than one `TrackedLink` needs a distinct
+`cta` id per instance, not per intent — `docs/UNIVERSE_UX.md`'s
+`intent_[a-z_]+` convention still names the intent; a repeated literal
+instance earns a suffix the way these five did.

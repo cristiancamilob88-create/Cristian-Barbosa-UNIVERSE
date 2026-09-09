@@ -89,7 +89,7 @@ lead/purchase conversion is attributed to a route
 
 ```json
 { "data": [
-  { "cta": "ver_universo_completo", "route": "/bienvenida/concordia-2026", "topic": "general",
+  { "cta": "ver_universo_completo_top", "route": "/bienvenida/concordia-2026", "topic": "general",
     "clicks": 0, "uniqueVisitors": 0 }
 ]}
 ```

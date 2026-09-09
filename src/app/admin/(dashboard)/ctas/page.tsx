@@ -17,7 +17,7 @@ export default function AdminCtasPage() {
       <SectionHeader
         tag="CTAs"
         title="Clics por botón"
-        description="Cada clic en CTA, desglosado por el botón exacto y la página donde ocurrió — no solo el total. Varios botones distintos pueden compartir el mismo id a propósito (p. ej. cada 'Ver todo el universo' de una página), así que esto identifica el botón y la página, no la posición exacta dentro de ella."
+        description="Cada clic en CTA, desglosado por el botón exacto y la página donde ocurrió — no solo el total. Cada botón del sitio tiene su propio id, así que una fila de esta tabla es un botón real y específico, no un grupo de varios botones parecidos."
       />
       <CtasPageContent />
     </>
