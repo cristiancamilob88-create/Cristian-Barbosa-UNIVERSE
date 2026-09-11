@@ -350,3 +350,14 @@ Not a claim this fixes conversion by itself — Concordia's own sample
 concrete, data-motivated hypothesis: stop making the exit compete with
 the ask. Worth re-checking via `/admin/ctas` once Támesis has real
 traffic of its own.
+
+**Same day, Cristian's own follow-up**: after seeing the Támesis page
+live, asked for a "ver todo el universo" link back — specifically
+between the hero section and the BIENVENIDA block, not where
+`ver_universo_completo_top` used to live (inside `PageHero`, below the
+description). Added as `ver_universo_completo_hero`, deliberately small
+and outline (text-xs, steel, no fill) rather than a full button — this
+still satisfies the request without recreating the same-visual-weight
+problem this section exists to document. Three "ver todo el universo"
+instances again, but only one (`_hero`) sits above the conversion asks,
+and it's visually the quietest thing on the page.

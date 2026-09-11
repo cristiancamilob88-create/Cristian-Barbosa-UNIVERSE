@@ -132,6 +132,27 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
+      {/* Small "menú principal" link between the hero and the BIENVENIDA
+          block (Cristian's explicit request, 2026-09-11, right after
+          seeing the Támesis page live — he wants it back, but in this
+          exact spot, not where the old ver_universo_completo_top lived
+          inside PageHero). Deliberately subdued (small, outline, steel)
+          rather than a full-size button: the whole point of that same
+          day's redesign (docs/UNIVERSE_UX.md §9) was that an exit link
+          this prominent competes with "Unirme a la comunidad" further
+          down — a quiet menu affordance here satisfies the request
+          without recreating that problem. */}
+      <div className="border-b border-steel-dim/40 bg-ink py-3 text-center">
+        <TrackedLink
+          href="/"
+          event={{ name: "cta_click", cta: "ver_universo_completo_hero", topic: "general" }}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-steel transition-colors hover:text-chalk"
+        >
+          Ver todo el universo — menú principal
+          <span aria-hidden="true">→</span>
+        </TrackedLink>
+      </div>
+
       {/* Logo watermarked into the background, per Cristian's own ask
           ("como si perdiera transparencia") — the text/layout underneath
           is untouched, just a faint brand mark behind it. */}
