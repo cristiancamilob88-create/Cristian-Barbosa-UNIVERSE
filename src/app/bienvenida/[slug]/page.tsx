@@ -132,24 +132,30 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
-      {/* Small "menú principal" link between the hero and the BIENVENIDA
-          block (Cristian's explicit request, 2026-09-11, right after
-          seeing the Támesis page live — he wants it back, but in this
-          exact spot, not where the old ver_universo_completo_top lived
-          inside PageHero). Deliberately subdued (small, outline, steel)
-          rather than a full-size button: the whole point of that same
-          day's redesign (docs/UNIVERSE_UX.md §9) was that an exit link
-          this prominent competes with "Unirme a la comunidad" further
-          down — a quiet menu affordance here satisfies the request
-          without recreating that problem. */}
-      <div className="border-b border-steel-dim/40 bg-ink py-3 text-center">
+      {/* "Menú principal" link between the hero and the BIENVENIDA block
+          (Cristian's request, 2026-09-11, right after seeing Támesis
+          live — wants it back in this exact spot, not where the old
+          ver_universo_completo_top lived inside PageHero). First pass
+          was plain small text ("se ve todo simple, todo común" — his
+          own correction) — this is a real bordered chip instead, so it
+          reads as a tappable menu affordance, not stray gray text. Kept
+          COMPACT rather than full CTA size/fill on purpose: that same
+          day's redesign (docs/UNIVERSE_UX.md §9) found a
+          same-visual-weight exit link here competes with "Unirme a la
+          comunidad" further down — this is "looks intentional" without
+          being "looks equally important." */}
+      <div className="border-b border-steel-dim/40 bg-ink py-4 text-center">
         <TrackedLink
           href="/"
           event={{ name: "cta_click", cta: "ver_universo_completo_hero", topic: "general" }}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-steel transition-colors hover:text-chalk"
+          className="inline-flex items-center gap-2 border border-ember/60 bg-ink-raised px-4 py-2 text-xs font-bold uppercase tracking-wide text-ember transition-colors hover:border-ember hover:bg-ember hover:text-ink"
         >
-          Ver todo el universo — menú principal
-          <span aria-hidden="true">→</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+          Menú principal — ver todo el universo
         </TrackedLink>
       </div>
 
