@@ -304,3 +304,49 @@ through `GoLink` — no destination was added, removed, or altered in
 this audit, and outbound tracking (`social_click`/`whatsapp_click` via
 `GoLink`, docs/SOCIAL_ROUTING.md) is unaffected by the grouping
 question above.
+
+## 9. `/bienvenida/[slug]` CTA hierarchy — redesigned against real data (2026-09-11)
+
+Before the Támesis campaign launched, pulled Concordia's real numbers
+(via `/admin/ctas`, the per-(cta, route) breakdown added 2026-09-09) to
+answer Cristian's own suspicion — "hubo tráfico, pero siento que falta
+más conversión":
+
+| Metric | Concordia, real |
+|---|---|
+| Unique visitors (`landing_view`) | 24 |
+| Unique visitors who clicked to join the WhatsApp community | **1** |
+| Registrations via the form | **0** |
+| Most-clicked thing on the page | `ver_universo_completo` (11 clicks total across its instances) — an exit, not a conversion |
+
+The diagnosis the numbers point to: every CTA on the page (join
+community, follow socials, "ver todo el universo") rendered at the
+*same visual weight* — an outline button, same size, same row — so
+nothing told a visitor which action actually mattered. The one action
+that converts (join the WhatsApp community) was losing the attention
+contest to an exit link.
+
+**Fix, applied to the shared template** (so every campaign gets it, not
+just Támesis):
+
+- Removed the `ver_universo_completo_top` link entirely (the one just
+  added under the BIENVENIDA tag, 2026-09-09) and the
+  `ver_universo_completo_middle` one from the primary button row — two
+  of the three "leave this page" links, gone from the highest-attention
+  part of the page.
+- "Unirme a la comunidad" is now the one big, filled (`bg-tide`,
+  solid), unmissable primary action — not an outline button sharing a
+  row with two others.
+- The secondary WhatsApp group (when a campaign has one) and "Seguir en
+  redes" now render smaller and below the primary button, not
+  competing with it at equal size.
+- The `ver_universo_completo_bottom` instance, in the "Hay más" card at
+  the very end of the page (after every conversion ask), stays — one
+  exit hatch, positioned after the asks that matter, not before or
+  beside them.
+
+Not a claim this fixes conversion by itself — Concordia's own sample
+(24 visitors) is too small to prove anything statistically. It's a
+concrete, data-motivated hypothesis: stop making the exit compete with
+the ask. Worth re-checking via `/admin/ctas` once Támesis has real
+traffic of its own.

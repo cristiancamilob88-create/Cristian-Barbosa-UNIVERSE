@@ -147,16 +147,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           tag="BIENVENIDA"
           title={`¡Hola, ${greeting}!`}
           description="Gracias por escanear el código — este es el universo completo de Cristian Barbosa: entrenamiento, comunidad, música, shows y lo que viene. Déjanos tus datos para entrar directo a la comunidad, o explora todo desde aquí."
-        >
-          <TrackedLink
-            href="/"
-            event={{ name: "cta_click", cta: "ver_universo_completo_top", topic: "general" }}
-            className="mt-6 inline-flex items-center gap-2 border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
-          >
-            Ver todo el universo — menú principal
-            <span aria-hidden="true">→</span>
-          </TrackedLink>
-        </PageHero>
+        />
       </div>
 
       {/* Short per-campaign announcement (0010) — Cristian's request
@@ -217,44 +208,48 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
               the join button should be the very first thing a visitor
               can act on, before they even watch). The full cards
               further down stay as-is; this is a fast path, not a
-              replacement. */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
+              replacement.
+
+              Redesigned 2026-09-11 against Concordia's real numbers
+              (docs/UNIVERSE_UX.md §9): 24 unique visitors, only 1 ever
+              clicked to join the community, zero registrations — while
+              "Ver todo el universo" (an exit, not a conversion) was the
+              single most-clicked thing on the page. Every CTA here was
+              the same visual weight, competing for attention with the
+              one action that actually matters. Fix: one big, filled,
+              unmissable primary action (join the community), everything
+              else demoted to a smaller secondary row below it — and the
+              "Ver todo el universo" link that lived here is gone
+              entirely (the one in the "Hay más" card further down,
+              después de todo lo demás, is enough of an exit hatch). */}
+          <div className="flex flex-col items-center gap-4">
             <GoLink
               slug={goLinks.whatsappCommunity}
-              className="inline-flex items-center border border-tide px-6 py-3 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
+              className="inline-flex items-center gap-2 bg-tide px-8 py-4 text-base font-bold uppercase tracking-wide text-ink transition-colors hover:bg-tide/90"
             >
               Unirme a la comunidad
+              <span aria-hidden="true">→</span>
             </GoLink>
-            {landing.secondaryWhatsappSlug && (
-              <GoLink
-                slug={landing.secondaryWhatsappSlug}
-                className="inline-flex items-center border border-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {landing.secondaryWhatsappSlug && (
+                <GoLink
+                  slug={landing.secondaryWhatsappSlug}
+                  className="inline-flex items-center border border-ember px-5 py-2 text-xs font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+                >
+                  Unirme — {landing.secondaryWhatsappLabel ?? "grupo exclusivo"}
+                </GoLink>
+              )}
+              {/* Redes, right alongside the WhatsApp CTA (Cristian's ask,
+                  2026-09-04) — /redes is an internal route (TrackedLink,
+                  not GoLink), same intentId as its own navItems entry. */}
+              <TrackedLink
+                href="/redes"
+                event={{ name: "cta_click", cta: "intent_social", topic: "network" }}
+                className="inline-flex items-center border border-chalk px-5 py-2 text-xs font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
               >
-                Unirme — {landing.secondaryWhatsappLabel ?? "grupo exclusivo"}
-              </GoLink>
-            )}
-            {/* Redes, right alongside the WhatsApp CTA (Cristian's ask,
-                2026-09-04) — /redes is an internal route (TrackedLink,
-                not GoLink), same intentId as its own navItems entry. */}
-            <TrackedLink
-              href="/redes"
-              event={{ name: "cta_click", cta: "intent_social", topic: "network" }}
-              className="inline-flex items-center border border-chalk px-6 py-3 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
-            >
-              Seguir en redes
-            </TrackedLink>
-            {/* Explicit link to the homepage (Cristian's ask, 2026-09-04):
-                the header logo already goes home, but that's an implicit
-                pattern not every visitor recognizes — an explicit button
-                up top, not just the "Ver todo el universo" card buried
-                after the form further down. */}
-            <TrackedLink
-              href="/"
-              event={{ name: "cta_click", cta: "ver_universo_completo_middle", topic: "general" }}
-              className="inline-flex items-center border border-steel px-6 py-3 text-sm font-semibold uppercase tracking-wide text-steel transition-colors hover:bg-steel hover:text-ink"
-            >
-              Ver todo el universo
-            </TrackedLink>
+                Seguir en redes
+              </TrackedLink>
+            </div>
           </div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
           <InstagramEmbed
