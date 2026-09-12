@@ -26,6 +26,12 @@ export interface QrLanding {
   heroImageUrl: string | null;
   /** Optional photo of the actual press coverage (0012) — null means the press block shows text only. */
   pressImageUrl: string | null;
+  /** Real name of a co-performer credited on this campaign's page (0013) — null means no collaborator block shown. */
+  collaboratorName: string | null;
+  collaboratorRole: string | null;
+  /** Real external link to the collaborator's own social profile — not GoLink/social_profile, which model Cristian's own channels. */
+  collaboratorUrl: string | null;
+  collaboratorImageUrl: string | null;
 }
 
 interface QrLandingRow {
@@ -40,6 +46,10 @@ interface QrLandingRow {
   press_label: string | null;
   hero_image_url: string | null;
   press_image_url: string | null;
+  collaborator_name: string | null;
+  collaborator_role: string | null;
+  collaborator_url: string | null;
+  collaborator_image_url: string | null;
 }
 
 export async function getActiveQrLanding(db: Pool | PoolClient, slug: string): Promise<QrLanding | null> {
@@ -47,7 +57,8 @@ export async function getActiveQrLanding(db: Pool | PoolClient, slug: string): P
     `select qs.slug, c.name as campaign_name, s.label as source_label,
             c.instagram_reel_url, c.secondary_whatsapp_slug, c.secondary_whatsapp_label,
             c.event_description, c.press_url, c.press_label,
-            c.hero_image_url, c.press_image_url
+            c.hero_image_url, c.press_image_url,
+            c.collaborator_name, c.collaborator_role, c.collaborator_url, c.collaborator_image_url
      from qr_source qs
      left join campaign c on c.id = qs.campaign_id
      left join source s on s.id = qs.source_id
@@ -68,5 +79,9 @@ export async function getActiveQrLanding(db: Pool | PoolClient, slug: string): P
     pressLabel: row.press_label,
     heroImageUrl: row.hero_image_url,
     pressImageUrl: row.press_image_url,
+    collaboratorName: row.collaborator_name,
+    collaboratorRole: row.collaborator_role,
+    collaboratorUrl: row.collaborator_url,
+    collaboratorImageUrl: row.collaborator_image_url,
   };
 }

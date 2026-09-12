@@ -228,6 +228,45 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         </section>
       )}
 
+      {/* Collaborator credit (0013) — Cristian's request 2026-09-12,
+          Támesis: José Miguel performs "el globo de la muerte" alongside
+          him and helps show the QR during that segment of the show.
+          Same photo-plus-link pattern as the press section above, but its
+          own fields — crediting a real co-performer, not press coverage.
+          Only renders when the campaign has one set. */}
+      {landing.collaboratorName && (
+        <section className="border-b border-steel-dim/40 py-6">
+          <Container className="flex flex-col items-center gap-3 text-center">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Con la colaboración de</p>
+            {landing.collaboratorImageUrl && (
+              <div className="block w-full max-w-xs overflow-hidden border border-steel-dim/40">
+                <Image
+                  src={landing.collaboratorImageUrl}
+                  alt={`Cristian Barbosa con ${landing.collaboratorName}`}
+                  width={480}
+                  height={640}
+                  className="h-auto w-full object-cover"
+                />
+              </div>
+            )}
+            <p className="text-sm text-chalk">
+              {landing.collaboratorName}
+              {landing.collaboratorRole ? ` — ${landing.collaboratorRole}` : null}
+            </p>
+            {landing.collaboratorUrl && (
+              <TrackedLink
+                href={landing.collaboratorUrl}
+                external
+                event={{ name: "cta_click", cta: "collaborator_link", topic: "collaborator" }}
+                className="inline-block text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
+              >
+                Síguelo →
+              </TrackedLink>
+            )}
+          </Container>
+        </section>
+      )}
+
       <section className="border-b border-steel-dim/40 py-16">
         <Container className="flex flex-col items-center gap-6 text-center">
           {/* WhatsApp CTA(s) above the video, not below (Cristian's

@@ -51,4 +51,42 @@ describe("getActiveQrLanding", () => {
     expect(landing?.campaignName).toBeNull();
     expect(landing?.sourceLabel).toBeNull();
   });
+
+  it("resolves collaborator fields (0013) when a campaign has them set", async () => {
+    const client = await getTestPool().connect();
+    let slug: string;
+    try {
+      const suffix = Date.now();
+      const campaignSlug = `collab-campaign-${suffix}`;
+      const qrSlug = `collab-qr-${suffix}`;
+      slug = qrSlug;
+      const campaignResult = await client.query<{ id: string }>(
+        `insert into campaign (slug, name, collaborator_name, collaborator_role, collaborator_url, collaborator_image_url)
+         values ($1, 'Test Collab Campaign', 'José Miguel', 'Globo de la muerte', 'https://www.tiktok.com/@josemiguel_bmx', '/brand/cristian-jose-globo-muerte.jpg')
+         returning id`,
+        [campaignSlug],
+      );
+      const campaignId = campaignResult.rows[0].id;
+      await client.query("insert into qr_source (slug, campaign_id, destination_path) values ($1, $2, '/')", [
+        qrSlug,
+        campaignId,
+      ]);
+    } finally {
+      client.release();
+    }
+
+    const landing = await getActiveQrLanding(getTestPool(), slug);
+    expect(landing).not.toBeNull();
+    expect(landing?.collaboratorName).toBe("José Miguel");
+    expect(landing?.collaboratorRole).toBe("Globo de la muerte");
+    expect(landing?.collaboratorUrl).toBe("https://www.tiktok.com/@josemiguel_bmx");
+    expect(landing?.collaboratorImageUrl).toBe("/brand/cristian-jose-globo-muerte.jpg");
+  });
+
+  it("returns null collaborator fields for a campaign without them set, not a crash", async () => {
+    const landing = await getActiveQrLanding(getTestPool(), "colegio-la-leticia-2026");
+    expect(landing).not.toBeNull();
+    expect(landing?.collaboratorName).toBeNull();
+    expect(landing?.collaboratorUrl).toBeNull();
+  });
 });

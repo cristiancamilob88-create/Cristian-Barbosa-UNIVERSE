@@ -187,6 +187,34 @@ from campaign c, source s
 where c.slug = 'prueba-interna-2026-08-25' and s.slug = 'other'
 on conflict (slug) do nothing;
 
+-- Támesis, Antioquia (2026-09-12) — Cristian's own call, same pattern as
+-- Concordia: a real live event ("La Casa del Terror" at the CIC —
+-- Coliseo Cubierto de Támesis), promoted by showing the QR himself from
+-- his phone during the show. event_description is his own dictated
+-- account of the event, cleaned up into a written sentence, matching
+-- what's live in production (yskfntcurmqqxjuvqoto).
+insert into campaign (slug, name, status, event_description) values
+  ('tamesis-2026', 'Támesis — Antioquia', 'active',
+   'Hoy viernes 11 de septiembre, Cristian Barbosa se presenta en el CIC (Coliseo Cubierto de Támesis), mostrando sus habilidades físicas, de actuación y artísticas en el evento "La Casa del Terror". Estará todo el fin de semana: viernes 11, sábado 12, domingo 13 y lunes 14 de septiembre.')
+on conflict (slug) do nothing;
+
+insert into qr_source (slug, campaign_id, source_id, destination_path)
+select 'tamesis-2026', c.id, s.id, '/bienvenida/tamesis-2026'
+from campaign c, source s
+where c.slug = 'tamesis-2026' and s.slug = 'event'
+on conflict (slug) do nothing;
+
+-- Collaborator credit (0013), Cristian's own request 2026-09-12: José
+-- Miguel performs "el globo de la muerte" alongside him and helps show
+-- the QR during that segment of the Támesis show — a real co-performer,
+-- credited with his own real TikTok, not invented.
+update campaign
+set collaborator_name = 'José Miguel',
+    collaborator_role = 'Globo de la muerte',
+    collaborator_url = 'https://www.tiktok.com/@josemiguel_bmx',
+    collaborator_image_url = '/brand/cristian-jose-globo-muerte.jpg'
+where slug = 'tamesis-2026';
+
 insert into product (slug, name, kind, external_provider) values
   ('facebook-subscription', 'Entrena con Cristian Barbosa', 'subscription', 'facebook'),
   ('digital-course', 'Curso digital', 'digital', null),

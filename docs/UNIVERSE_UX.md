@@ -361,3 +361,33 @@ still satisfies the request without recreating the same-visual-weight
 problem this section exists to document. Three "ver todo el universo"
 instances again, but only one (`_hero`) sits above the conversion asks,
 and it's visually the quietest thing on the page.
+
+## 10. Collaborator credit (0013, 2026-09-12) — crediting a real co-performer
+
+Cristian's request, from Támesis: José Miguel performs "el globo de la
+muerte" (a motorcycle-in-a-steel-cage act) alongside him, and is also
+helping show the QR code during that segment of the show. Cristian
+wanted a real photo of the two of them, plus a link to José's own
+TikTok (`@josemiguel_bmx`), on the platform — both to credit José's own
+image/brand and to acknowledge the operational help.
+
+Deliberately its own `campaign` fields (`collaborator_name`,
+`collaborator_role`, `collaborator_url`, `collaborator_image_url`),
+not a reuse of `press_url`/`press_image_url` (0011/0012) even though
+the rendered shape looks similar (photo + label + external link) —
+those are specifically about press/media coverage; this is crediting a
+real co-performer, a different kind of fact. Same additive,
+per-campaign-optional pattern as every `campaign` field since 0009:
+every column nullable, every other `/bienvenida/[slug]` page
+unaffected until its own campaign sets one.
+
+`TrackedLink external` (not `GoLink`) is the correct component here,
+per docs/SOCIAL_ROUTING.md — José's TikTok is his own account, not one
+of Cristian's registered channels, so it doesn't belong in
+`GoLink`/`social_profile`. Same reasoning already applied to the press
+link and, earlier, the El Colombiano article.
+
+Live on `tamesis-2026` in production: name "José Miguel", role "Globo
+de la muerte", `https://www.tiktok.com/@josemiguel_bmx`, and a real
+photo of the two of them inside the apparatus
+(`/brand/cristian-jose-globo-muerte.jpg`).
