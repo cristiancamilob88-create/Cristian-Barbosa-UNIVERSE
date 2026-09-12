@@ -22,6 +22,14 @@ import type { ResolvedDateRange } from "./dateRange";
  * detail page (`/admin/campanas/[slug]`) just picks its one row out of
  * the same response instead of a second query, since there are only a
  * handful of campaigns at this scale.
+ *
+ * `destinationPaths` (2026-09-12, Cristian's ask — he kept having to
+ * request the campaign's link every time): every distinct
+ * `qr_source.destination_path` registered against this campaign, so
+ * /admin/campanas can link straight to the live page. An array, not a
+ * single string, because a campaign can in principle have more than
+ * one qr_source row (this doc's own note above) — usually 0 or 1 in
+ * practice today.
  */
 export interface CampaignDetailRow {
   campaignSlug: string;
@@ -34,6 +42,7 @@ export interface CampaignDetailRow {
   leads: number;
   purchases: number;
   revenueCents: number;
+  destinationPaths: string[];
 }
 
 export async function getCampaignDetail(
@@ -51,6 +60,7 @@ export async function getCampaignDetail(
     leads: string;
     purchases: string;
     revenue_cents: string;
+    destination_paths: string[] | null;
   }>(
     `
     with visits as (
@@ -80,6 +90,14 @@ export async function getCampaignDetail(
       join contact c on c.id = o.contact_id
       where c.first_touch_campaign_id is not null and o.status = 'paid' and o.paid_at between $1 and $2
       group by c.first_touch_campaign_id
+    ),
+    destinations as (
+      -- Not date-ranged, on purpose: a campaign's live page(s) don't
+      -- come and go with the selected reporting window.
+      select campaign_id, array_agg(distinct destination_path order by destination_path) as destination_paths
+      from qr_source
+      where campaign_id is not null
+      group by campaign_id
     )
     select
       c.slug as campaign_slug,
@@ -91,12 +109,14 @@ export async function getCampaignDetail(
       coalesce(e.whatsapp_clicks, 0) as whatsapp_clicks,
       coalesce(l.leads, 0) as leads,
       coalesce(p.purchases, 0) as purchases,
-      coalesce(p.revenue_cents, 0) as revenue_cents
+      coalesce(p.revenue_cents, 0) as revenue_cents,
+      d.destination_paths
     from campaign c
     left join visits v on v.campaign_id = c.id
     left join events e on e.campaign_id = c.id
     left join leads l on l.campaign_id = c.id
     left join purchases p on p.campaign_id = c.id
+    left join destinations d on d.campaign_id = c.id
     order by visits desc
     `,
     [range.from.toISOString(), range.to.toISOString()],
@@ -113,5 +133,6 @@ export async function getCampaignDetail(
     leads: Number(row.leads),
     purchases: Number(row.purchases),
     revenueCents: Number(row.revenue_cents),
+    destinationPaths: row.destination_paths ?? [],
   }));
 }

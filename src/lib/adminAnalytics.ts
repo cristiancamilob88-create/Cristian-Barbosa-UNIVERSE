@@ -196,6 +196,8 @@ export interface CampaignDetailRow {
   leads: number;
   purchases: number;
   revenueCents: number;
+  /** Every distinct live-page path (`qr_source.destination_path`) registered against this campaign — see src/server/analytics/campaignDetail.ts. */
+  destinationPaths: string[];
 }
 
 export interface CampaignDetailResponse {

@@ -64,9 +64,14 @@ describe("getCampaignDetail", () => {
       expect(concordia?.whatsappClicks).toBe(1);
       expect(concordia?.leads).toBe(1);
       expect(concordia?.status).toBe("active");
+      // Seeded by supabase/seed.sql: qr_source 'concordia-2026' points
+      // campaign 'concordia-2026' at its real live page.
+      expect(concordia?.destinationPaths).toEqual(["/bienvenida/concordia-2026"]);
 
       expect(music?.visits).toBe(1);
       expect(music?.leads).toBe(0);
+      // music-launch has no qr_source row registered against it.
+      expect(music?.destinationPaths).toEqual([]);
     } finally {
       client.release();
     }

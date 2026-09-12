@@ -3,6 +3,7 @@
 import { AnalyticsBoundary } from "@/components/admin/AnalyticsBoundary";
 import { Table } from "@/components/admin/Table";
 import { formatInteger, formatRatio, formatDuration } from "@/lib/format";
+import { toPublicUrl } from "@/lib/publicUrl";
 import type { LandingsResponse, LandingRow } from "@/lib/adminAnalytics";
 
 /** Client Component split from page.tsx — see OverviewPageContent.tsx's doc comment for why. */
@@ -14,6 +15,21 @@ export function LandingsPageContent() {
           keyFor={(row) => row.route}
           columns={[
             { header: "Ruta", render: (r) => r.route },
+            {
+              header: "Página",
+              // Direct link to the live page — Cristian's ask, 2026-09-12,
+              // so he doesn't have to request a campaign's link every time.
+              render: (r) => (
+                <a
+                  href={toPublicUrl(r.route)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-tide hover:underline"
+                >
+                  Abrir ↗
+                </a>
+              ),
+            },
             { header: "Vistas", align: "right", render: (r) => formatInteger(r.views) },
             { header: "Visitantes únicos", align: "right", render: (r) => formatInteger(r.uniqueVisitors) },
             { header: "Tiempo promedio", align: "right", render: (r) => formatDuration(r.avgDwellSeconds) },

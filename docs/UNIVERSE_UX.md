@@ -391,3 +391,28 @@ Live on `tamesis-2026` in production: name "José Miguel", role "Globo
 de la muerte", `https://www.tiktok.com/@josemiguel_bmx`, and a real
 photo of the two of them inside the apparatus
 (`/brand/cristian-jose-globo-muerte.jpg`).
+
+## 11. Direct links to a campaign's live page, from /admin (2026-09-12)
+
+Cristian's ask: he kept having to request a campaign's `/bienvenida/[slug]`
+link every time, instead of finding it himself in the Command Center.
+
+Rather than a new admin section, an "Abrir ↗" link (`src/lib/publicUrl.ts`
++ `NEXT_PUBLIC_SITE_URL`) was added to the two existing tables that
+already list a campaign's destination path, one row per real
+campaign/QR — no new data, no new endpoint, same "never hardcode a
+name, it's read from the database" discipline as the rest of these
+sections:
+
+- **`/admin/campanas`** — a new "Página" column, plus the same link
+  right under the title on `/admin/campanas/[slug]`. Required extending
+  `getCampaignDetail()` (`src/server/analytics/campaignDetail.ts`) with
+  `destinationPaths: string[]` — an array, not a single string, since a
+  campaign can in principle have more than one `qr_source` row pointing
+  at it (usually 0 or 1 in practice today).
+- **`/admin/qr`** — a "Página" column next to the existing "Destino"
+  text column, linking `qr_source.destination_path` directly.
+- **`/admin/landings`** — a "Página" column linking each tracked
+  `route` directly (this table's rows are raw visited routes, not only
+  registered QR/campaign destinations, but every one is a real live
+  page, so linking out is harmless either way).

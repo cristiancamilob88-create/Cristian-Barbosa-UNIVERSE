@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { AnalyticsBoundary } from "@/components/admin/AnalyticsBoundary";
 import { StatTile } from "@/components/admin/StatTile";
 import { formatInteger, formatCents, formatRatio } from "@/lib/format";
+import { toPublicUrl } from "@/lib/publicUrl";
 import type { CampaignDetailResponse } from "@/lib/adminAnalytics";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -46,6 +47,21 @@ export function CampanaDetailPageContent() {
               <h1 className="mt-2 font-display text-3xl font-black uppercase tracking-tight text-chalk sm:text-4xl">
                 {row.campaignName}
               </h1>
+              {row.destinationPaths.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                  {row.destinationPaths.map((path) => (
+                    <a
+                      key={path}
+                      href={toPublicUrl(path)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-tide hover:underline"
+                    >
+                      Ver página en vivo ↗
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
