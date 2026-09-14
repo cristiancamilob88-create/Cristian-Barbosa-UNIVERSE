@@ -215,6 +215,14 @@ set collaborator_name = 'José Miguel',
     collaborator_image_url = '/brand/cristian-jose-globo-muerte.jpg'
 where slug = 'tamesis-2026';
 
+-- Last-day announcement (2026-09-14), Cristian's own request that same
+-- morning: today (Monday) is free entry for kids 0-14 and his last day
+-- performing — replaces the opening-weekend event_description above.
+-- Matches what's live in production (yskfntcurmqqxjuvqoto).
+update campaign
+set event_description = 'Hoy lunes 14 de septiembre es totalmente gratis para niños de 0 a 14 años — el último día de Cristian Barbosa presentándose en el CIC (Coliseo Cubierto de Támesis), en el evento "La Casa del Terror".'
+where slug = 'tamesis-2026';
+
 insert into product (slug, name, kind, external_provider) values
   ('facebook-subscription', 'Entrena con Cristian Barbosa', 'subscription', 'facebook'),
   ('digital-course', 'Curso digital', 'digital', null),
