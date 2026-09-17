@@ -326,9 +326,14 @@ Full model in docs/SECURITY.md. Summary:
    there's still no product/offer detail page with a live
    `CheckoutLink` — `/productos` is still two lead-capture blocks.
    Hotmart/Stripe remain unconnected (not asked for).
-9. **Block 07 — B2B funnels**: a real `/shows`/`/marcas` intake writing to
-   `b2b_opportunity` (schema already exists, unused), stage-change
-   notifications.
+9. **Block 07 — B2B funnels** ✅: `/shows`/`/marcas` → `/contacto` →
+   `/api/lead` writes a real `b2b_opportunity` row (category, `stage`)
+   alongside the generic lead — this line stayed stale here after that
+   shipped; `docs/COMMERCE.md`'s own entry has the real history.
+   **2026-09-17**: the pipeline is now visible too, not just written —
+   `/admin/negocios` (docs/COMMAND_CENTER.md §19). Stage-change
+   notifications (an email/WhatsApp ping when a `stage` changes) remain
+   unbuilt — a real gap, distinct from visibility.
 10. **Block 08 — Content & brand pass**: real copy, photography/video,
     motion (`gsap-web` from the skills library), once there is real content
     to animate — likely also when the Command Center's own visual pass

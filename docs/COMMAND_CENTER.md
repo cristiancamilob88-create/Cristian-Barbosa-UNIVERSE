@@ -700,3 +700,39 @@ forward: a page with more than one `TrackedLink` needs a distinct
 `cta` id per instance, not per intent — `docs/UNIVERSE_UX.md`'s
 `intent_[a-z_]+` convention still names the intent; a repeated literal
 instance earns a suffix the way these five did.
+
+## 19. /admin/negocios — the shows/brands/sponsors pipeline, made visible (2026-09-17)
+
+Cristian's own ask, from "Ruta de Capitalización" (2026-09-13):
+`/contacto?topic=shows|marcas` → `/api/lead` has written a real
+`b2b_opportunity` row (category, `stage`) since Block 07 — but nothing
+in `/admin` ever showed it. A real booking or brand-deal inquiry was
+invisible unless Cristian asked for a direct SQL query against
+production. This closes that gap:
+
+- **Same architecture as §17's `/admin/contactos`, for the same
+  reason**: real PII (name/email/phone) can never go through
+  `src/server/analytics/`/`/api/analytics/*` — that family is tested to
+  guarantee zero PII in its responses. New parallel module
+  `src/server/admin/opportunities.ts` (query) reusing `src/server/admin/auth.ts`
+  (gate, unchanged), new endpoint `/api/admin/opportunities`
+  (session-cookie-only, no bearer-token fallback — same as
+  `/api/admin/contacts`), new client DTO file `src/lib/adminOpportunities.ts`.
+- **No date range**, same reasoning as `/admin/contactos`: this page's
+  job is "who do I need to follow up with and at what stage", not a
+  trend — an open negotiation from six weeks ago shouldn't fall off a
+  date-windowed view. Most-recent-100, `SectionHeader`'s existing
+  `hideDateRange` prop.
+- **New columns beyond `/admin/contactos`' shape**: `category` (Shows /
+  Marcas / Patrocinios) and `stage` (Nuevo → Calificado → Propuesta →
+  Negociación → Ganado/Perdido, the schema's own `check` constraint) —
+  the two fields that make this a pipeline, not just another contact
+  list. `estimated_value_cents` renders via the existing `formatCents()`,
+  same COP formatting as every revenue figure elsewhere in the
+  dashboard; null (never invented from a contact-form submission, per
+  `createB2bOpportunity()`'s own doc comment) renders as "—".
+- **`docs/ARCHITECTURE.md` §10's roadmap list still named this "Block
+  07 — B2B funnels... unused" as future work** — stale by the time this
+  was written: the write path had existed since Block 07 itself
+  (`docs/COMMERCE.md`'s own entry says so). This section is the
+  correction — the write path was never the gap, visibility was.
