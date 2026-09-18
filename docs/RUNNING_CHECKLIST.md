@@ -5,197 +5,236 @@ things come up mid-conversation, so nothing said in passing gets lost.
 Update this file (add/close items) instead of letting a spoken request
 live only in chat history. Newest items at the top of each section.
 
+**2026-09-18**: Cristian's own ask, re-stated — "necesito que lleves
+checklist ordenados y organizados para seguir trabajando lo que se
+pausa, lo que falta y todo eso." Full pass done this date: every item
+below re-checked against the real state of the code/production, not
+assumed from memory. Several items closed here for the first time
+since 2026-08-25/28 even though the underlying work finished earlier
+in the conversation — this file had gone stale relative to the actual
+session.
+
 ## Open
 
-- **Dropi para el catálogo/inventario/envíos de productos físicos**
-  (abierto 2026-08-28, retomado 2026-09-09) — Cristian ya decidió la
-  pasarela de pagos (Mercado Pago, ver Closed) y confirmó que Dropi es
-  el siguiente paso para lo físico específicamente ("aquí entraríamos a
-  la parte de dropi para vincularlo"). Sigue sin ejecutarse — mismo
-  hallazgo de la investigación anterior: Dropi tiene API REST propia
-  (+160,000 productos) pero sus integraciones "de un clic" son solo
-  para Shopify/WooCommerce/Tiendanube, no para un sitio a medida como
-  este; ningún MCP encontrado para Dropi específicamente. Es una
-  integración separada de Mercado Pago, no bloqueada por ella — Mercado
-  Pago solo necesita un `offer` real con un precio real, sin importar
-  de dónde salga el producto. Falta: un producto físico real (nombre,
-  precio, si viene de Dropi o no) antes de escribir cualquier código.
-- **Confirmar que el correo real de bienvenida sí llega, con el fix
-  de `after()` ya puesto** (2026-08-28) — Cristian ya tenía Gmail
-  configurado en Vercel e hizo la primera prueba real; no llegó nada
-  y los logs no mostraban ni un warning. Causa real encontrada y
-  arreglada (docs/AUTOMATIONS.md, "Bug real encontrado y arreglado"):
-  `/api/lead` disparaba el correo/WhatsApp con `void fn()`
-  fire-and-forget, y Vercel puede congelar la función serverless justo
-  cuando manda la respuesta — cortando ese envío a la mitad, antes de
-  loguear nada. Cambiado a `after()` de Next (`src/server/afterResponse.ts`),
-  verificado real con un POST contra `next start` (el log ahora sí
-  muestra los warnings esperados). Falta: que Cristian repita el
-  registro real una vez este fix esté desplegado, para confirmar que
-  el correo llega de verdad esta vez.
-- **Probar la base de datos con datos reales, no solo seed** —
-  Cristian's own words: "una vez empecemos a construir base de datos,
-  hay que probarla". Updated 2026-08-25: no longer waiting for the
-  2026-08-27 school visit — Cristian has people ready to test today.
-  He can drive the whole circuit himself right now: visit the site (or
-  `/bienvenida/colegio-la-leticia-2026` for the school-attributed
-  version — confirmed live in production, see the Closed item below),
-  submit the form, then check `/admin/leads`, `/admin/qr`, and
-  `/admin/landings` for the real rows. The Colegio de la Leticia visit
-  is still the first occasion for *volume*, but isn't the gating event
-  for testing the mechanism anymore.
-- **Assets reales de Cristian** — fotos, imágenes, logos "para
-  perfeccionar la página" (2026-08-25), to be sent over time. Tracked
-  per-category in docs/ASSETS_AND_BRAND.md — update that file's
-  REAL/PENDIENTE/PLACEHOLDER column as each one arrives, don't just
-  drop files in without updating the tracker.
-- **Visual/brand identity pass** — Cristian's own framing (2026-08-25):
-  "empezar a trabajar arquitectura visual" is the phase after this
-  point, before automations/strategy. No specific brief yet — next
-  session should ask what to change first, or start from the concrete
-  finding already on record (`/redes` grouped by category,
-  docs/UNIVERSE_UX.md §8).
+- **NUEVO (2026-09-18) — Agente de IA público, esquina inferior
+  derecha, en todas las páginas**: idea propia de Cristian, con una
+  motivación específica — quiere que el público conozca a sus futuros
+  patrocinadores, y se le ocurrió que el agente los presente en vez de
+  (o además de) una sección visual fija. Un feature real y construible,
+  pero necesita respuestas antes de escribir código, no solo "sí,
+  hazlo":
+  1. **Proveedor/costo**: un chat de IA real necesita una API de
+     lenguaje (Claude/Anthropic u otra) — es un vendor nuevo con costo
+     por conversación, la misma categoría que AGENTS.md pide confirmar
+     antes de conectar (no una decisión que se toma sola).
+  2. **Qué debe poder responder**: ¿solo patrocinadores? ¿también
+     entrenamiento/coaching, shows, productos? Entre más amplio, más
+     riesgo de que invente algo — este proyecto nunca ha inventado
+     copy/datos comerciales, y un agente de IA en vivo es el lugar
+     donde ese riesgo es más real, no menos.
+  3. **Patrocinadores reales**: hoy no existe ningún dato de
+     patrocinadores en la base de datos — haría falta una tabla nueva
+     (nombre, logo, link, algo real que Cristian confirme uno por uno,
+     nunca inventado) antes de que el agente pueda "presentarlos" con
+     información verdadera.
+  4. **¿Solo el chat, o también algo visible?** — una franja de logos
+     de patrocinadores es el patrón más común en sitios así; el chat
+     puede *complementar* eso, no reemplazarlo — vale la pena que
+     Cristian confirme si quiere ambos o solo el chat.
+  Relacionado pero DISTINTO del ítem ya abierto más abajo ("IA dentro
+  del panel...") — ese es privado, solo para Cristian en `/admin`; este
+  es público, para cualquier visitante. No confundir los dos al
+  retomar.
+- **Shopify + Dropify + Mercado Pago (app de Shopify) para el primer
+  producto físico** (2026-09-17/18, reemplaza el ítem anterior de
+  "Dropi directo" — ver Closed): Cristian decidió ir por Shopify en vez
+  de esperar una integración de API directa con Dropi. Camino
+  confirmado, investigado y explicado (no solo propuesto): Dropify es
+  una app gratuita y oficial en la tienda de Shopify que conecta con
+  Dropi (catálogo + fulfillment automático); Mercado Pago también tiene
+  su propia app oficial de Shopify (misma cuenta real que ya usa
+  Cristian). Nuestro lado no necesita ninguna integración profunda de
+  API — `offer.checkout_provider = 'manual'` + `checkout_url` (ya
+  existe, cero migración) alcanza para mandar el botón "Comprar" de
+  `/productos` directo al checkout de Shopify. Falta, del lado de
+  Cristian: crear/confirmar la tienda Shopify, instalar Dropify y
+  conectar su cuenta de Dropi ahí, instalar la app de Mercado Pago,
+  escoger el primer producto real. Falta, de mi lado, una vez tenga
+  esos datos: montar la tarjeta real del producto en `/productos` con
+  foto/precio/botón de compra — no depende de la clave de webhook de
+  Mercado Pago de abajo, es un camino de pago independiente.
+- **Clave secreta de producción del webhook de Mercado Pago** (abierto
+  2026-09-09, sigue igual): Cristian solo dio la de prueba. Sin la
+  real, cualquier pago confirmado por la integración DIRECTA (no la de
+  Shopify de arriba) no queda registrado en `orders` aunque el cobro sí
+  pase — solo importa el día que exista un producto vendido directo
+  desde este sitio sin pasar por Shopify (ej. un curso digital).
+- **Panel de negocios (`/admin/negocios`) ya tiene 2 solicitudes reales
+  de shows esperando seguimiento** (encontrado 2026-09-17, sigue sin
+  que Cristian confirme haberlas gestionado más allá de "ya lo revisé
+  tranquilo" el 2026-09-17) — no es trabajo técnico pendiente, es
+  seguimiento comercial de Cristian.
+- **Tráfico pago — Fase 1 aprobada, no ejecutada todavía** (propuesta
+  2026-09-13, "Progresión de Tráfico"): presupuesto chico, links con
+  utm_, apuntando a la comunidad — cero código nuevo, listo para
+  arrancar cuando Cristian quiera. Cristian mencionó $100.000 (COP,
+  asumido) disponibles el lunes/martes de esa semana — no hay
+  confirmación de que se haya usado. Con el producto de Shopify en
+  camino, considerar apuntar la pauta directo al producto en vez de
+  solo a la comunidad, una vez esté montado.
+- **Reuniones de Cristian con gente para "crear sitios web para
+  promocionar shows en restaurantes"** (mencionado 2026-09-13,
+  pregunta hecha, sin respuesta todavía): ¿son sitios nuevos y
+  separados de este, o algo que debería vivir dentro de este mismo
+  código? Importa para no duplicar esfuerzo o terminar con dos sitios
+  compitiendo por el mismo tráfico.
+- **Redes sociales apagadas ~1 mes sin contenido** (mencionado
+  2026-09-13): Instagram/Facebook/TikTok sin publicar. Contenido real
+  (fotos/videos) tiene que salir de Cristian — ofrecido ayudar con
+  calendario/ideas cuando tenga tiempo, sin respuesta todavía.
+- **Música / curso digital — necesita decisión de contenido y precio
+  de Cristian** (identificado 2026-09-13, "Ruta de Capitalización" Fase
+  B): el mecanismo de venta de contenido digital (`entitlement`) ya
+  existe en el código pero no tiene ningún escritor real — no es un
+  tema técnico todavía, es una decisión de negocio pendiente.
+- **Aviso de cookies + primer píxel de publicidad** (Fase 2 de
+  "Progresión de Tráfico", 2026-09-13): deliberadamente en pausa hasta
+  que exista una primera venta real confirmada — no antes.
 - **IA dentro del panel que explica los datos en lenguaje natural**
   (2026-08-25) — Cristian's own idea: ask the dashboard "¿alguien se
-  registró hoy?" in plain Spanish instead of reading tables. The
-  biggest of the three asks from that message — needs a real Claude/
-  Anthropic API integration (new vendor, cost per query) — deliberately
-  not started; asked Cristian to prioritize the three together
-  (Contactos / mensajes automáticos / esto), he picked Contactos first
-  (closed below).
+  registró hoy?" in plain Spanish instead of reading tables. Needs a
+  real Claude/Anthropic API integration (new vendor, cost per query) —
+  deliberately not started. **Privado, solo `/admin`** — distinto del
+  agente público nuevo de arriba, no confundir los dos.
 - **Mensajes automáticos — código de WhatsApp ya construido (Meta
-  directo), falta activarlo** (2026-08-25, updated dos veces el mismo
-  día: primero Twilio, después cambiado a Meta Cloud API directamente
-  a pedido de Cristian — sin problema en hacer la verificación de
-  negocio él mismo, y evita la comisión extra de Twilio).
-  `sendWelcomeWhatsApp()` está construido y probado
-  (docs/AUTOMATIONS.md) con el mismo patrón que el correo — falla en
-  silencio hasta que reciba `META_WHATSAPP_ACCESS_TOKEN`/
+  directo), falta activarlo** (2026-08-25): `sendWelcomeWhatsApp()`
+  está construido y probado (docs/AUTOMATIONS.md), falla en silencio
+  hasta que reciba `META_WHATSAPP_ACCESS_TOKEN`/
   `META_WHATSAPP_PHONE_NUMBER_ID` reales. Falta: Cristian genera esas
-  dos credenciales en developers.facebook.com (pasos exactos en
-  docs/AUTOMATIONS.md), las pega en Vercel, y escribe el texto real de
-  cada tema (mismos 8 espacios que el correo).
+  credenciales en developers.facebook.com, las pega en Vercel, y
+  escribe el texto real de cada tema.
+- **Confirmar que el correo real de bienvenida sí llega, con el fix de
+  `after()` ya puesto** (2026-08-28): el bug real que lo rompía está
+  arreglado y verificado contra un build de producción real. Falta:
+  que Cristian repita el registro real una vez desplegado, para
+  confirmar que el correo llega de verdad esta vez.
+- **Assets reales de Cristian** — fotos, imágenes, logos "para
+  perfeccionar la página" (2026-08-25, en curso): desde entonces sí
+  llegaron reales — la foto de Cristian con José Miguel en el globo de
+  la muerte (2026-09-12) es la más reciente. Sigue abierto porque es un
+  flujo continuo, no un evento único — tracked per-category en
+  docs/ASSETS_AND_BRAND.md.
+- **Visual/brand identity pass** (2026-08-25): "empezar a trabajar
+  arquitectura visual" — no retomado todavía. Sin brief específico;
+  próxima sesión debería preguntar qué cambiar primero, o partir del
+  hallazgo ya documentado (`/redes` agrupado por categoría,
+  docs/UNIVERSE_UX.md §8).
+- **Dominio real `cristianbarbosa.com`** (mencionado varias veces,
+  más reciente 2026-09-17): Cristian planea comprarlo. Cuando lo haga:
+  el dominio raíz debe apuntar a este sitio (Vercel) — el equivalente
+  de `NEXT_PUBLIC_SITE_URL` cambia de la URL de `.vercel.app` a la
+  real. Si además quiere navegar el catálogo de Shopify bajo el mismo
+  dominio, un subdominio (ej. `tienda.cristianbarbosa.com`) puede
+  apuntar a Shopify por separado — investigado y confirmado que sí se
+  puede, con la salvedad de que el checkout final de Shopify (en
+  planes normales, no Plus) siempre pasa por un dominio de Shopify,
+  no importa qué subdominio se conecte.
 
 ## Closed
 
-- **Mercado Pago — checkout real para físicos/infoproductos** (2026-09-09):
-  Cristian eligió Mercado Pago sobre Stripe/Nequi/Bancolombia (ya tiene
-  cuenta real) y decidió el alcance exacto: solo compras únicas
-  (físicos/infoproductos), la suscripción de Facebook ($29.900/mes)
-  sigue igual. `GET /api/checkout/[offerSlug]` crea una preferencia real
-  de Checkout Pro para cualquier offer con `checkout_provider =
-  'mercadopago'`; `POST /api/webhooks/mercadopago` es el primer escritor
-  real de `orders`/`order_items`, verificado con firma HMAC (nunca
-  confía en el webhook sin verificar). Registro completo en
-  docs/COMMERCE.md §10. 175 tests unitarios/126 de integración/build de
-  producción, más una prueba real por HTTP contra un servidor real
-  (firma válida vs. inválida) — todo verde. Falta: ningún offer real fue
-  cambiado a `checkout_provider = 'mercadopago'` todavía (no existe
-  producto físico/infoproducto real con precio real) — es infraestructura
-  lista, no una venta activa. Dropi (ver Open) es el siguiente paso para
-  tener ese producto físico real.
-- **Favicon real** (2026-08-25, confirmado 2026-08-28): estaba marcado
-  "abierto" en este archivo por error — docs/ASSETS_AND_BRAND.md
-  categoría 2 ya lo tenía como REAL desde el 2026-08-25 (`favicon.ico`/
-  `icon.png`/`apple-icon.png`, el emblema CB real, no el triángulo de
-  Vercel). Corregido aquí para que ambos archivos digan lo mismo.
+- **Shopify/Dropify/Mercado Pago — investigación completa, camino
+  confirmado** (2026-09-17/18): reemplaza la integración directa de
+  Dropi (abajo) que llevaba abierta desde 2026-08-28 sin avanzar.
+  Confirmado por investigación real (no supuesto): Dropify (app oficial
+  gratuita de Shopify para Dropi) y Mercado Pago (app oficial de
+  Shopify) ambas existen y resuelven exactamente el bloqueo que tenía
+  Cristian con la API directa de Dropi. Ver el ítem abierto arriba para
+  lo que falta ejecutar.
+- **`/admin/negocios` — pipeline de shows/marcas/patrocinios, hecho
+  visible** (2026-09-17): `b2b_opportunity` tenía escritor real desde
+  Block 07 (`/contacto?topic=shows|marcas`) pero ningún panel lo
+  mostraba — Cristian no tenía forma de ver una solicitud real sin
+  pedir una consulta SQL directa. Misma arquitectura que
+  `/admin/contactos` (PII real, nunca por `/api/analytics/*`). Full
+  record: docs/COMMAND_CENTER.md §19. Encontró 2 solicitudes reales de
+  shows esperando desde antes de que existiera el panel (ver Open).
+- **Enlaces directos a la página en vivo de cada campaña, desde
+  `/admin`** (2026-09-12): Cristian pedía el link cada vez en el chat.
+  Columna "Página" agregada en `/admin/campanas`, `/admin/qr` y
+  `/admin/landings`, más el link en `/admin/campanas/[slug]` — sin
+  endpoint nuevo, los tres ya tenían el dato, solo faltaba el link
+  clicable. `src/lib/publicUrl.ts` nuevo.
+- **Támesis, Antioquia — campaña real con QR, redada, últimas
+  actualizaciones** (2026-09-11 al 14): campaña y QR reales creados en
+  producción; anuncio del evento actualizado dos veces con datos reales
+  de Cristian (fin de semana completo, luego el anuncio del último día
+  gratis para niños 0-14); crédito real a José Miguel ("globo de la
+  muerte", foto real, link real de TikTok) agregado a la plantilla
+  compartida de `/bienvenida/[slug]` — nuevas columnas
+  `collaborator_*` en `campaign`, reutilizable para cualquier futura
+  campaña. Confirmado con un 403 reportado por Cristian que resultó ser
+  el wifi del venue, no el sitio — verificado en vivo, sin cambios de
+  código necesarios.
+- **Rediseño de la jerarquía de CTAs en `/bienvenida/[slug]`** (2026-
+  09-11), motivado por los datos reales de Concordia (24 visitas, 1
+  clic único a la comunidad, 0 registros): "Unirme a la comunidad" pasó
+  a ser la única acción grande y llena; se quitaron dos de los tres
+  enlaces "ver todo el universo" de la zona de mayor atención, luego se
+  devolvió uno (`_hero`) en una posición y estilo distintos a pedido
+  directo de Cristian tras verlo en vivo. Documentado como hipótesis
+  motivada por datos, no una prueba estadística — la muestra es
+  pequeña. Full record: docs/UNIVERSE_UX.md §9.
+- **Mercado Pago — checkout real para físicos/infoproductos**
+  (2026-09-09): Cristian eligió Mercado Pago sobre Stripe/Nequi/
+  Bancolombia (ya tiene cuenta real) y decidió el alcance exacto: solo
+  compras únicas (físicos/infoproductos), la suscripción de Facebook
+  ($29.900/mes) sigue igual. `GET /api/checkout/[offerSlug]` crea una
+  preferencia real de Checkout Pro para cualquier offer con
+  `checkout_provider = 'mercadopago'`; `POST /api/webhooks/mercadopago`
+  es el primer escritor real de `orders`/`order_items`, verificado con
+  firma HMAC. Registro completo en docs/COMMERCE.md §10. Todo verde en
+  tests/build. Falta lo anotado en Open (clave de producción, y ahora
+  el camino de Shopify cubre el primer producto físico en su lugar).
+- **Dropi directo (API) — cerrado sin avanzar, reemplazado por
+  Shopify+Dropify** (abierto 2026-08-28, retomado 2026-09-09, cerrado
+  2026-09-17): Cristian nunca recibió respuesta de Dropi para la
+  integración directa de API — este entorno tampoco puede alcanzar
+  `dropi.co`/`api.dropi.co` para investigar su documentación por su
+  cuenta. En vez de seguir esperando, Cristian decidió ir por Shopify
+  (ver el ítem "Shopify/Dropify/Mercado Pago" arriba), que resuelve el
+  mismo problema sin depender de que Dropi responda un correo.
+- **Progresión de Tráfico — análisis de 3 fases para Meta/TikTok/
+  Google Ads/SEO** (2026-09-13): entregado como documento — evidencia
+  real de Concordia/Támesis, comparación de canales, plan de 3 fases.
+  Ejecución de la Fase 1 sigue abierta (ver Open).
+- **Ruta de Capitalización — mapa de qué activar primero** (2026-09-13):
+  entregado como documento — identificó que Shows/Marcas ya generaba
+  datos reales sin panel para verlos (resuelto, ver `/admin/negocios`
+  arriba) y que 0 de 5 ofertas usaban Mercado Pago (en camino de
+  resolverse vía Shopify).
+- **Favicon real** (2026-08-25, confirmado 2026-08-28).
 - **Welcome-email automation — real code, pending Cristian's Gmail
-  credentials + his own message text** (2026-08-25): full record and
-  reasoning in docs/AUTOMATIONS.md. `sendWelcomeEmail()`
-  (`src/server/notifications/`) fires from `/api/lead` after a
-  successful registration, via Gmail SMTP — chosen over Resend because
-  Resend can't email real recipients without a verified domain
-  (confirmed against Resend's own docs), and Cristian didn't have a
-  domain yet. One placeholder template per topic, refuses to send
-  itself until Cristian replaces the placeholder text — never invented
-  copy. WhatsApp research (Twilio virtual number vs. Meta direct vs.
-  unofficial/ban-risk libraries, and why his current mixed personal/
-  business number shouldn't be the one connected) is also recorded
-  there, decision still pending on his end. Verified with a real
-  `/api/lead` POST against a real production build: lead saved
-  correctly, email step skipped and logged (Gmail not configured yet)
-  without affecting the response. 137 unit tests (12 new)/100
-  integration tests/production build all green before push.
+  credentials + his own message text** (2026-08-25): full record in
+  docs/AUTOMATIONS.md.
 - **`/admin/contactos` — real name/email/teléfono per registro**
-  (2026-08-25): Cristian's own request — "quiero ver esa base de datos
-  de esas personas." New page, new `src/server/admin/` module, new
-  `/api/admin/contacts` endpoint (session-cookie-only auth, no bearer
-  token) — deliberately kept out of the PII-free `/api/analytics/*`
-  family. Full record in docs/COMMAND_CENTER.md §17. Verified with a
-  real inserted contact+lead row, screenshotted logged-in. Also
-  answered separately, same conversation: Cristian's "entré sin
-  contraseña" report was investigated in the actual session code
-  (`src/proxy.ts`) — an already-valid 12h session cookie skips the
-  login form by design (redirects straight to `/admin`), the same way
-  any site remembers a logged-in browser; not a real hole unless the
-  same skip happens in a browser that never entered the password
-  (asked Cristian to check via a private/incognito window — no
-  confirmation back yet either way).
-- **Dashboard translated fully to Spanish** (2026-08-25): Cristian's
-  own words, "no entiendo bien," specifically citing "Lead." Every
-  visible string across all 10 (now 11) `/admin/*` sections — full
-  record and glossary in docs/COMMAND_CENTER.md §10/§17.
+  (2026-08-25): full record in docs/COMMAND_CENTER.md §17.
+- **Dashboard translated fully to Spanish** (2026-08-25).
 - **Vercel Authentication (SSO) wall was blocking the whole public
-  site** (2026-08-25): found while investigating Cristian's "no me pidió
-  contraseña" report on `/admin/login` — turned out to be a much bigger,
-  separate issue: Vercel's own "Standard Protection" (likely the
-  platform's own default for a new project, never something Cristian
-  turned on) required a Vercel account login for every `*.vercel.app`
-  URL, including the real production one — meaning any real visitor
-  without Vercel access, QR scans included, would have hit Vercel's own
-  login wall instead of the site. Disabled via the Vercel API,
-  confirmed off. Also: `ADMIN_PASSWORD_HASH`/`ADMIN_SESSION_SECRET`
-  generated and walked Cristian through pasting them into Vercel's
-  env vars + redeploying — `/admin/login` has a real working password
-  now (`Barbosa2020-2026`, chosen by Cristian).
+  site** (2026-08-25).
 - **"Presentaciones pasadas" ready to hold real activity entries**
-  (2026-08-25): Cristian asked whether documenting real appearances
-  ("ya estuvimos en el colegio de la Leticia... un tipo de noticias")
-  was worth doing. Chose reusing `/eventos`'s existing, already-empty
-  "Presentaciones pasadas" category over a new "Noticias" route/nav
-  entry. `src/app/eventos/page.tsx` now renders a real list from a
-  typed `pastPresentations` array when it has entries, same honest
-  empty state as before when it doesn't — starts empty on purpose, no
-  entry invented ahead of an event that hasn't happened. First real
-  candidate: the Colegio de la Leticia visit, 2026-08-27 — add its
-  entry (place/date/description) to that array the same day, once
-  there's something real to say about it.
+  (2026-08-25) — Colegio de la Leticia visit is its first real entry.
 - **Command Center: 8/10 sections crashed in production; dwell-time +
-  session-duration metrics added** (2026-08-25): Cristian asked to see
-  "todo el comportamiento" — de qué QR viene la gente (already worked),
-  cuánto tiempo pasan en cada página (didn't exist). While wiring that
-  in, found and fixed a real bug: 8 of the dashboard's 10 sections threw
-  a Server/Client Component error in production (`next start`/Vercel,
-  never caught by `next dev` or `npm run build` alone) — every section
-  is fixed and reverified against a real production build now. New:
-  average time on page per route (Landings), average session duration
-  and pages/session (Overview). Full record in docs/COMMAND_CENTER.md
-  §8 and docs/KPI_DEFINITIONS.md.
-- **Colegio de la Leticia — Envigado — QR landing for the 2026-08-27 visit**
-  (2026-08-25): `src/app/bienvenida/[slug]/page.tsx` (new, reusable for
-  any future school/event QR), `src/server/db/repositories/qrSource.ts`
-  (new read model), `campaign`/`qr_source` rows for
-  `colegio-la-leticia-2026`. Verified end to end locally: a real
-  `ContactForm` submission through this exact URL (with the real
-  QR's utm params) produced a `lead`/`contact` correctly attributed to
-  `source=school`, `campaign=Colegio de la Leticia — Envigado`,
-  `qr=colegio-la-leticia-2026` — confirmed by querying the database
-  directly, not assumed. QR image generated
-  (`qr-colegio-la-leticia-2026.png`, sent to Cristian) encoding the
-  real production URL. Row confirmed live in the real production
-  Supabase project too (Supabase MCP connector became available this
-  session; queried it directly, 2026-08-25): `qr_source.slug =
-  'colegio-la-leticia-2026'`, `active = true`, `destination_path =
-  '/bienvenida/colegio-la-leticia-2026'`, campaign "Colegio de la
-  Leticia — Envigado", source "Colegio" — nothing left blocking this.
+  session-duration metrics added** (2026-08-25).
+- **Colegio de la Leticia — Envigado — QR landing for the 2026-08-27
+  visit** (2026-08-25).
 - **Google AdSense — evaluated, not added** (2026-08-25): documented in
-  docs/ARCHITECTURE.md §11 addendum. Competes with this site's actual
-  monetization model; not revisited unless that model changes.
-- **20-point public web-security checklist audit** (2026-08-25): 19/20
-  already held; `/api/checkout`/`/api/track` missing rate limits was
-  the one real gap, closed same day. Full record in docs/SECURITY.md.
-- **Vercel public preview + DATABASE_URL/NEXT_PUBLIC_SITE_URL blank-env
-  bugs** (2026-08-25): site live at
-  `cristian-barbosa-universe.vercel.app`, both real build failures
-  found via the Vercel MCP connector's actual logs and fixed. Full
-  record in docs/PROJECT_STATE.md.
+  docs/ARCHITECTURE.md §11 addendum.
+- **20-point public web-security checklist audit** (2026-08-25).
+- **Vercel public preview + DATABASE_URL/NEXT_PUBLIC_SITE_URL
+  blank-env bugs** (2026-08-25): full record in docs/PROJECT_STATE.md.
+- **Probar la base de datos con datos reales, no solo seed**
+  (abierto 2026-08-25, cerrado 2026-09-18): ampliamente superado por
+  eventos —Concordia, Támesis y Colegio de la Leticia son campañas
+  reales con visitantes, leads y solicitudes de shows/marcas reales
+  corriendo en producción, verificadas repetidamente vía `/admin` y
+  consultas directas a Supabase.
