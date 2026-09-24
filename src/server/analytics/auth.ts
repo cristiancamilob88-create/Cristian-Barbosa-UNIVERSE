@@ -1,4 +1,5 @@
 import "server-only";
+import crypto from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerEnv } from "@/server/env";
 import { ADMIN_SESSION_COOKIE, isValidAdminSessionToken } from "@/server/auth/session";
@@ -39,10 +40,21 @@ export function requireAnalyticsAuth(request: NextRequest): NextResponse | null 
   if (ANALYTICS_API_TOKEN) {
     const header = request.headers.get("authorization") ?? "";
     const [scheme, token] = header.split(" ");
-    if (scheme === "Bearer" && token === ANALYTICS_API_TOKEN) {
+    if (scheme === "Bearer" && token && tokensMatch(token, ANALYTICS_API_TOKEN)) {
       return null;
     }
   }
 
   return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
+}
+
+/**
+ * Constant-time comparison for the bearer token, so response timing
+ * can't be used to guess it a character at a time (same approach
+ * src/server/auth/session.ts uses for session signatures).
+ */
+function tokensMatch(provided: string, expected: string): boolean {
+  const a = Buffer.from(provided);
+  const b = Buffer.from(expected);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
