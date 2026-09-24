@@ -26,6 +26,23 @@ export const siteConfig = {
   locale: "es",
 } as const;
 
+/**
+ * Real press coverage of Cristian, shown on /about and published in the
+ * Person structured data (`subjectOf`) — third-party coverage is one of
+ * the strongest signals Google uses to recognize a person. Same article
+ * already linked from the Concordia campaign landing (supabase/seed.sql,
+ * 0011 — verified live when Cristian sent it, 2026-09-04); /about is the
+ * indexable home for it, campaign landings are noindex.
+ */
+export const pressCoverage = [
+  {
+    outlet: "El Colombiano",
+    label: "Entrevista con El Colombiano",
+    url: "https://www.elcolombiano.com/amp/deportes/cristian-barbosa-caliestania-envigado-practica-que-crece-en-area-metropolitana-PP33788025",
+    image: "/brand/press-el-colombiano.jpg",
+  },
+] as const;
+
 export interface NavItem {
   /** Short mono-space tag used as the visual/identifier label, e.g. "TRAIN". */
   tag: string;

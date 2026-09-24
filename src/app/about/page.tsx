@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { buildMetadata } from "@/lib/seo";
-import { navItems } from "@/config/site";
+import { navItems, pressCoverage } from "@/config/site";
 
 export const metadata: Metadata = buildMetadata({
   title: "Historia de Cristian Barbosa — artista, shows y calistenia",
@@ -95,10 +95,34 @@ export default function AboutPage() {
       <section className="border-t border-steel-dim/40 py-16">
         <Container>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Prensa</p>
-          <p className="mt-4 max-w-2xl text-sm text-steel">
-            Cristian ha sido entrevistado en medios como El Colombiano. Press kit y enlaces a
-            entrevistas/apariciones, próximamente.
-          </p>
+          <div className="mt-6 flex flex-wrap gap-8">
+            {pressCoverage.map((item) => (
+              <div key={item.url} className="flex w-full max-w-xs flex-col gap-3">
+                <TrackedLink
+                  href={item.url}
+                  external
+                  event={{ name: "cta_click", cta: "press_link_image", topic: "about" }}
+                  className="block overflow-hidden border border-steel-dim/40"
+                >
+                  <Image
+                    src={item.image}
+                    alt={`${item.label} — recorte de prensa`}
+                    width={480}
+                    height={640}
+                    className="h-auto w-full object-cover"
+                  />
+                </TrackedLink>
+                <TrackedLink
+                  href={item.url}
+                  external
+                  event={{ name: "cta_click", cta: "press_link_text", topic: "about" }}
+                  className="text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
+                >
+                  {item.label} →
+                </TrackedLink>
+              </div>
+            ))}
+          </div>
         </Container>
       </section>
       <section className="border-t border-steel-dim/40 py-16">

@@ -1,4 +1,4 @@
-import { siteConfig } from "@/config/site";
+import { pressCoverage, siteConfig } from "@/config/site";
 import type { SocialProfile } from "@/types/crm";
 
 /**
@@ -24,6 +24,12 @@ export function personJsonLd(sameAs: string[] = []) {
     jobTitle: "Artista, performer y creador de contenido",
     nationality: { "@type": "Country", name: "Colombia" },
     knowsAbout: ["Música", "Shows en vivo", "Creación de contenido", "Calistenia"],
+    subjectOf: pressCoverage.map((item) => ({
+      "@type": "NewsArticle",
+      headline: item.label,
+      url: item.url,
+      publisher: { "@type": "Organization", name: item.outlet },
+    })),
     ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 }
