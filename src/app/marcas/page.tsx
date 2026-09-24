@@ -9,7 +9,7 @@ import { goLinks } from "@/config/site";
 export const metadata: Metadata = buildMetadata({
   title: "Marcas y patrocinios",
   description:
-    "Patrocinios, embajadorías y colaboraciones de marca con Cristian Barbosa, atleta de calistenia, entrenador y artista.",
+    "Patrocinios, embajadorías y colaboraciones de marca con Cristian Barbosa, artista, performer y creador de contenido.",
   path: "/marcas",
 });
 

@@ -10,7 +10,7 @@ import { env } from "@/lib/env";
 export const siteConfig = {
   name: "Cristian Barbosa",
   universeName: "CRISTIAN BARBOSA UNIVERSE",
-  tagline: "Atleta, artista, entrenador — un universo, muchas formas de entrar.",
+  tagline: "Artista, performer, atleta — un universo, muchas formas de entrar.",
   description:
     "Cristian Barbosa: artista, performer y creador de contenido colombiano. Escucha su música, contrata un show en vivo de calistenia o síguelo en redes.",
   // Read through src/lib/env.ts's validated export, not process.env

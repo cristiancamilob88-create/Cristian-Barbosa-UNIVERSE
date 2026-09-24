@@ -17,12 +17,15 @@ export const metadata: Metadata = buildMetadata({
   path: "/",
 });
 
+// Artistic identity first (Cristian, 2026-09-24): he wants to be known
+// for his music, shows and content — training stays an offer
+// (/entrenar, "Quiero entrenar"), not a label on who he is.
 const tickerWords = [
-  "ATLETA",
   "ARTISTA",
-  "ENTRENADOR",
   "MÚSICO",
   "PERFORMER",
+  "ATLETA",
+  "CREADOR",
   "COMUNIDAD",
   "EMPRESARIO",
 ];

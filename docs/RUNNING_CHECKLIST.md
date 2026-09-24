@@ -16,7 +16,7 @@ session.
 
 ## Open
 
-- **SEO — pendientes pequeños** (2026-09-24): (1) la franja animada
+- **SEO — pendientes pequeños** (2026-09-24): (1) CERRADO — "ENTRENADOR" reemplazado por "CREADOR" en la franja animada
   del home (`tickerWords`, src/app/page.tsx) todavía dice "ENTRENADOR"
   — Cristian dijo que no le gusta mucho ese término (quiere ser
   conocido por música, shows y contenido); preguntado si se quita, sin
