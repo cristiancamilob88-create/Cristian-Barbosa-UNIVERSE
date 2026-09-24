@@ -16,6 +16,15 @@ session.
 
 ## Open
 
+- **SEO — pendientes pequeños** (2026-09-24): (1) la franja animada
+  del home (`tickerWords`, src/app/page.tsx) todavía dice "ENTRENADOR"
+  — Cristian dijo que no le gusta mucho ese término (quiere ser
+  conocido por música, shows y contenido); preguntado si se quita, sin
+  respuesta todavía. (2) Los dos Facebook en `social_profile` son links
+  `facebook.com/share/...` — pedido el link directo del perfil para que
+  el `sameAs` de Google sea el canónico. (3) Revisar en Search Console
+  al día siguiente: sitemap en "Correcto" e indexación del home.
+
 - **NUEVO (2026-09-18) — Agente de IA público, esquina inferior
   derecha, en todas las páginas**: idea propia de Cristian, con una
   motivación específica — quiere que el público conozca a sus futuros
@@ -146,6 +155,14 @@ session.
   "Cambio de dirección" de Search Console para no perder lo indexado.
 
 ## Closed
+
+- **SEO del sitio** (2026-09-24): imagen para compartir en todas las
+  páginas (`src/app/opengraph-image.jpg`, "Música · Shows ·
+  Calistenia"), títulos/descripciones con palabras de búsqueda, y
+  JSON-LD Person/WebSite con `sameAs` a sus 8 perfiles reales (leídos
+  de `social_profile`, home con ISR 1h). Posicionamiento pedido por
+  Cristian: música, shows y contenido primero — **no "entrenador"**.
+  Verificado en vivo en producción.
 
 - **Google Search Console — sitio verificado** (2026-09-24): propiedad
   "Prefijo de URL" sobre `https://cristian-barbosa-universe.vercel.app/`
