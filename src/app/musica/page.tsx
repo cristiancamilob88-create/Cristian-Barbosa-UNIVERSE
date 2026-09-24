@@ -6,8 +6,10 @@ import { buildMetadata } from "@/lib/seo";
 import { formatCents } from "@/lib/format";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Música",
-  description: "El lado artístico de Cristian Barbosa: lanzamientos, backstage y acceso anticipado.",
+  title: "Música de Cristian Barbosa — lanzamientos y canciones",
+  absoluteTitle: true,
+  description:
+    "La música de Cristian Barbosa: lanzamientos, la historia detrás de cada canción, backstage y acceso anticipado.",
   path: "/musica",
 });
 

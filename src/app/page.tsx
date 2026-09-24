@@ -6,9 +6,12 @@ import { Reveal } from "@/components/ui/Reveal";
 import { InstagramEmbed } from "@/components/ui/InstagramEmbed";
 import { navItems, siteConfig } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
+import { personJsonLd, toSameAs } from "@/lib/structuredData";
+import { getPool } from "@/server/db/pool";
+import { listActiveSocialProfiles } from "@/server/db/repositories/socialProfile";
 
 export const metadata: Metadata = buildMetadata({
-  title: `${siteConfig.name} — Calistenia, shows y comunidad`,
+  title: `${siteConfig.name} — Música, shows y calistenia`,
   absoluteTitle: true,
   description: siteConfig.description,
   path: "/",
@@ -32,9 +35,39 @@ const tickerWords = [
  * label — so a new route added to site.ts shows up here framed as an
  * intention automatically, never a second copy to maintain.
  */
-export default function HomePage() {
+// Regenerated at most hourly (ISR), not per request: the only DB read
+// here is the social-profile list for Google's `sameAs` below, which
+// changes rarely — the page itself stays a cached static page. Same
+// direct server-component read /redes already does (its own comment
+// explains the exception to the Route Handler rule).
+export const revalidate = 3600;
+
+/**
+ * Cristian's public profiles, for the Person structured data's `sameAs`
+ * (src/lib/structuredData.ts). Never allowed to break the homepage: a
+ * missing/unreachable database (a build without DATABASE_URL, an outage)
+ * just means no `sameAs` this round — the layout's base Person block
+ * still ships.
+ */
+async function loadSameAs(): Promise<string[]> {
+  try {
+    return toSameAs(await listActiveSocialProfiles(getPool()));
+  } catch {
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const sameAs = await loadSameAs();
+
   return (
     <>
+      {sameAs.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd(sameAs)) }}
+        />
+      )}
       {/* Logo watermarked into the hero background — same technique
           Cristian approved on /bienvenida/[slug] ("como si perdiera
           transparencia"), reused here on the homepage hero per his
