@@ -290,3 +290,12 @@ on conflict (slug) do nothing;
 update offer set price_cents = 110000000 where slug = 'coaching-essential-quote';
 update offer set price_cents = 160000000 where slug = 'coaching-performance-quote';
 update offer set price_cents = 200000000 where slug = 'coaching-elite-quote';
+
+-- Facebook direct profile URLs (2026-09-24), Cristian's own send: the
+-- two facebook.com/share/... links were share-redirects, which Google
+-- doesn't treat as a canonical profile in the Person `sameAs`
+-- (src/lib/structuredData.ts). Tracking params (mibextid, rdid,
+-- share_url) stripped. Main = cristianbarbosa201, the same handle as his
+-- Instagram/TikTok. Applied to production directly the same day.
+update social_profile set url = 'https://www.facebook.com/cristianbarbosa201' where slug = 'facebook-main';
+update social_profile set url = 'https://www.facebook.com/cristian.barbosa.870099' where slug = 'facebook-secondary';

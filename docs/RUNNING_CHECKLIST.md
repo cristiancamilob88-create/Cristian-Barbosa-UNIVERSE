@@ -20,9 +20,8 @@ session.
   del home (`tickerWords`, src/app/page.tsx) todavía dice "ENTRENADOR"
   — Cristian dijo que no le gusta mucho ese término (quiere ser
   conocido por música, shows y contenido); preguntado si se quita, sin
-  respuesta todavía. (2) Los dos Facebook en `social_profile` son links
-  `facebook.com/share/...` — pedido el link directo del perfil para que
-  el `sameAs` de Google sea el canónico. (3) Revisar en Search Console
+  respuesta todavía. (2) CERRADO — Facebook ya usa los links directos
+  (`cristianbarbosa201`, `cristian.barbosa.870099`), aplicado en producción. (3) Revisar en Search Console
   al día siguiente: sitemap en "Correcto" e indexación del home.
 
 - **NUEVO (2026-09-18) — Agente de IA público, esquina inferior
