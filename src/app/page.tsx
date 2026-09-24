@@ -8,7 +8,8 @@ import { navItems, siteConfig } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: siteConfig.universeName,
+  title: `${siteConfig.name} — Calistenia, shows y comunidad`,
+  absoluteTitle: true,
   description: siteConfig.description,
   path: "/",
 });

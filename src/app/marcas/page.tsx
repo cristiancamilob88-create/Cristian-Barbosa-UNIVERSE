@@ -7,8 +7,9 @@ import { buildMetadata } from "@/lib/seo";
 import { goLinks } from "@/config/site";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Marcas",
-  description: "Partnerships y colaboraciones de marca con Cristian Barbosa.",
+  title: "Marcas y patrocinios",
+  description:
+    "Patrocinios, embajadorías y colaboraciones de marca con Cristian Barbosa, atleta de calistenia, entrenador y artista.",
   path: "/marcas",
 });
 

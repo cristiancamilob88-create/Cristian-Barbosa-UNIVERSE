@@ -7,7 +7,7 @@ import { getPool } from "@/server/db/pool";
 import { listActiveSocialProfiles } from "@/server/db/repositories/socialProfile";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Redes",
+  title: "Redes sociales",
   description: "Todos los canales oficiales de Cristian Barbosa, en un solo lugar.",
   path: "/redes",
 });

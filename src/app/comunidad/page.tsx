@@ -8,7 +8,7 @@ import { goLinks } from "@/config/site";
 import { formatCents } from "@/lib/format";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Comunidad",
+  title: "Comunidad de calistenia",
   description:
     "Tres formas de estar cerca de Cristian Barbosa: WhatsApp gratuito, Instagram Comunidad, o Entrena con Cristian Barbosa (Facebook Subscription).",
   path: "/comunidad",

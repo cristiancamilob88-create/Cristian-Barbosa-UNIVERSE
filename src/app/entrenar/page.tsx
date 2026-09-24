@@ -9,7 +9,7 @@ import { goLinks } from "@/config/site";
 import { formatCents } from "@/lib/format";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Entrenar",
+  title: "Entrenamiento de calistenia y coaching",
   description:
     "El camino de entrenamiento con Cristian Barbosa: comunidad gratuita, Entrena con Cristian Barbosa, curso digital y coaching personalizado.",
   path: "/entrenar",

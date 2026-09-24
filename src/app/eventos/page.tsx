@@ -7,7 +7,7 @@ import { buildMetadata } from "@/lib/seo";
 import { goLinks } from "@/config/site";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Eventos",
+  title: "Eventos y agenda",
   description: "Próximas apariciones y eventos de Cristian Barbosa.",
   path: "/eventos",
 });

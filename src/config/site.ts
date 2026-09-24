@@ -12,7 +12,7 @@ export const siteConfig = {
   universeName: "CRISTIAN BARBOSA UNIVERSE",
   tagline: "Atleta, artista, entrenador — un universo, muchas formas de entrar.",
   description:
-    "El universo digital de Cristian Barbosa: calistenia, coaching, comunidad, música, productos y shows en un solo lugar.",
+    "Cristian Barbosa: atleta de calistenia, entrenador y artista colombiano. Entrena con él, únete a la comunidad, contrata un show o escucha su música.",
   // Read through src/lib/env.ts's validated export, not process.env
   // directly (AGENTS.md's own rule) — the previous direct read bypassed
   // zod's validation/default entirely and broke the Vercel production

@@ -21,7 +21,7 @@ const actionPhotos = [
 ];
 
 export const metadata: Metadata = buildMetadata({
-  title: "Shows",
+  title: "Shows de calistenia en vivo",
   description:
     "Shows en vivo de Cristian Barbosa para empresas, colegios, ferias, festivales, productoras y eventos privados o masivos.",
   path: "/shows",

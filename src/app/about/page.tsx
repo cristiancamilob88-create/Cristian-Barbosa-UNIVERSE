@@ -7,8 +7,10 @@ import { buildMetadata } from "@/lib/seo";
 import { navItems } from "@/config/site";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Historia",
-  description: "Quién es Cristian Barbosa — la historia detrás del universo.",
+  title: "Historia de Cristian Barbosa — atleta de calistenia y artista",
+  absoluteTitle: true,
+  description:
+    "Quién es Cristian Barbosa: de entrenar calistenia en una barra a construir una comunidad, llevar la disciplina a un escenario y hacer música.",
   path: "/about",
 });
 
