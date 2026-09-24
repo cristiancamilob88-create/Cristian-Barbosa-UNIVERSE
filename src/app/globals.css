@@ -35,7 +35,10 @@
   --color-tide: #1fb8e0;
   --color-tide-deep: #0f7a99;
   --color-steel: #8a9089;
-  --color-steel-dim: #565b54;
+  /* #7b817a, not the original #565b54: that one was 2.8:1 on ink, below
+     WCAG AA (4.5:1) for the small labels/footer text that use it. This
+     clears 4.5 on both ink and ink-raised, still a step dimmer than steel. */
+  --color-steel-dim: #7b817a;
 }
 
 @theme inline {
