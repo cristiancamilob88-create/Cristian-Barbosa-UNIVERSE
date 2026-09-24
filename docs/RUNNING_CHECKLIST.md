@@ -139,8 +139,22 @@ session.
   puede, con la salvedad de que el checkout final de Shopify (en
   planes normales, no Plus) siempre pasa por un dominio de Shopify,
   no importa qué subdominio se conecte.
+  **SEO (2026-09-24):** la propiedad de Google Search Console actual es
+  de tipo "Prefijo de URL" sobre `https://cristian-barbosa-universe.vercel.app/`.
+  Al mover el dominio: crear una propiedad nueva tipo "Dominio" (DNS),
+  redirigir 301 de `.vercel.app` al dominio real, y usar la herramienta
+  "Cambio de dirección" de Search Console para no perder lo indexado.
 
 ## Closed
+
+- **Google Search Console — sitio verificado** (2026-09-24): propiedad
+  "Prefijo de URL" sobre `https://cristian-barbosa-universe.vercel.app/`
+  (no la URL de un deployment puntual — Cristian registró primero
+  `...-gm655r2hc-...vercel.app` y se corrigió). Verificada con el
+  método de archivo HTML: `public/googled21796551529be29.html` —
+  **no borrarlo**, Google lo revisa periódicamente y la propiedad se
+  pierde si desaparece. `sitemap.xml` (11 rutas públicas) confirmado
+  en vivo; Cristian lo envía desde Search Console → Sitemaps.
 
 - **Shopify/Dropify/Mercado Pago — investigación completa, camino
   confirmado** (2026-09-17/18): reemplaza la integración directa de
