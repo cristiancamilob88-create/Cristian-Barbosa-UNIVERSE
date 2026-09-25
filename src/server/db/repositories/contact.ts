@@ -24,7 +24,13 @@ export interface ContactRow {
  */
 export async function findOrCreateContact(
   client: PoolClient,
-  input: { email: string | null; phone: string | null; name: string | null },
+  input: {
+    email: string | null;
+    phone: string | null;
+    name: string | null;
+    /** Privacy-policy version the person just authorized (Ley 1581/2012) — recorded with now() as proof. Omit when no authorization was given in this request. */
+    consentVersion?: string | null;
+  },
   visitor: VisitorRow,
 ): Promise<{ contact: ContactRow; created: boolean }> {
   const email = input.email?.trim() || null;
@@ -58,7 +64,9 @@ export async function findOrCreateContact(
          last_touch_term = $10,
          last_touch_referrer = $11,
          last_touch_landing_path = $12,
-         last_touch_captured_at = $13
+         last_touch_captured_at = $13,
+         data_consent_at = case when $14::text is not null then now() else contact.data_consent_at end,
+         data_consent_version = coalesce($14::text, contact.data_consent_version)
        where id = $1
        returning id, name, email, phone, status`,
       [
@@ -75,6 +83,7 @@ export async function findOrCreateContact(
         visitor.last_touch_referrer,
         visitor.last_touch_landing_path,
         visitor.last_touch_captured_at,
+        input.consentVersion ?? null,
       ],
     );
     return { contact: updated.rows[0], created: false };
@@ -88,11 +97,13 @@ export async function findOrCreateContact(
        first_touch_referrer, first_touch_landing_path, first_touch_captured_at,
        last_touch_source_id, last_touch_campaign_id, last_touch_qr_id,
        last_touch_medium, last_touch_content, last_touch_term,
-       last_touch_referrer, last_touch_landing_path, last_touch_captured_at
+       last_touch_referrer, last_touch_landing_path, last_touch_captured_at,
+       data_consent_at, data_consent_version
      ) values (
        $1, $2, $3,
        $4, $5, $6, $7, $8, $9, $10, $11, $12,
-       $4, $5, $6, $7, $8, $9, $10, $11, $12
+       $4, $5, $6, $7, $8, $9, $10, $11, $12,
+       case when $13::text is not null then now() end, $13::text
      )
      returning id, name, email, phone, status`,
     [
@@ -108,6 +119,7 @@ export async function findOrCreateContact(
       visitor.first_touch_referrer ?? visitor.last_touch_referrer,
       visitor.first_touch_landing_path ?? visitor.last_touch_landing_path,
       visitor.first_touch_captured_at ?? visitor.last_touch_captured_at,
+      input.consentVersion ?? null,
     ],
   );
   return { contact: created.rows[0], created: true };

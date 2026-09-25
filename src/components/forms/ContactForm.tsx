@@ -2,7 +2,9 @@
 
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
+import Link from "next/link";
 import { track } from "@/lib/analytics";
+import { legalEntity } from "@/config/legal";
 
 const topics = [
   { value: "entrenar", label: "Entrenamiento" },
@@ -30,6 +32,7 @@ const clientSchema = z.object({
     .regex(/^[0-9+()\s-]+$/, "Solo números, espacios y +()- ."),
   topic: z.enum(topics.map((t) => t.value) as [string, ...string[]]),
   message: z.string().trim().max(2000).optional(),
+  consent: z.literal(true, { error: "Para enviar, autoriza el tratamiento de tus datos." }),
 });
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -50,6 +53,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
       topic: String(formData.get("topic") ?? "general"),
       message: String(formData.get("message") ?? ""),
       company: String(formData.get("company") ?? ""), // honeypot
+      consent: formData.get("consent") === "on",
     };
 
     const parsed = clientSchema.safeParse(values);
@@ -172,6 +176,27 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
           maxLength={2000}
           className="border border-steel-dim/50 bg-transparent px-4 py-3 text-chalk placeholder:text-steel-dim focus:border-ember focus:outline-none"
         />
+      </div>
+
+      {/* Mandatory data-processing authorization (Ley 1581 de 2012).
+          Unchecked by default — pre-ticked consent isn't valid consent.
+          /api/lead rejects the request without it and stores the date. */}
+      <div className="flex items-start gap-3">
+        <input
+          id="consent"
+          name="consent"
+          type="checkbox"
+          required
+          className="mt-1 h-4 w-4 shrink-0 accent-ember"
+        />
+        <label htmlFor="consent" className="text-sm text-steel">
+          Autorizo a {legalEntity.name} a tratar mis datos personales para
+          responder mi solicitud y enviarme información relacionada, según la{" "}
+          <Link href="/privacidad" target="_blank" className="text-chalk underline underline-offset-4 hover:text-ember">
+            política de privacidad
+          </Link>
+          .
+        </label>
       </div>
 
       {/* Honeypot — hidden from real visitors, catches basic bots. */}

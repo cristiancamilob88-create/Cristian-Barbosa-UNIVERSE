@@ -16,14 +16,14 @@ session.
 
 ## Open
 
-- **Cumplimiento legal — BLOQUEANTE antes de pauta/ventas** (2026-09-24,
-  a partir de un checklist que Cristian compartió): faltan `/privacidad`
-  (Ley 1581/2012 + cookies), `/terminos` (Ley 1480: compras, derecho de
-  retracto 5 días hábiles, reembolsos, reversión de pago), casilla de
-  autorización obligatoria en `ContactForm` con fecha guardada como
-  prueba (necesita migración nueva), y datos del negocio en el footer.
-  Esperando de Cristian: nombre legal completo, cédula/NIT, ciudad,
-  correo para solicitudes de datos, teléfono. No inventar ninguno.
+- **Cumplimiento legal — falta solo la ciudad** (2026-09-24/25): hecho
+  `/privacidad` (Ley 1581 + cookies), `/terminos` (Ley 1480: retracto,
+  reversión de pago, garantía), casilla de autorización obligatoria con
+  `contact.data_consent_at`/`data_consent_version` (migración 0015, en
+  producción) y datos del vendedor en el footer (src/config/legal.ts).
+  Pendiente: ciudad/departamento de domicilio de Cristian (no la dio) —
+  agregar a `legalEntity`. Contactos anteriores al 2026-09-25 no tienen
+  autorización registrada (columna en null, a propósito).
 
 - **SEO — pendientes pequeños** (2026-09-24): (1) CERRADO — "ENTRENADOR" reemplazado por "CREADOR" en la franja animada
   del home (`tickerWords`, src/app/page.tsx) todavía dice "ENTRENADOR"

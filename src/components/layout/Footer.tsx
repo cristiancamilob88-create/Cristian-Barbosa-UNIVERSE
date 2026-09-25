@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { GoLink } from "@/components/ui/GoLink";
 import { navItems, secondaryNavItems, siteConfig, goLinks } from "@/config/site";
+import { legalEntity, legalLinks } from "@/config/legal";
 
 export function Footer() {
   return (
@@ -73,9 +74,25 @@ export function Footer() {
       </Container>
 
       <Container className="flex flex-wrap items-center justify-between gap-2 border-t border-steel-dim/40 py-6">
-        <p className="text-xs text-steel-dim">
-          © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
-        </p>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-steel-dim">
+            © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
+          </p>
+          {/* Seller/data-controller identity — required on a site that
+              sells online and collects personal data (Ley 1480 art. 50,
+              Ley 1581). Source: src/config/legal.ts. */}
+          <p className="text-xs text-steel-dim">
+            {legalEntity.name} · {legalEntity.documentLabel} {legalEntity.documentNumber} ·{" "}
+            {legalEntity.country} · {legalEntity.email}
+          </p>
+          <nav aria-label="Legal" className="flex flex-wrap gap-4">
+            {legalLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="text-xs text-steel-dim hover:text-steel">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
         {/*
           Admin login link, added 2026-08-25 at Cristian's own request —
           he needs a findable way back into /admin without remembering

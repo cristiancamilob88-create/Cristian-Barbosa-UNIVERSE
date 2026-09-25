@@ -33,7 +33,8 @@ function leadRequest(
   return new NextRequest("https://cristianbarbosa.test/api/lead", {
     method: "POST",
     headers: { "content-type": "application/json", cookie },
-    body: JSON.stringify(body),
+    // Real submissions always carry the mandatory Ley 1581 authorization.
+    body: JSON.stringify({ ...(body as Record<string, unknown>), consent: true }),
   });
 }
 

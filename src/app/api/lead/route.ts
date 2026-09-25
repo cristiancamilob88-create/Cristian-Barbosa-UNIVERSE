@@ -10,6 +10,7 @@ import { createLead } from "@/server/db/repositories/lead";
 import { createB2bOpportunity, type B2bCategory } from "@/server/db/repositories/b2bOpportunity";
 import { recordInteraction } from "@/server/db/repositories/interaction";
 import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
+import { privacyPolicyVersion } from "@/config/legal";
 import { runAfterResponse } from "@/server/afterResponse";
 import { sendWelcomeEmail } from "@/server/notifications/email";
 import { sendWelcomeWhatsApp } from "@/server/notifications/whatsapp";
@@ -61,6 +62,10 @@ const leadSchema = z.object({
   // check below to be silently dropped; rejecting it at the schema level
   // with a 400 would tell a bot exactly which field to leave empty.
   company: z.string().max(200).optional().default(""),
+  // Mandatory data-processing authorization (Ley 1581 de 2012) — the
+  // checkbox in ContactForm. Enforced here, not just in the browser: a
+  // lead without it is rejected, never stored.
+  consent: z.literal(true),
 });
 
 /**
@@ -138,7 +143,7 @@ export async function POST(request: NextRequest) {
 
       const { contact, created } = await findOrCreateContact(
         client,
-        { email, phone, name },
+        { email, phone, name, consentVersion: privacyPolicyVersion },
         visitorCtx.visitor,
       );
       await linkVisitorToContact(client, visitorCtx.visitorId, contact.id);

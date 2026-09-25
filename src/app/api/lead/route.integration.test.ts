@@ -1,13 +1,24 @@
 import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
+import { privacyPolicyVersion } from "@/config/legal";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { getTestPool, resetActivityTables, closeTestPool } from "@/server/db/testHelpers.integration";
 import { POST } from "./route";
 
 // Each test gets its own synthetic IP so the module-level rate limiter
 // (keyed by x-forwarded-for) never leaks state between tests.
-function makeRequest(body: unknown, options: { cookie?: string; ip?: string } = {}): NextRequest {
+/**
+ * Every real submission carries the mandatory data-processing
+ * authorization (Ley 1581 — the ContactForm checkbox), so it's added by
+ * default; a test that sets `consent` itself (or omits it via
+ * `withoutConsent`) exercises the rejection path.
+ */
+function makeRequest(
+  body: Record<string, unknown>,
+  options: { cookie?: string; ip?: string; withoutConsent?: boolean } = {},
+): NextRequest {
   const ip = options.ip ?? randomUUID();
+  const payload = options.withoutConsent || "consent" in body ? body : { ...body, consent: true };
   return new NextRequest("https://cristianbarbosa.test/api/lead", {
     method: "POST",
     headers: {
@@ -15,7 +26,7 @@ function makeRequest(body: unknown, options: { cookie?: string; ip?: string } = 
       "x-forwarded-for": ip,
       ...(options.cookie ? { cookie: options.cookie } : {}),
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
 }
 
@@ -68,6 +79,30 @@ describe("POST /api/lead", () => {
     expect(response.status).toBe(200);
     const rows = await getTestPool().query("select count(*) from lead");
     expect(Number(rows.rows[0].count)).toBe(0);
+  });
+
+  it("rejects a submission without the data-processing authorization and writes nothing (Ley 1581)", async () => {
+    const email = `no-consent-${Date.now()}@example.com`;
+    const withoutIt = await POST(
+      makeRequest({ name: "Ana", email, phone: testPhone(), topic: "general" }, { withoutConsent: true }),
+    );
+    expect(withoutIt.status).toBe(400);
+    const unchecked = await POST(makeRequest({ name: "Ana", email, phone: testPhone(), topic: "general", consent: false }));
+    expect(unchecked.status).toBe(400);
+    const rows = await getTestPool().query("select id from contact where email = $1", [email]);
+    expect(rows.rowCount).toBe(0);
+  });
+
+  it("records when and which policy version the contact authorized", async () => {
+    const email = `consent-${Date.now()}@example.com`;
+    const response = await POST(makeRequest({ name: "Ana", email, phone: testPhone(), topic: "general" }));
+    expect(response.status).toBe(200);
+    const rows = await getTestPool().query(
+      "select data_consent_at, data_consent_version from contact where email = $1",
+      [email],
+    );
+    expect(Number.isNaN(Date.parse(String(rows.rows[0].data_consent_at)))).toBe(false);
+    expect(rows.rows[0].data_consent_version).toBe(privacyPolicyVersion);
   });
 
   it("creates a contact (with phone persisted), assigns the mapped interest, and creates a lead end to end", async () => {
