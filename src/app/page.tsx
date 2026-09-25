@@ -4,6 +4,7 @@ import { TrackedLink } from "@/components/ui/TrackedLink";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { InstagramEmbed } from "@/components/ui/InstagramEmbed";
+import { ParticleBody } from "@/components/ui/ParticleBody";
 import { navItems, siteConfig } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
 import { personJsonLd, toSameAs } from "@/lib/structuredData";
@@ -123,6 +124,20 @@ export default async function HomePage() {
           ))}
         </div>
       </div>
+
+      {/* Signature 3D-feel piece (2026-09-25, Etapa A): his body breaks
+          into a cloud of light as you scroll, reassembles on the way
+          back. See ParticleBody's own comment. */}
+      <ParticleBody>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-tide">Cristian Barbosa</p>
+        <p className="mt-4 font-display text-5xl font-black uppercase leading-[0.95] tracking-tight text-chalk sm:text-7xl">
+          Artista.
+          <br />
+          Performer.
+          <br />
+          <span className="text-ember">Atleta.</span>
+        </p>
+      </ParticleBody>
 
       {/* Real video, Cristian's own reel with Westcol (2026-08-28) —
           confirmed with him it's a real, consented collab before

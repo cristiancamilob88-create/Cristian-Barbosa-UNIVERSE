@@ -220,6 +220,13 @@ instruction to avoid "diseño genérico de SaaS":
   homepage hero) as a separate follow-up, not sitewide 3D — flagged
   explicitly as a mobile-performance risk given his traffic comes
   mostly from Instagram/WhatsApp on phones.
+- **Motion, 2026-09-25**: `MagicClick` (global wand-spark burst on every
+  click/tap, canvas, no library) and `ParticleBody` (Etapa A of the
+  "body coming apart" piece: his background-removed photo sampled into
+  9k–18k WebGL points that scatter into a 3D-feeling cloud on scroll,
+  raw WebGL, no three.js) on the homepage. Both off under
+  prefers-reduced-motion, both idle-free. Etapa B (a real 3D body model,
+  three.js) still needs a scan or generated mesh — not started.
 
 ## 9. Security
 
