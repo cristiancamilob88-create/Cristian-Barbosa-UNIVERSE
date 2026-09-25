@@ -4,6 +4,7 @@ import { Big_Shoulders, Inter, JetBrains_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
+import { MagicClick } from "@/components/ui/MagicClick";
 import { siteConfig } from "@/config/site";
 import { personJsonLd, websiteJsonLd } from "@/lib/structuredData";
 import "./globals.css";
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <MagicClick />
       </body>
     </html>
   );
