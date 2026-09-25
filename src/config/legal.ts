@@ -16,6 +16,7 @@ export const legalEntity = {
   documentNumber: "1025520594",
   email: "cristiancamilob88@gmail.com",
   phoneDisplay: "+57 302 634 2927",
+  city: "Envigado, Antioquia",
   country: "Colombia",
 } as const;
 

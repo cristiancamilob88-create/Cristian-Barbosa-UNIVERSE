@@ -16,7 +16,7 @@ session.
 
 ## Open
 
-- **Cumplimiento legal — falta solo la ciudad** (2026-09-24/25): hecho
+- **Cumplimiento legal — COMPLETO** (2026-09-24/25; domicilio Envigado, Antioquia agregado): hecho
   `/privacidad` (Ley 1581 + cookies), `/terminos` (Ley 1480: retracto,
   reversión de pago, garantía), casilla de autorización obligatoria con
   `contact.data_consent_at`/`data_consent_version` (migración 0015, en

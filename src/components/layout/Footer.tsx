@@ -83,7 +83,7 @@ export function Footer() {
               Ley 1581). Source: src/config/legal.ts. */}
           <p className="text-xs text-steel-dim">
             {legalEntity.name} · {legalEntity.documentLabel} {legalEntity.documentNumber} ·{" "}
-            {legalEntity.country} · {legalEntity.email}
+            {legalEntity.city}, {legalEntity.country} · {legalEntity.email}
           </p>
           <nav aria-label="Legal" className="flex flex-wrap gap-4">
             {legalLinks.map((link) => (

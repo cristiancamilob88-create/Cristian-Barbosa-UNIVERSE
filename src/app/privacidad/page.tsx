@@ -34,7 +34,7 @@ export default function PrivacidadPage() {
         <LegalSection title="1. Responsable del tratamiento">
           <p>
             <strong>{legalEntity.name}</strong>, persona natural, {legalEntity.documentLabel}{" "}
-            {legalEntity.documentNumber}, {legalEntity.country}.
+            {legalEntity.documentNumber}, domicilio en {legalEntity.city}, {legalEntity.country}.
           </p>
           <p>
             Correo: <strong>{legalEntity.email}</strong> · Teléfono / WhatsApp:{" "}

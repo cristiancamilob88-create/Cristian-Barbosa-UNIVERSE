@@ -32,7 +32,7 @@ export default function TerminosPage() {
         <LegalSection title="1. Quién vende">
           <p>
             <strong>{legalEntity.name}</strong>, persona natural, {legalEntity.documentLabel}{" "}
-            {legalEntity.documentNumber}, {legalEntity.country}. Correo <strong>{legalEntity.email}</strong>,
+            {legalEntity.documentNumber}, domicilio en {legalEntity.city}, {legalEntity.country}. Correo <strong>{legalEntity.email}</strong>,
             teléfono / WhatsApp <strong>{legalEntity.phoneDisplay}</strong>.
           </p>
           <p>Al usar este sitio o comprar a través de él aceptas estos términos.</p>
