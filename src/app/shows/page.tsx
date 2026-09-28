@@ -6,6 +6,9 @@ import { TrackedLink } from "@/components/ui/TrackedLink";
 import { GoLink } from "@/components/ui/GoLink";
 import { buildMetadata } from "@/lib/seo";
 import { goLinks } from "@/config/site";
+import { pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { PastShowCard } from "@/components/shows/PastShowCard";
+import Link from "next/link";
 
 /**
  * Real photos from Cristian's own shows (2026-08-28) — confirmed with
@@ -23,7 +26,7 @@ const actionPhotos = [
 export const metadata: Metadata = buildMetadata({
   title: "Shows de calistenia en vivo",
   description:
-    "Shows en vivo de Cristian Barbosa para empresas, colegios, ferias, festivales, productoras y eventos privados o masivos.",
+    "Shows en vivo de calistenia y circo de Cristian Barbosa, desde Envigado para Medellín y toda Antioquia: empresas, colegios, ferias, festivales, municipios y eventos privados.",
   path: "/shows",
 });
 
@@ -95,7 +98,7 @@ export default function ShowsPage() {
           <PageHero
             tag="SHOWS"
             title="Shows"
-            description="Un show construido sobre disciplina física real, adaptado al formato de tu evento o institución."
+            description="Un show construido sobre disciplina física real, adaptado al formato de tu evento o institución — desde Envigado para Medellín, el Valle de Aburrá y los municipios de Antioquia."
             // Neon glow, Cristian's own request 2026-08-28 ("tipo efecto
             // neón") — a layered ember text-shadow (tight bright core +
             // two wider, softer halos), the classic neon-tube look. Ember
@@ -147,6 +150,28 @@ export default function ShowsPage() {
             >
               Escríbeme por WhatsApp
             </GoLink>
+          </div>
+        </Container>
+      </section>
+      {/* Proof first (2026-09-28): real shows already done, each with
+          its own page — src/config/pastShows.ts. */}
+      <section className="border-t border-steel-dim/40 py-16">
+        <Container>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Shows realizados</p>
+              <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-chalk">
+                Donde ya ha estado
+              </h2>
+            </div>
+            <Link href={pastShowsIndexPath} className="text-sm text-steel underline underline-offset-4 hover:text-chalk">
+              Ver todos →
+            </Link>
+          </div>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            {pastShows.map((show) => (
+              <PastShowCard key={show.slug} show={show} />
+            ))}
           </div>
         </Container>
       </section>

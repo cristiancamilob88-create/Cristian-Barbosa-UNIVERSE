@@ -23,6 +23,10 @@ export function personJsonLd(sameAs: string[] = []) {
     description: siteConfig.description,
     jobTitle: "Artista, performer y creador de contenido",
     nationality: { "@type": "Country", name: "Colombia" },
+    homeLocation: {
+      "@type": "Place",
+      address: { "@type": "PostalAddress", addressLocality: "Envigado", addressRegion: "Antioquia", addressCountry: "CO" },
+    },
     knowsAbout: ["Música", "Shows en vivo", "Creación de contenido", "Calistenia"],
     subjectOf: pressCoverage.map((item) => ({
       "@type": "NewsArticle",

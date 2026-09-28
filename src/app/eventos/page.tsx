@@ -5,10 +5,12 @@ import { TrackedLink } from "@/components/ui/TrackedLink";
 import { GoLink } from "@/components/ui/GoLink";
 import { buildMetadata } from "@/lib/seo";
 import { goLinks } from "@/config/site";
+import Link from "next/link";
+import { pastShows, pastShowPath } from "@/config/pastShows";
 
 export const metadata: Metadata = buildMetadata({
   title: "Eventos y agenda",
-  description: "Próximas apariciones y eventos de Cristian Barbosa.",
+  description: "Agenda y presentaciones de Cristian Barbosa en Envigado, Medellín y municipios de Antioquia.",
   path: "/eventos",
 });
 
@@ -33,29 +35,9 @@ const categories = [
   { title: "Próximos", detail: "Fechas confirmadas, todavía sin publicar." },
 ];
 
-interface PastPresentation {
-  place: string;
-  date: string;
-  description: string;
-}
-
-/**
- * Real entries only, added the same day something actually happened —
- * never scheduled or written ahead of time (same "NO inventar eventos"
- * rule as `categories` above). Cristian's own ask, 2026-08-25: document
- * real appearances ("ya estuvimos en el colegio de la Leticia, en tal
- * municipio, haciendo tal") — he explicitly chose reusing this existing
- * "Presentaciones pasadas" category over a new "Noticias" section, so
- * this is that category's real content, not a new content type. Starts
- * empty on purpose: the Colegio de la Leticia — Envigado visit
- * (2026-08-27, docs/RUNNING_CHECKLIST.md) hasn't happened yet as of
- * this commit — its entry lands here the day it actually does, with
- * whatever really happened, not a placeholder written in advance.
- * A plain array, not a table (same reasoning as the comment above) —
- * revisit once there are enough real entries that editing this file by
- * hand stops being the fastest way to add one.
- */
-const pastPresentations: PastPresentation[] = [];
+// "Presentaciones pasadas" now reads the same real list /shows uses
+// (src/config/pastShows.ts, 2026-09-28) — one source, each show with its
+// own page, instead of a second hand-kept array here.
 
 export default function EventosPage() {
   return (
@@ -81,19 +63,20 @@ export default function EventosPage() {
               Presentaciones pasadas
             </h2>
             <p className="mt-2 text-sm text-steel">Historial de apariciones anteriores.</p>
-            {pastPresentations.length === 0 ? (
-              <p className="mt-3 text-xs uppercase tracking-widest text-steel-dim">Todavía sin publicar</p>
-            ) : (
-              <ul className="mt-4 flex flex-col gap-4">
-                {pastPresentations.map((entry) => (
-                  <li key={`${entry.place}-${entry.date}`} className="border-t border-steel-dim/40 pt-4 first:border-t-0 first:pt-0">
-                    <p className="font-mono text-xs uppercase tracking-widest text-tide">{entry.date}</p>
-                    <p className="mt-1 font-display text-base font-black uppercase tracking-tight text-chalk">{entry.place}</p>
-                    <p className="mt-1 text-sm text-steel">{entry.description}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <ul className="mt-4 flex flex-col gap-4">
+              {pastShows.map((show) => (
+                <li key={show.slug} className="border-t border-steel-dim/40 pt-4 first:border-t-0 first:pt-0">
+                  <p className="font-mono text-xs uppercase tracking-widest text-tide">{show.whenLabel}</p>
+                  <Link
+                    href={pastShowPath(show.slug)}
+                    className="mt-1 block font-display text-base font-black uppercase tracking-tight text-chalk hover:text-ember"
+                  >
+                    {show.town}, {show.region} →
+                  </Link>
+                  <p className="mt-1 text-sm text-steel">{show.summary}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         </Container>
       </section>
