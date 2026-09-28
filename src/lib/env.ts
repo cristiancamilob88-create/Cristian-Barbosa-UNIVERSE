@@ -11,6 +11,18 @@ import { z } from "zod";
 const envSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().default("https://cristianbarbosa.com"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  /**
+   * Google Maps Platform browser key — address autocomplete + map in the
+   * shows request form (src/components/forms/AddressAutocomplete.tsx).
+   * Optional: unset, the form shows a plain "where is the event" text
+   * field instead. A browser key is public by nature (it ships in the
+   * page); it's made safe in Google Cloud, not by hiding it — restrict
+   * it to this site's domains (HTTP referrers) and to the Maps
+   * JavaScript + Places APIs only. See .env.example.
+   */
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().min(20).optional(),
+  /** Map ID for the vector map + advanced marker; Google's DEMO_MAP_ID works until a real one is created. */
+  NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: z.string().min(1).default("DEMO_MAP_ID"),
 });
 
 export const env = envSchema.parse({
@@ -26,4 +38,6 @@ export const env = envSchema.parse({
   // validated export — see src/config/site.ts's own comment.
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || undefined,
   NODE_ENV: process.env.NODE_ENV,
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || undefined,
+  NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
 });

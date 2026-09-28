@@ -5,6 +5,8 @@ import { z } from "zod";
 import Link from "next/link";
 import { track } from "@/lib/analytics";
 import { legalEntity } from "@/config/legal";
+import { AddressAutocomplete } from "@/components/forms/AddressAutocomplete";
+import type { EventAddress } from "@/lib/eventAddress";
 
 const topics = [
   { value: "entrenar", label: "Entrenamiento" },
@@ -40,6 +42,10 @@ type Status = "idle" | "submitting" | "success" | "error";
 export function ContactForm({ initialTopic }: { initialTopic: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Topic is tracked so the event-address block only appears for show
+  // requests — the one topic where "where" changes the quote.
+  const [topic, setTopic] = useState(initialTopic);
+  const [eventAddress, setEventAddress] = useState<EventAddress | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,6 +60,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
       message: String(formData.get("message") ?? ""),
       company: String(formData.get("company") ?? ""), // honeypot
       consent: formData.get("consent") === "on",
+      ...(topic === "shows" && eventAddress ? { eventAddress } : {}),
     };
 
     const parsed = clientSchema.safeParse(values);
@@ -154,7 +161,8 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
         <select
           id="topic"
           name="topic"
-          defaultValue={initialTopic}
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
           className="border border-steel-dim/50 bg-ink px-4 py-3 text-chalk focus:border-ember focus:outline-none"
         >
           {topics.map((topic) => (
@@ -164,6 +172,8 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
           ))}
         </select>
       </div>
+
+      {topic === "shows" && <AddressAutocomplete onChange={setEventAddress} />}
 
       <div className="flex flex-col gap-2">
         <label htmlFor="message" className="font-mono text-xs uppercase tracking-widest text-steel">

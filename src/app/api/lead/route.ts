@@ -11,6 +11,7 @@ import { createB2bOpportunity, type B2bCategory } from "@/server/db/repositories
 import { recordInteraction } from "@/server/db/repositories/interaction";
 import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
 import { privacyPolicyVersion } from "@/config/legal";
+import { eventAddressSchema } from "@/lib/eventAddress";
 import { runAfterResponse } from "@/server/afterResponse";
 import { sendWelcomeEmail } from "@/server/notifications/email";
 import { sendWelcomeWhatsApp } from "@/server/notifications/whatsapp";
@@ -66,6 +67,9 @@ const leadSchema = z.object({
   // checkbox in ContactForm. Enforced here, not just in the browser: a
   // lead without it is rejected, never stored.
   consent: z.literal(true),
+  // Where the event is — only sent for "shows" (AddressAutocomplete),
+  // validated by the same schema the browser uses.
+  eventAddress: eventAddressSchema.optional(),
 });
 
 /**
@@ -136,6 +140,8 @@ export async function POST(request: NextRequest) {
   }
 
   const { name, email, phone, topic, message } = parsed.data;
+  // Only a shows request carries an event location; ignore it otherwise.
+  const eventAddress = topic === "shows" ? parsed.data.eventAddress : undefined;
 
   try {
     const { visitorId, isNewVisitorId } = await withTransaction(async (client) => {
@@ -169,6 +175,7 @@ export async function POST(request: NextRequest) {
         interestId,
         topicRaw: topic,
         message: message || null,
+        eventAddress: eventAddress ?? null,
         touch: visitorCtx.touch,
       });
 

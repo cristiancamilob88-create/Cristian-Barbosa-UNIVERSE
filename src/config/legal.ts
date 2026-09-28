@@ -25,7 +25,7 @@ export const legalEntity = {
  * contact (contact.data_consent_version) so it's always provable which
  * version someone authorized.
  */
-export const privacyPolicyVersion = "2026-09-24";
+export const privacyPolicyVersion = "2026-09-28";
 export const termsVersion = "2026-09-24";
 
 export const legalLinks = [

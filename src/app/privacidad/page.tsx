@@ -46,7 +46,8 @@ export default function PrivacidadPage() {
           <ul>
             <li>
               <strong>Los que tú nos das</strong> en el formulario de contacto: nombre, correo, celular,
-              el motivo de tu mensaje y el mensaje (opcional).
+              el motivo de tu mensaje y el mensaje (opcional). Si solicitas un show, también el lugar del
+              evento (opcional), que puedes buscar en un mapa de Google.
             </li>
             <li>
               <strong>Datos de navegación</strong>: páginas que visitas en este sitio, de qué red social,
@@ -93,6 +94,7 @@ export default function PrivacidadPage() {
             <li><strong>Supabase</strong> — base de datos donde se guardan los contactos y las estadísticas.</li>
             <li><strong>Google (Gmail)</strong> — envío de correos.</li>
             <li><strong>Meta (WhatsApp)</strong> — mensajes de WhatsApp.</li>
+            <li><strong>Google Maps</strong> — buscador de direcciones y mapa del formulario de shows. Lo que escribes en ese buscador lo procesa Google.</li>
             <li><strong>Mercado Pago</strong> y otras pasarelas o tiendas que se usen para cobrar — procesamiento de pagos.</li>
           </ul>
           <p>Al autorizar el tratamiento, autorizas también esta transferencia a dichos proveedores.</p>

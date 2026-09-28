@@ -19,15 +19,19 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      // Google Maps Platform hosts (address autocomplete + map in the
+      // shows form, 2026-09-28) — the exact list Google documents for
+      // the Maps JavaScript API under a CSP. Nothing else added.
+      "script-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.googleusercontent.com blob:",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "img-src 'self' data: https:",
+      "img-src 'self' data: https: blob:",
       "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self'",
+      "connect-src 'self' https://*.googleapis.com https://*.google.com https://*.gstatic.com data: blob:",
+      "worker-src 'self' blob:",
       // Only Instagram's own /embed iframe (InstagramEmbed.tsx) — a
       // plain iframe, not a vendor SDK. Added with the first real use,
       // 2026-08-25.
-      "frame-src https://www.instagram.com",
+      "frame-src https://www.instagram.com https://*.google.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },

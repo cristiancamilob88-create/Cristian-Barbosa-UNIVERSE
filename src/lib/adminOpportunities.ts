@@ -17,6 +17,14 @@ export interface B2bOpportunityRow {
   contactPhone: string | null;
   sourceLabel: string | null;
   campaignLabel: string | null;
+  eventAddress: {
+    line: string;
+    detail: string | null;
+    city: string | null;
+    region: string | null;
+    latitude: number | null;
+    longitude: number | null;
+  } | null;
   createdAt: string;
 }
 

@@ -12,6 +12,15 @@ export interface B2bOpportunityDetail {
   contactPhone: string | null;
   sourceLabel: string | null;
   campaignLabel: string | null;
+  /** Where the requested event is, when the shows form captured it (migration 0016). */
+  eventAddress: {
+    line: string;
+    detail: string | null;
+    city: string | null;
+    region: string | null;
+    latitude: number | null;
+    longitude: number | null;
+  } | null;
   createdAt: string;
 }
 
@@ -46,16 +55,36 @@ export async function getRecentB2bOpportunities(db: Pool | PoolClient, limit = 1
     contact_phone: string | null;
     source_label: string | null;
     campaign_label: string | null;
+    event_address_line: string | null;
+    event_address_detail: string | null;
+    event_city: string | null;
+    event_region: string | null;
+    event_latitude: number | null;
+    event_longitude: number | null;
     created_at: string;
   }>(
     `select o.id, o.category, o.stage, o.estimated_value_cents, o.notes,
             c.name as contact_name, c.email as contact_email, c.phone as contact_phone,
             source.label as source_label, campaign.name as campaign_label,
+            ev.event_address_line, ev.event_address_detail, ev.event_city, ev.event_region,
+            ev.event_latitude, ev.event_longitude,
             o.created_at
      from b2b_opportunity o
      join contact c on c.id = o.contact_id
      left join source on source.id = o.source_id
      left join campaign on campaign.id = o.campaign_id
+     -- The event location lives on the lead written in the same
+     -- /api/lead request as this opportunity (migration 0016).
+     left join lateral (
+       select l.event_address_line, l.event_address_detail, l.event_city, l.event_region,
+              l.event_latitude, l.event_longitude
+       from lead l
+       where l.contact_id = o.contact_id
+         and l.event_address_line is not null
+         and l.created_at between o.created_at - interval '1 minute' and o.created_at + interval '1 minute'
+       order by l.created_at desc
+       limit 1
+     ) ev on true
      order by o.created_at desc
      limit $1`,
     [limit],
@@ -72,6 +101,16 @@ export async function getRecentB2bOpportunities(db: Pool | PoolClient, limit = 1
     contactPhone: row.contact_phone,
     sourceLabel: row.source_label,
     campaignLabel: row.campaign_label,
+    eventAddress: row.event_address_line
+      ? {
+          line: row.event_address_line,
+          detail: row.event_address_detail,
+          city: row.event_city,
+          region: row.event_region,
+          latitude: row.event_latitude === null ? null : Number(row.event_latitude),
+          longitude: row.event_longitude === null ? null : Number(row.event_longitude),
+        }
+      : null,
     createdAt: row.created_at,
   }));
 }

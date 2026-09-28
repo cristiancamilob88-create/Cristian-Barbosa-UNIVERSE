@@ -67,6 +67,25 @@ export function NegociosPageContent() {
         { header: "Email", render: (r) => r.contactEmail ?? "—" },
         { header: "Teléfono", render: (r) => r.contactPhone ?? "—" },
         { header: "Mensaje", render: (r) => r.notes ?? "—" },
+        {
+          header: "Lugar del evento",
+          render: (r) => {
+            const a = r.eventAddress;
+            if (!a) return "—";
+            const text = [a.line, a.detail, a.city, a.region].filter(Boolean).join(", ");
+            if (a.latitude === null || a.longitude === null) return text;
+            return (
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${a.latitude},${a.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4 hover:text-ember"
+              >
+                {text}
+              </a>
+            );
+          },
+        },
         { header: "Campaña", render: (r) => r.campaignLabel ?? "—" },
         { header: "Fuente", render: (r) => r.sourceLabel ?? "—" },
         {

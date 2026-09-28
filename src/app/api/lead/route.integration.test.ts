@@ -105,6 +105,62 @@ describe("POST /api/lead", () => {
     expect(rows.rows[0].data_consent_version).toBe(privacyPolicyVersion);
   });
 
+  it("stores the event address (street, city, region, postal code, country, coordinates) on a shows lead", async () => {
+    const email = `event-${Date.now()}@example.com`;
+    const response = await POST(
+      makeRequest({
+        name: "Ana",
+        email,
+        phone: testPhone(),
+        topic: "shows",
+        eventAddress: {
+          line: "Carrera 43A #1-50",
+          detail: "Salón 2",
+          city: "Envigado",
+          region: "Antioquia",
+          postalCode: "055422",
+          country: "Colombia",
+          latitude: 6.17,
+          longitude: -75.58,
+          placeId: "abc",
+        },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const rows = await getTestPool().query(
+      `select l.event_address_line, l.event_address_detail, l.event_city, l.event_region, l.event_postal_code,
+              l.event_country, l.event_latitude, l.event_longitude, l.event_place_id
+       from lead l join contact c on c.id = l.contact_id where c.email = $1`,
+      [email],
+    );
+    expect(rows.rows[0]).toMatchObject({
+      event_address_line: "Carrera 43A #1-50",
+      event_address_detail: "Salón 2",
+      event_city: "Envigado",
+      event_region: "Antioquia",
+      event_postal_code: "055422",
+      event_country: "Colombia",
+      event_place_id: "abc",
+    });
+    expect(Number(rows.rows[0].event_latitude)).toBeCloseTo(6.17);
+    expect(Number(rows.rows[0].event_longitude)).toBeCloseTo(-75.58);
+  });
+
+  it("ignores an event address on a non-shows topic, and rejects impossible coordinates", async () => {
+    const email = `event-ignored-${Date.now()}@example.com`;
+    await POST(makeRequest({ name: "Ana", email, phone: testPhone(), topic: "entrenar", eventAddress: { line: "Calle 1 #2-3" } }));
+    const rows = await getTestPool().query(
+      "select l.event_address_line from lead l join contact c on c.id = l.contact_id where c.email = $1",
+      [email],
+    );
+    expect(rows.rows[0].event_address_line).toBeNull();
+
+    const bad = await POST(
+      makeRequest({ name: "Ana", email: `bad-${email}`, phone: testPhone(), topic: "shows", eventAddress: { line: "Calle 1", latitude: 500 } }),
+    );
+    expect(bad.status).toBe(400);
+  });
+
   it("creates a contact (with phone persisted), assigns the mapped interest, and creates a lead end to end", async () => {
     const email = `lead-${Date.now()}@example.com`;
     const phone = testPhone();
