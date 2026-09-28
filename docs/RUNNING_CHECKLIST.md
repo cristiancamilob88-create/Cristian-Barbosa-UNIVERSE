@@ -16,6 +16,18 @@ session.
 
 ## Open
 
+- **Primera oferta vendible desde el sitio — EN VIVO** (2026-09-28):
+  Sesión 1:1, 70 min, $80.000 en `/entrenar` → Mercado Pago real
+  (verificado: `/api/checkout/sesion-1a1-70min` redirige a
+  mercadopago.com.co, no sandbox). Falta: que Cristian confirme que le
+  llega el pago de una compra real; la clave de producción del webhook
+  sigue pendiente, así que la venta aún no se registraría en `orders`.
+- **SEO siguiente fase** (2026-09-28, propuesto): dominio propio, Google
+  Business Profile (Valle de Aburrá), una página por show realizado
+  (Event schema), reescribir `/about` con la historia real de Cristian
+  (hoy dice "contenido pendiente"), mencionar Envigado/Medellín/Antioquia
+  en los textos. En pausa a pedido de Cristian.
+
 - **Cumplimiento legal — COMPLETO** (2026-09-24/25; domicilio Envigado, Antioquia agregado): hecho
   `/privacidad` (Ley 1581 + cookies), `/terminos` (Ley 1480: retracto,
   reversión de pago, garantía), casilla de autorización obligatoria con
