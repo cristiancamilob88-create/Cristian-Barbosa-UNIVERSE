@@ -299,3 +299,18 @@ update offer set price_cents = 200000000 where slug = 'coaching-elite-quote';
 -- Instagram/TikTok. Applied to production directly the same day.
 update social_profile set url = 'https://www.facebook.com/cristianbarbosa201' where slug = 'facebook-main';
 update social_profile set url = 'https://www.facebook.com/cristian.barbosa.870099' where slug = 'facebook-secondary';
+
+-- First offer sold straight from the site (2026-09-28), Cristian's own
+-- price and length: a single 1:1 session, 70 minutes, 80.000 COP, paid
+-- via Mercado Pago Checkout Pro (docs/COMMERCE.md §10); place and time
+-- are coordinated over WhatsApp after payment. Deliberately separate
+-- from the coaching-*-quote tiers above, which still close by
+-- conversation. Applied to production directly the same day.
+insert into product (slug, name, kind) values
+  ('sesion-1a1', 'Sesión 1:1 con Cristian Barbosa', 'coaching')
+on conflict (slug) do nothing;
+
+insert into offer (product_id, slug, name, currency, landing_path, purchase_type, price_cents, checkout_provider, cta_label)
+select id, 'sesion-1a1-70min', 'Sesión 1:1 con Cristian Barbosa (70 min)', 'COP', '/entrenar', 'one_time', 8000000, 'mercadopago', 'Reservar mi sesión'
+from product where slug = 'sesion-1a1'
+on conflict (slug) do nothing;

@@ -7,11 +7,12 @@ import { CheckoutLink } from "@/components/ui/CheckoutLink";
 import { buildMetadata } from "@/lib/seo";
 import { goLinks } from "@/config/site";
 import { formatCents } from "@/lib/format";
+import { PaymentReturnNotice } from "@/components/commerce/PaymentReturnNotice";
 
 export const metadata: Metadata = buildMetadata({
   title: "Entrenamiento de calistenia y coaching",
   description:
-    "El camino de entrenamiento con Cristian Barbosa: comunidad gratuita, Entrena con Cristian Barbosa, curso digital y coaching personalizado.",
+    "Entrena en persona con Cristian Barbosa: sesión 1:1 de calistenia de 70 minutos por $80.000, reserva y paga en línea. También comunidad gratuita, suscripción y coaching.",
   path: "/entrenar",
 });
 
@@ -81,6 +82,45 @@ export default function EntrenarPage() {
         title="Entrena con Cristian"
         description="Del primer mensaje en WhatsApp al coaching de alto rendimiento — cuatro formas de entrar, un solo camino."
       />
+      <section className="pt-16">
+        <Container className="flex flex-col gap-6">
+          <PaymentReturnNotice whatNext="Escríbenos por WhatsApp con tu nombre para agendar el día, la hora y el lugar de tu sesión." />
+
+          {/* The first thing sold straight from this site (2026-09-28):
+              Cristian's own price and length. Paid by Mercado Pago via
+              CheckoutLink → /api/checkout/sesion-1a1-70min; scheduling
+              happens over WhatsApp afterwards. */}
+          <div id="sesion" className="flex scroll-mt-24 flex-col gap-6 border border-ember/60 bg-ink-raised p-8 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest text-ember">Reserva en línea</p>
+              <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-chalk sm:text-4xl">
+                Sesión 1:1 con Cristian
+              </h2>
+              <p className="mt-3 max-w-xl text-sm text-steel">
+                70 minutos entrenando calistenia directamente con Cristian, a tu nivel. Pagas aquí de forma
+                segura con Mercado Pago y coordinamos el día, la hora y el lugar por WhatsApp.
+              </p>
+              <p className="mt-4 font-mono text-2xl text-chalk">
+                {formatCents(8_000_000)} <span className="text-sm text-steel-dim">· 70 min</span>
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:items-end">
+              <CheckoutLink
+                offerSlug="sesion-1a1-70min"
+                className="inline-flex w-fit items-center bg-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-chalk"
+              >
+                Reservar mi sesión
+              </CheckoutLink>
+              <GoLink
+                slug={goLinks.whatsappCommercial}
+                className="text-sm text-steel underline underline-offset-4 hover:text-chalk"
+              >
+                ¿Dudas? Pregunta por WhatsApp
+              </GoLink>
+            </div>
+          </div>
+        </Container>
+      </section>
       <section className="py-16">
         <Container>
           <div className="grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-2">
