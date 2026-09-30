@@ -11,6 +11,13 @@ import {
   visitorCookieOptions,
 } from "@/lib/attribution";
 import { ADMIN_SESSION_COOKIE, isValidAdminSessionToken } from "@/server/auth/session";
+import {
+  MEMBER_AREA_PATH,
+  MEMBER_LOGIN_PATH,
+  MEMBER_SESSION_COOKIE,
+  getMemberContactIdFromToken,
+  isMemberProtectedPath,
+} from "@/server/auth/memberSession";
 
 const ADMIN_LOGIN_PATH = "/admin/login";
 
@@ -35,6 +42,10 @@ const ADMIN_LOGIN_PATH = "/admin/login";
  *    docs' own term — this only verifies the signed cookie, no database
  *    read; src/server/auth/adminAuth.ts's requireAdminSession() is the
  *    second, "secure" check every protected Server Component still runs.
+ * 4. The same optimistic gate for the student area, /mi-plan/*
+ *    (docs/TRAINING.md) — its own cookie and secret
+ *    (src/server/auth/memberSession.ts), same two-layer model:
+ *    requireMemberContactId() is the secure check in the render.
  *
  * Cookies are httpOnly: no client code reads any of these directly today
  * (server routes read them from the request) — keeping them out of
@@ -51,6 +62,15 @@ export function proxy(request: NextRequest) {
       }
     } else if (!hasValidSession) {
       return NextResponse.redirect(new URL(ADMIN_LOGIN_PATH, request.url));
+    }
+  }
+
+  if (pathname === MEMBER_LOGIN_PATH || isMemberProtectedPath(pathname)) {
+    const isMember = getMemberContactIdFromToken(request.cookies.get(MEMBER_SESSION_COOKIE)?.value) !== null;
+    if (pathname === MEMBER_LOGIN_PATH) {
+      if (isMember) return NextResponse.redirect(new URL(MEMBER_AREA_PATH, request.url));
+    } else if (!isMember) {
+      return NextResponse.redirect(new URL(MEMBER_LOGIN_PATH, request.url));
     }
   }
 

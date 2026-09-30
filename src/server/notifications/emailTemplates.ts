@@ -25,7 +25,7 @@ export interface EmailTemplate {
 
 // Mismo dominio que whatsappTemplates.ts (producción vive en Vercel por
 // ahora, sin dominio propio comprado todavía — 2026-08-28).
-const SITE_URL = "https://cristian-barbosa-universe.vercel.app";
+export const SITE_URL = "https://cristian-barbosa-universe.vercel.app";
 // Línea compartida al final de cada correo — no compite con el CTA
 // principal del tema, es solo un extra (idea de Cristian, 2026-08-28).
 const FOLLOW_LINE = `También puedes seguirme en todas mis redes aquí: ${SITE_URL}/redes`;
@@ -128,6 +128,23 @@ ${FOLLOW_LINE}
 
 — Cristian Barbosa`,
   },
+  // Plan Diciembre (2026-09-30) — same next step as its WhatsApp
+  // template (Cristian's sales script): assessment + start day by
+  // WhatsApp, app access once the spot is confirmed.
+  plan_diciembre: {
+    subject: "¡Hola {name}! Recibí tu inscripción al Plan Diciembre 💪",
+    body: `¡Hola {name}!
+
+Soy Cristian Barbosa. Recibí tu inscripción al Plan Diciembre: 12 semanas entrenando conmigo, con un plan hecho solo para ti.
+
+El siguiente paso es agendar tu valoración gratis de 20 minutos y cuadrar el día de arranque. Te escribo por WhatsApp, o si prefieres, escríbeme tú directo:
+
+${SITE_URL}/go/whatsapp-commercial
+
+Cuando confirmemos tu cupo te llega el acceso a tu app, donde vas a ver tu rutina de cada semana y marcar lo que cumples.
+
+— Cristian Barbosa`,
+  },
   general: {
     subject: "¡Hola {name}! Gracias por registrarte",
     body: `¡Hola {name}!
@@ -151,4 +168,51 @@ export function isPendingTemplate(template: EmailTemplate): boolean {
 export function renderTemplate(template: EmailTemplate, vars: { name: string }): EmailTemplate {
   const fill = (text: string) => text.replaceAll("{name}", vars.name);
   return { subject: fill(template.subject), body: fill(template.body) };
+}
+
+/**
+ * /mi-plan sign-in code (docs/TRAINING.md). Transactional, not
+ * commercial copy — says what the code is, how long it lasts, and what
+ * to do if you didn't ask for it.
+ */
+export function renderMemberLoginCodeEmail(input: { name: string | null; code: string }): EmailTemplate {
+  const greeting = input.name ? `¡Hola ${input.name}!` : "¡Hola!";
+  return {
+    subject: `Tu código para entrar a tu plan: ${input.code}`,
+    body: `${greeting}
+
+Tu código para entrar a tu plan de entrenamiento es:
+
+${input.code}
+
+Escríbelo en la pantalla donde lo pediste. Vence en 10 minutos y solo sirve una vez.
+
+Si no pediste este código, ignora este correo: nadie puede entrar sin él.
+
+— Cristian Barbosa`,
+  };
+}
+
+/** Sent when Cristian approves an enrollment — the student's first way into /mi-plan. */
+export function renderMemberAccessEmail(input: { name: string | null; startDate: string }): EmailTemplate {
+  const greeting = input.name ? `¡Hola ${input.name}!` : "¡Hola!";
+  const [y, m, d] = input.startDate.split("-").map(Number);
+  const start = new Intl.DateTimeFormat("es-CO", { day: "numeric", month: "long", timeZone: "UTC" }).format(
+    new Date(Date.UTC(y, m - 1, d)),
+  );
+  return {
+    subject: "Tu cupo está confirmado — ya puedes entrar a tu plan 💪",
+    body: `${greeting}
+
+Tu cupo en el Plan Diciembre está confirmado. Arrancamos el ${start}.
+
+Entra aquí con este mismo correo; te llega un código de 6 dígitos para confirmar que eres tú:
+
+${SITE_URL}/mi-plan/entrar
+
+Ahí vas a ver tu rutina de cada semana, marcar lo que cumples y dejarme una nota de cómo te fue. En el celular puedes agregarla a la pantalla de inicio para abrirla como una app.
+
+Nos vemos en el entreno.
+— Cristian Barbosa`,
+  };
 }

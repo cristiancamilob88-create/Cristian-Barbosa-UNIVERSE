@@ -15,6 +15,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...new Set(allHrefs.map((href) => href.split("#")[0])),
     ...legalLinks.map((link) => link.href),
     pastShowsIndexPath,
+    // Plan Diciembre's sign-up landing (docs/TRAINING.md) — a real page, not a nav pillar.
+    "/entrenar/plan-diciembre",
     ...pastShows.map((show) => pastShowPath(show.slug)),
   ];
 

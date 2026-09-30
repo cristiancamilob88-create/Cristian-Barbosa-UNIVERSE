@@ -127,6 +127,19 @@ as `/api/lead`'s). Fails closed: unset `ADMIN_PASSWORD_HASH`/
 `ADMIN_SESSION_SECRET` means login always reports "not configured", never
 silently open.
 
+## Student authentication (/mi-plan — docs/TRAINING.md)
+
+Separate from the admin login on purpose: its own cookie
+(`cb_member_session`), its own secret (`MEMBER_SESSION_SECRET`), and a
+`sub: "member"` claim, so a student token never verifies as an admin one
+(tested). Sign-in is an emailed 6-digit code stored only as an HMAC, 10-min
+expiry, 5 attempts, single use, 1/min per contact, plus per-IP limits. The
+code-request endpoint answers identically for non-students (no
+enumeration). Every student page and write re-checks enrollment +
+entitlement in the database; `/api/member/log` always writes to the
+session's own enrollment, never one named in the request body. Unset
+secret → 503 (fails closed).
+
 ## Analytics endpoint authorization
 
 `/api/analytics/*` (Block 03 — docs/REPORTING.md) exposes business
