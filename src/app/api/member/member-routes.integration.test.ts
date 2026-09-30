@@ -151,3 +151,18 @@ describe("POST /api/member/log", () => {
     expect((await saveLog(post("/api/member/log", { week: 1, dayIndex: 0, done: tooMany }, token))).status).toBe(400);
   });
 });
+
+describe("POST /api/member/log — results", () => {
+  it("saves what the student did per exercise, and refuses more results than exercises", async () => {
+    const student = await makeStudent({ startDate: "2026-10-05" });
+    const token = createMemberSessionToken(student.contactId, TEST_MEMBER_SECRET);
+
+    const ok = await saveLog(post("/api/member/log", { week: 1, dayIndex: 2, results: ["22", "10 c/pierna", ""] }, token));
+    expect(ok.status).toBe(200);
+    const logs = await getTrainingLogs(getTestPool(), student.enrollment.id);
+    expect(logs[1][2].results).toEqual(["22", "10 c/pierna", ""]);
+
+    const tooMany = await saveLog(post("/api/member/log", { week: 1, dayIndex: 2, results: ["1", "2", "3", "4"] }, token));
+    expect(tooMany.status).toBe(400);
+  });
+});

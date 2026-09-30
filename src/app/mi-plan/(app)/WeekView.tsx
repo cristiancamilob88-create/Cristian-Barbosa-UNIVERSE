@@ -11,7 +11,9 @@ interface Props {
   readOnly: boolean;
 }
 
-async function saveLog(body: { week: number; dayIndex: number; done?: boolean[]; note?: string }): Promise<string | null> {
+type SaveBody = { week: number; dayIndex: number; done?: boolean[]; results?: string[]; note?: string };
+
+async function saveLog(body: SaveBody): Promise<string | null> {
   try {
     const res = await fetch("/api/member/log", {
       method: "POST",
@@ -26,18 +28,21 @@ async function saveLog(body: { week: number; dayIndex: number; done?: boolean[];
   }
 }
 
+const EMPTY_DAY: DayLog = { done: [], results: [], note: null };
+
 /**
- * The interactive part of "Mi semana". Checkboxes update instantly
- * (optimistic) and save in the background; a failed save puts the box
- * back and says so, so the screen never shows something that isn't
- * stored. Notes save when the student leaves the field.
+ * The interactive part of "Mi semana". Per exercise the student ticks
+ * whether they did it and writes what they actually did ("10, 8, 7",
+ * "35 s") — the data Cristian reads to adjust the plan. Checkboxes update
+ * instantly (optimistic) and a failed save puts the box back and says so,
+ * so the screen never shows something that isn't stored. Results and
+ * notes save when the student leaves the field.
  */
 export function WeekView({ week, routine, initialLogs, readOnly }: Props) {
   const [logs, setLogs] = useState<Record<number, DayLog>>(initialLogs);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
-  const savedNotes = useRef<Record<number, string>>(
-    Object.fromEntries(Object.entries(initialLogs).map(([day, log]) => [day, log.note ?? ""])),
-  );
+  // What the server has, per day — so leaving a field unchanged doesn't re-save it.
+  const saved = useRef<Record<number, DayLog>>(structuredClone(initialLogs));
   const messageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function flash(text: string, error = false) {
@@ -46,35 +51,53 @@ export function WeekView({ week, routine, initialLogs, readOnly }: Props) {
     messageTimer.current = setTimeout(() => setMessage(null), 2500);
   }
 
+  function patchDay(dayIndex: number, patch: Partial<DayLog>) {
+    setLogs((current) => ({ ...current, [dayIndex]: { ...EMPTY_DAY, ...current[dayIndex], ...patch } }));
+  }
+
   const { percent } = weekCompletion(routine, logs);
 
   async function toggle(dayIndex: number, exerciseIndex: number, checked: boolean) {
     const count = routine[dayIndex].exercises.length;
-    const previous = logs[dayIndex];
-    const done = Array.from({ length: count }, (_, i) => Boolean(previous?.done[i]));
+    const previous = logs[dayIndex]?.done ?? [];
+    const done = Array.from({ length: count }, (_, i) => Boolean(previous[i]));
     done[exerciseIndex] = checked;
-    setLogs((current) => ({ ...current, [dayIndex]: { done, note: current[dayIndex]?.note ?? null } }));
+    patchDay(dayIndex, { done });
 
     const error = await saveLog({ week, dayIndex, done });
     if (error) {
-      setLogs((current) => ({
-        ...current,
-        [dayIndex]: { done: previous?.done ?? [], note: current[dayIndex]?.note ?? null },
-      }));
+      patchDay(dayIndex, { done: previous });
       flash(error, true);
     }
   }
 
+  async function saveResult(dayIndex: number, exerciseIndex: number, value: string) {
+    const count = routine[dayIndex].exercises.length;
+    const current = saved.current[dayIndex]?.results ?? [];
+    const results = Array.from({ length: count }, (_, i) => (current[i] ?? "").trim());
+    if (results[exerciseIndex] === value.trim()) return;
+    results[exerciseIndex] = value.trim();
+
+    const error = await saveLog({ week, dayIndex, results });
+    if (error) {
+      flash(error, true);
+      return;
+    }
+    saved.current[dayIndex] = { ...EMPTY_DAY, ...saved.current[dayIndex], results };
+    patchDay(dayIndex, { results });
+    flash("Guardado");
+  }
+
   async function saveNote(dayIndex: number, value: string) {
     const note = value.trim();
-    if ((savedNotes.current[dayIndex] ?? "") === note) return;
+    if ((saved.current[dayIndex]?.note ?? "") === note) return;
     const error = await saveLog({ week, dayIndex, note });
     if (error) {
       flash(error, true);
       return;
     }
-    savedNotes.current[dayIndex] = note;
-    setLogs((current) => ({ ...current, [dayIndex]: { done: current[dayIndex]?.done ?? [], note } }));
+    saved.current[dayIndex] = { ...EMPTY_DAY, ...saved.current[dayIndex], note };
+    patchDay(dayIndex, { note });
     flash("Nota guardada");
   }
 
@@ -113,8 +136,8 @@ export function WeekView({ week, routine, initialLogs, readOnly }: Props) {
                 const checked = Boolean(log?.done[exerciseIndex]);
                 const id = `ex-${week}-${dayIndex}-${exerciseIndex}`;
                 return (
-                  <li key={exerciseIndex} className="border-b border-steel-dim/30 last:border-b-0">
-                    <label htmlFor={id} className="flex cursor-pointer items-center gap-4 px-4 py-3">
+                  <li key={exerciseIndex} className="border-b border-steel-dim/30 px-4 py-3 last:border-b-0">
+                    <label htmlFor={id} className="flex cursor-pointer items-center gap-4">
                       <input
                         id={id}
                         type="checkbox"
@@ -133,6 +156,21 @@ export function WeekView({ week, routine, initialLogs, readOnly }: Props) {
                         <span className="whitespace-nowrap font-display text-lg font-black text-chalk">{exercise.dose}</span>
                       )}
                     </label>
+                    <div className="mt-2 flex items-center gap-2 pl-10">
+                      <label htmlFor={`${id}-r`} className="shrink-0 font-mono text-[11px] uppercase tracking-widest text-steel-dim">
+                        Hice
+                      </label>
+                      <input
+                        id={`${id}-r`}
+                        type="text"
+                        defaultValue={log?.results?.[exerciseIndex] ?? ""}
+                        disabled={readOnly}
+                        maxLength={60}
+                        placeholder="Ej: 10, 8, 8 · 35 s"
+                        onBlur={(e) => saveResult(dayIndex, exerciseIndex, e.target.value)}
+                        className="min-w-0 flex-1 border border-steel-dim/40 bg-ink px-2 py-1.5 text-sm text-chalk outline-none placeholder:text-steel-dim focus:border-ember"
+                      />
+                    </div>
                   </li>
                 );
               })}
