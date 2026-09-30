@@ -52,6 +52,37 @@ requires it. There is no second access flag.
 All six tables have RLS enabled with no policies (deny-by-default), same as
 every business table: only the server-only connection reads/writes them.
 
+## Personalized routines, results and objective (phase 2, migration 0018)
+
+Cristian's rule (2026-09-30): **every student's routine is their own.**
+The template is only where a new student starts; from there he programs
+each person for their objective. Intended flow: the student pays → he
+sends them the sign-up link → they sign up (choosing their objective) →
+he approves and adjusts their routine/objective from their page.
+
+- **`/admin/alumnos/[id]`** (link "Ver ficha y rutina" on each roster
+  card): profile (objective, goal in their words, level, zone), a week
+  picker, what the student logged that week (✓ per exercise, what they
+  actually did, day notes), and the routine editor for that week (days,
+  exercises with dose and cue, add/remove/reorder).
+- Saving a routine: **"solo semana N"** writes that week's own
+  `training_week_routine` row; **"de la semana N en adelante"** makes it
+  the new base for N and later weeks while freezing every earlier week
+  that was still on the old base into its own row — past weeks (and what
+  was logged against them) never change under the student
+  (`saveWeekRoutine()`, tested).
+- **Results:** `training_log.results text[]` — per exercise, what the
+  student actually did, in their words ("10, 8, 7", "35 s"). Free text on
+  purpose (reps, holds and weights don't share one shape); the student
+  types it in the "Hice" field under each exercise in Mi semana.
+- **Objective:** `training_enrollment.objective` — `bajar_peso`,
+  `fuerza`, `tonificar`, `skills`, `general`. Picked on the sign-up
+  form (required there), editable by Cristian; shown on the roster.
+
+Endpoints added: `GET/PATCH /api/admin/training/enrollments/[id]`
+(`?semana=N`) and `PUT /api/admin/training/enrollments/[id]/routine`
+(`{ week, days, mode: "week" | "forward" }`), admin session only.
+
 ## Rules (`src/lib/training.ts` — pure, unit-tested)
 
 - Week N = `start_date + 7(N-1)` … `+6`, in **America/Bogota** dates
@@ -130,8 +161,11 @@ opens on the student's week, not the Universe homepage. No service worker
 
 - **Phase 1 (this change):** schema, sign-up, approval, sign-in, Mi semana,
   Mi plan, PWA, admin roster + manual add + WhatsApp invite.
-- **Phase 2:** per-week routine editor + "use as base", templates UI
-  (Intermedio), measurements + "Mi progreso" with a chart, admin view of a
-  student's week.
+- **Phase 2 (in progress):** ✅ per-student routine editor (per week /
+  from a week on), ✅ per-exercise results, ✅ objective, ✅ admin view of a
+  student's week. Next: exercise library by group (pecho, espalda,
+  abdomen, tríceps, pierna, cuerpo completo, skills + progressions) and
+  templates per objective × level from Cristian's own routines;
+  measurements per objective + "Mi progreso" with charts; monthly view.
 - **Phase 3:** AI adjustment (Claude API, server-side) suggesting per-exercise
   changes + a WhatsApp message to copy; Cristian decides what to apply.

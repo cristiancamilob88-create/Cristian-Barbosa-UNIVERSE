@@ -5,6 +5,7 @@ import {
   parseRoutine,
   type DayLog,
   type EnrollmentLevel,
+  type EnrollmentObjective,
   type EnrollmentStatus,
   type Routine,
   type WeekLogs,
@@ -21,6 +22,7 @@ export interface EnrollmentRow {
   productId: string;
   status: EnrollmentStatus;
   goal: string | null;
+  objective: EnrollmentObjective | null;
   level: EnrollmentLevel;
   zone: string | null;
   /** YYYY-MM-DD, null until Cristian approves the enrollment. */
@@ -36,6 +38,7 @@ export interface RawEnrollmentRow {
   product_id: string;
   status: EnrollmentStatus;
   goal: string | null;
+  objective: EnrollmentObjective | null;
   level: EnrollmentLevel;
   zone: string | null;
   start_date: string | null;
@@ -49,7 +52,7 @@ export interface RawEnrollmentRow {
 // server's timezone. The text form is exactly the calendar date stored.
 export function enrollmentColumns(alias?: string): string {
   const p = alias ? `${alias}.` : "";
-  return `${p}id, ${p}contact_id, ${p}product_id, ${p}status, ${p}goal, ${p}level, ${p}zone,
+  return `${p}id, ${p}contact_id, ${p}product_id, ${p}status, ${p}goal, ${p}objective, ${p}level, ${p}zone,
     ${p}start_date::text as start_date, ${p}weeks, ${p}base_routine, ${p}created_at`;
 }
 const ENROLLMENT_COLUMNS = enrollmentColumns();
@@ -61,6 +64,7 @@ export function toEnrollment(row: RawEnrollmentRow): EnrollmentRow {
     productId: row.product_id,
     status: row.status,
     goal: row.goal,
+    objective: row.objective,
     level: row.level,
     zone: row.zone,
     startDate: row.start_date,
@@ -92,18 +96,20 @@ export async function upsertPendingEnrollment(
     contactId: string;
     productId: string;
     goal?: string | null;
+    objective?: EnrollmentObjective | null;
     level?: EnrollmentLevel;
     zone?: string | null;
     templateSlug?: string;
   },
 ): Promise<EnrollmentRow> {
   const result = await client.query<RawEnrollmentRow>(
-    `insert into training_enrollment (contact_id, product_id, goal, level, zone, base_routine)
+    `insert into training_enrollment (contact_id, product_id, goal, level, zone, base_routine, objective)
      values ($1, $2, $3, $4, $5,
-             coalesce((select days from routine_template where slug = $6), '[]'::jsonb))
+             coalesce((select days from routine_template where slug = $6), '[]'::jsonb), $7)
      on conflict (contact_id, product_id) do update set
        goal = coalesce(excluded.goal, training_enrollment.goal),
        zone = coalesce(excluded.zone, training_enrollment.zone),
+       objective = coalesce(training_enrollment.objective, excluded.objective),
        updated_at = now()
      returning ${ENROLLMENT_COLUMNS}`,
     [
@@ -113,6 +119,7 @@ export async function upsertPendingEnrollment(
       input.level ?? "principiante",
       input.zone || null,
       input.templateSlug ?? DEFAULT_ROUTINE_TEMPLATE_SLUG,
+      input.objective || null,
     ],
   );
   return toEnrollment(result.rows[0]);
@@ -177,46 +184,124 @@ export async function getWeekRoutines(db: Pool | PoolClient, enrollmentId: strin
 
 /** Every day the student has touched, grouped by week. */
 export async function getTrainingLogs(db: Pool | PoolClient, enrollmentId: string): Promise<WeekLogs> {
-  const result = await db.query<{ week: number; day_index: number; done: boolean[]; note: string | null }>(
-    "select week, day_index, done, note from training_log where enrollment_id = $1",
+  const result = await db.query<{ week: number; day_index: number; done: boolean[]; results: string[]; note: string | null }>(
+    "select week, day_index, done, results, note from training_log where enrollment_id = $1",
     [enrollmentId],
   );
   const logs: WeekLogs = {};
   for (const row of result.rows) {
     const week = Number(row.week);
-    (logs[week] ??= {})[Number(row.day_index)] = { done: row.done, note: row.note };
+    (logs[week] ??= {})[Number(row.day_index)] = { done: row.done, results: row.results, note: row.note };
   }
   return logs;
 }
 
 /**
- * Saves one day's check-offs and/or note. Either field may be omitted —
- * a checkbox click only sends `done`, leaving a note typed earlier
- * untouched, and vice versa.
+ * Saves one day's check-offs, results and/or note. Any field may be
+ * omitted — a checkbox click only sends `done`, leaving results and a
+ * note typed earlier untouched, and vice versa.
  */
 export async function saveDayLog(
   db: Pool | PoolClient,
-  input: { enrollmentId: string; week: number; dayIndex: number; done?: boolean[]; note?: string | null },
+  input: {
+    enrollmentId: string;
+    week: number;
+    dayIndex: number;
+    done?: boolean[];
+    results?: string[];
+    note?: string | null;
+  },
 ): Promise<DayLog> {
   const hasDone = input.done !== undefined;
+  const hasResults = input.results !== undefined;
   const hasNote = input.note !== undefined;
-  const result = await db.query<{ done: boolean[]; note: string | null }>(
-    `insert into training_log (enrollment_id, week, day_index, done, note)
-     values ($1, $2, $3, coalesce($4::boolean[], '{}'), $5)
+  const result = await db.query<{ done: boolean[]; results: string[]; note: string | null }>(
+    `insert into training_log (enrollment_id, week, day_index, done, results, note)
+     values ($1, $2, $3, coalesce($4::boolean[], '{}'), coalesce($5::text[], '{}'), $6)
      on conflict (enrollment_id, week, day_index) do update set
-       done = case when $6 then excluded.done else training_log.done end,
-       note = case when $7 then excluded.note else training_log.note end,
+       done = case when $7 then excluded.done else training_log.done end,
+       results = case when $8 then excluded.results else training_log.results end,
+       note = case when $9 then excluded.note else training_log.note end,
        updated_at = now()
-     returning done, note`,
+     returning done, results, note`,
     [
       input.enrollmentId,
       input.week,
       input.dayIndex,
       hasDone ? input.done : null,
+      hasResults ? input.results : null,
       hasNote ? input.note || null : null,
       hasDone,
+      hasResults,
       hasNote,
     ],
   );
   return result.rows[0];
+}
+
+/** One enrollment by id — /admin's student page. */
+export async function getEnrollmentById(db: Pool | PoolClient, enrollmentId: string): Promise<EnrollmentRow | null> {
+  const result = await db.query<RawEnrollmentRow>(`select ${ENROLLMENT_COLUMNS} from training_enrollment where id = $1`, [
+    enrollmentId,
+  ]);
+  return result.rows[0] ? toEnrollment(result.rows[0]) : null;
+}
+
+/** Cristian adjusts who the student is training as: objective, their goal in their words, level, zone. */
+export async function updateEnrollmentProfile(
+  client: PoolClient,
+  enrollmentId: string,
+  input: { objective: EnrollmentObjective | null; goal: string | null; level: EnrollmentLevel; zone: string | null },
+): Promise<EnrollmentRow | null> {
+  const result = await client.query<RawEnrollmentRow>(
+    `update training_enrollment
+     set objective = $2, goal = $3, level = $4, zone = $5, updated_at = now()
+     where id = $1
+     returning ${ENROLLMENT_COLUMNS}`,
+    [enrollmentId, input.objective, input.goal || null, input.level, input.zone || null],
+  );
+  return result.rows[0] ? toEnrollment(result.rows[0]) : null;
+}
+
+/**
+ * Cristian writes a student's routine for a week (/admin/alumnos/[id]).
+ *
+ * - `"week"`: only that week changes (its own training_week_routine row).
+ * - `"forward"`: that week and every later one change; earlier weeks keep
+ *   exactly what the student saw. Done by freezing each earlier week that
+ *   was still following the base routine into its own row, then making the
+ *   new routine the base and dropping overrides from `week` on — so past
+ *   weeks (and the check-offs logged against them) never shift under the
+ *   student's feet.
+ */
+export async function saveWeekRoutine(
+  client: PoolClient,
+  input: { enrollmentId: string; week: number; days: Routine; mode: "week" | "forward" },
+): Promise<void> {
+  const days = JSON.stringify(input.days);
+  if (input.mode === "week") {
+    await client.query(
+      `insert into training_week_routine (enrollment_id, week, days) values ($1, $2, $3::jsonb)
+       on conflict (enrollment_id, week) do update set days = excluded.days, updated_at = now()`,
+      [input.enrollmentId, input.week, days],
+    );
+    return;
+  }
+
+  await client.query(
+    `insert into training_week_routine (enrollment_id, week, days)
+     select e.id, w, e.base_routine
+     from training_enrollment e, generate_series(1, $2::int - 1) as w
+     where e.id = $1
+     on conflict (enrollment_id, week) do nothing`,
+    [input.enrollmentId, input.week],
+  );
+  await client.query("update training_enrollment set base_routine = $2::jsonb, updated_at = now() where id = $1", [
+    input.enrollmentId,
+    days,
+  ]);
+  await client.query("delete from training_week_routine where enrollment_id = $1 and week >= $2", [
+    input.enrollmentId,
+    input.week,
+  ]);
 }

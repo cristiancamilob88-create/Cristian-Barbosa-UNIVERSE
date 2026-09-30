@@ -4,7 +4,7 @@
  * names/emails/phones (never mixed into the aggregates-only
  * adminAnalytics.ts).
  */
-import type { EnrollmentLevel, EnrollmentStatus, WeekStanding } from "./training";
+import type { DayLog, EnrollmentLevel, EnrollmentObjective, EnrollmentStatus, Routine, WeekStanding } from "./training";
 
 export interface TrainingRosterRow {
   enrollmentId: string;
@@ -13,6 +13,7 @@ export interface TrainingRosterRow {
   contactPhone: string | null;
   programName: string;
   status: EnrollmentStatus;
+  objective: EnrollmentObjective | null;
   level: EnrollmentLevel;
   zone: string | null;
   goal: string | null;
@@ -31,6 +32,7 @@ export interface NewStudentInput {
   email: string;
   phone: string;
   goal: string;
+  objective: EnrollmentObjective | "";
   level: EnrollmentLevel;
   zone: string;
   /** Set = approve on the spot; omitted = lands as a pending sign-up. */
@@ -101,4 +103,55 @@ export function whatsappLink(phone: string | null, text: string): string | null 
   if (digits.length < 7) return null;
   const international = digits.length === 10 && digits.startsWith("3") ? `57${digits}` : digits;
   return `https://wa.me/${international}?text=${encodeURIComponent(text)}`;
+}
+
+export interface StudentWeekDetail {
+  enrollment: {
+    id: string;
+    status: EnrollmentStatus;
+    objective: EnrollmentObjective | null;
+    goal: string | null;
+    level: EnrollmentLevel;
+    zone: string | null;
+    startDate: string | null;
+    weeks: number;
+  };
+  contact: { name: string | null; email: string | null; phone: string | null };
+  week: number;
+  currentWeek: number | null;
+  hasOwnRoutine: boolean;
+  routine: Routine;
+  logs: Record<number, DayLog>;
+}
+
+export interface StudentProfileInput {
+  objective: EnrollmentObjective | "";
+  goal: string;
+  level: EnrollmentLevel;
+  zone: string;
+}
+
+export function fetchStudentWeek(enrollmentId: string, week?: number): Promise<StudentWeekDetail> {
+  const query = week ? `?semana=${week}` : "";
+  return request<StudentWeekDetail>(`/api/admin/training/enrollments/${enrollmentId}${query}`);
+}
+
+export function updateStudentProfile(enrollmentId: string, input: StudentProfileInput): Promise<{ enrollmentId: string }> {
+  return request(`/api/admin/training/enrollments/${enrollmentId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+/** mode "week" = only this week; "forward" = this week and every later one (earlier weeks untouched). */
+export function saveStudentRoutine(
+  enrollmentId: string,
+  input: { week: number; days: Routine; mode: "week" | "forward" },
+): Promise<{ enrollmentId: string }> {
+  return request(`/api/admin/training/enrollments/${enrollmentId}/routine`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
 }

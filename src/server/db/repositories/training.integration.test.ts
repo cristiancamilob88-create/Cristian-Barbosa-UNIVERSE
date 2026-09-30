@@ -4,11 +4,16 @@ import { makeStudent } from "@/server/db/trainingTestHelpers.integration";
 import { hasEntitlement } from "./entitlement";
 import {
   activateEnrollment,
+  getEnrollmentById,
   getMemberEnrollment,
   getTrainingLogs,
+  getWeekRoutines,
   saveDayLog,
+  saveWeekRoutine,
+  updateEnrollmentProfile,
   upsertPendingEnrollment,
 } from "./training";
+import { routineForWeek, type Routine } from "@/lib/training";
 
 describe("training repository (Plan Diciembre)", () => {
   beforeEach(resetActivityTables);
@@ -80,10 +85,84 @@ describe("training repository (Plan Diciembre)", () => {
     await saveDayLog(db, { enrollmentId: enrollment.id, week: 1, dayIndex: 0, done: [true, false, true, false] });
 
     let logs = await getTrainingLogs(db, enrollment.id);
-    expect(logs[1][0]).toEqual({ done: [true, false, true, false], note: "Me dolió el hombro" });
+    expect(logs[1][0]).toEqual({ done: [true, false, true, false], results: [], note: "Me dolió el hombro" });
 
     await saveDayLog(db, { enrollmentId: enrollment.id, week: 1, dayIndex: 0, note: "" });
     logs = await getTrainingLogs(db, enrollment.id);
-    expect(logs[1][0]).toEqual({ done: [true, false, true, false], note: null });
+    expect(logs[1][0]).toEqual({ done: [true, false, true, false], results: [], note: null });
+  });
+});
+
+describe("personalized routines (phase 2)", () => {
+  beforeEach(resetActivityTables);
+  afterAll(closeTestPool);
+
+  const custom: Routine = [
+    { title: "Pecho y tríceps", kind: "Clase con Cristian", exercises: [{ name: "Fondos en paralelas", dose: "4 × 6", cue: "" }] },
+  ];
+
+  it("'week' changes only that week — the base and every other week stay", async () => {
+    const { enrollment } = await makeStudent({ startDate: "2026-10-05" });
+    const client = await getTestPool().connect();
+    try {
+      await saveWeekRoutine(client, { enrollmentId: enrollment.id, week: 3, days: custom, mode: "week" });
+    } finally {
+      client.release();
+    }
+    const overrides = await getWeekRoutines(getTestPool(), enrollment.id);
+    expect(Object.keys(overrides)).toEqual(["3"]);
+    expect(overrides[3][0].title).toBe("Pecho y tríceps");
+    expect((await getEnrollmentById(getTestPool(), enrollment.id))?.baseRoutine[0].title).toBe("Clase 1 · Empuje y core");
+  });
+
+  it("'forward' changes that week and later ones, and freezes earlier weeks exactly as the student saw them", async () => {
+    const { enrollment } = await makeStudent({ startDate: "2026-10-05" });
+    const client = await getTestPool().connect();
+    try {
+      // Week 2 had been customised before; week 9 too (will be replaced).
+      await saveWeekRoutine(client, { enrollmentId: enrollment.id, week: 2, days: custom, mode: "week" });
+      await saveWeekRoutine(client, { enrollmentId: enrollment.id, week: 9, days: custom, mode: "week" });
+      const newPlan: Routine = [{ title: "Fuerza", kind: "", exercises: [{ name: "Dominadas", dose: "5 × 3", cue: "" }] }];
+      await saveWeekRoutine(client, { enrollmentId: enrollment.id, week: 4, days: newPlan, mode: "forward" });
+    } finally {
+      client.release();
+    }
+
+    const overrides = await getWeekRoutines(getTestPool(), enrollment.id);
+    const base = (await getEnrollmentById(getTestPool(), enrollment.id))!.baseRoutine;
+    expect(base[0].title).toBe("Fuerza");
+    // Weeks 1 and 3 froze the old beginner base; week 2 kept its own routine.
+    expect(overrides[1][0].title).toBe("Clase 1 · Empuje y core");
+    expect(overrides[2][0].title).toBe("Pecho y tríceps");
+    expect(overrides[3][0].title).toBe("Clase 1 · Empuje y core");
+    // From week 4 on everything follows the new base — week 9's old override is gone.
+    expect(overrides[4]).toBeUndefined();
+    expect(overrides[9]).toBeUndefined();
+    expect(routineForWeek(base, overrides, 9)[0].title).toBe("Fuerza");
+  });
+
+  it("saves what the student actually did per exercise, independently of check-offs and note", async () => {
+    const { enrollment } = await makeStudent({ startDate: "2026-10-05" });
+    const db = getTestPool();
+    await saveDayLog(db, { enrollmentId: enrollment.id, week: 1, dayIndex: 0, done: [true, true, false, false] });
+    await saveDayLog(db, { enrollmentId: enrollment.id, week: 1, dayIndex: 0, results: ["10, 8, 8", "", "35 s", ""] });
+    const logs = await getTrainingLogs(db, enrollment.id);
+    expect(logs[1][0]).toEqual({ done: [true, true, false, false], results: ["10, 8, 8", "", "35 s", ""], note: null });
+  });
+
+  it("updates the student's profile: objective, goal, level, zone", async () => {
+    const { enrollment } = await makeStudent();
+    const client = await getTestPool().connect();
+    try {
+      const updated = await updateEnrollmentProfile(client, enrollment.id, {
+        objective: "bajar_peso",
+        goal: "Bajar 6 kg",
+        level: "intermedio",
+        zone: "Sabaneta",
+      });
+      expect(updated).toMatchObject({ objective: "bajar_peso", goal: "Bajar 6 kg", level: "intermedio", zone: "Sabaneta" });
+    } finally {
+      client.release();
+    }
   });
 });

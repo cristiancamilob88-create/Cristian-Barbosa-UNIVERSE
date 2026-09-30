@@ -81,6 +81,7 @@ const leadSchema = z.object({
   // training_enrollment row, ignored for every other topic.
   trainingZone: z.string().trim().max(80).optional(),
   trainingGoal: z.string().trim().max(300).optional(),
+  trainingObjective: z.enum(["bajar_peso", "fuerza", "tonificar", "skills", "general"]).optional(),
 });
 
 /**
@@ -214,6 +215,7 @@ export async function POST(request: NextRequest) {
             contactId: contact.id,
             productId,
             goal: parsed.data.trainingGoal || null,
+            objective: parsed.data.trainingObjective ?? null,
             zone: parsed.data.trainingZone || null,
           });
         }

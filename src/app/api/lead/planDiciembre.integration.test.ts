@@ -63,3 +63,22 @@ describe("POST /api/lead — Plan Diciembre sign-up (topic plan_diciembre)", () 
     expect(Number(rows.rows[0].count)).toBe(0);
   });
 });
+
+describe("POST /api/lead — Plan Diciembre objective", () => {
+  beforeEach(resetActivityTables);
+
+  it("stores the objective the student picked on the form", async () => {
+    const email = `pd-${randomUUID()}@example.com`;
+    await POST(signUp({ name: "Sofía", email, phone: "3001230000", trainingObjective: "tonificar" }));
+    const rows = await getTestPool().query(
+      "select e.objective from training_enrollment e join contact c on c.id = e.contact_id where c.email = $1",
+      [email],
+    );
+    expect(rows.rows[0].objective).toBe("tonificar");
+  });
+
+  it("rejects an objective that isn't one of the five", async () => {
+    const res = await POST(signUp({ name: "Sofía", email: `pd-${randomUUID()}@example.com`, phone: "3001230001", trainingObjective: "volar" }));
+    expect(res.status).toBe(400);
+  });
+});

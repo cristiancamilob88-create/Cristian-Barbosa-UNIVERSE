@@ -19,8 +19,10 @@ with the 12 weeks). Migration `0017_training_program.sql` + seed rows
 and secret, not the admin one. Full record: **docs/TRAINING.md**.
 Production still needs: migration 0017 + those seed rows applied to
 Supabase, `MEMBER_SESSION_SECRET` set in Vercel, and Gmail SMTP
-credentials confirmed there (sign-in codes go by email). Phases 2
-(routine editor, measurements/Mi progreso) and 3 (AI adjustment) pending.
+credentials confirmed there (sign-in codes go by email). Phase 2 in
+progress on `feat/plan-diciembre-fase2`: per-student routine editor,
+per-exercise results, objective (migration 0018) — docs/TRAINING.md.
+Phase 3 (AI adjustment) pending.
 
 **Blocks 01–07 complete** (foundation through the Universe-wide real
 destinations/prices — see `docs/MASTER_ROADMAP.md` for the full list).
