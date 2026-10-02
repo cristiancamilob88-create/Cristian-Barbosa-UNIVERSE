@@ -4,7 +4,8 @@ import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { PastShowCard } from "@/components/shows/PastShowCard";
 import { buildMetadata } from "@/lib/seo";
-import { pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { homeBase, pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
 
 export const metadata: Metadata = buildMetadata({
   title: "Shows realizados en Antioquia",
@@ -21,6 +22,15 @@ export default function ShowsRealizadosPage() {
         title="Shows realizados"
         description="Dónde ha estado Cristian Barbosa — municipios, eventos y escenarios reales de Antioquia."
       />
+      <section className="pt-16">
+        <Container className="flex flex-col gap-3">
+          <ShowsMapLazy />
+          <p className="text-sm text-steel">
+            {pastShows.map((show) => `${show.town}, ${show.region}`).join(" · ")} — base en {homeBase.town},{" "}
+            {homeBase.region}.
+          </p>
+        </Container>
+      </section>
       <section className="py-16">
         <Container className="grid gap-6 sm:grid-cols-2">
           {pastShows.map((show) => (

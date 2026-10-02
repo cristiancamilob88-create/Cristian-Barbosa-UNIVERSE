@@ -16,6 +16,18 @@ session.
 
 ## Open
 
+- **Google Maps API key — esperando a Cristian** (2026-10-02): la clave
+  que envió es válida pero Google la rechaza: falta activar facturación
+  y "Places API (New)" en su proyecto de Google Cloud. NO subirla a
+  Vercel hasta que una prueba contra Places API (New) responda bien —
+  si no, el formulario de shows mostraría un buscador que no encuentra
+  nada. Sin clave el formulario usa el campo de texto simple.
+- **Wikipedia — no todavía** (2026-10-02): Cristian quiere un artículo.
+  Recomendado esperar: Wikipedia exige cobertura significativa en
+  varias fuentes independientes (hoy solo El Colombiano) y desaconseja
+  autobiografías; un artículo prematuro se borra. Camino: más prensa
+  independiente → Wikidata → Wikipedia escrito por un tercero.
+
 - **Primera oferta vendible desde el sitio — EN VIVO** (2026-09-28):
   Sesión 1:1, 70 min, $80.000 en `/entrenar` → Mercado Pago real
   (verificado: `/api/checkout/sesion-1a1-70min` redirige a

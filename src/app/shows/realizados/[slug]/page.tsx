@@ -48,6 +48,7 @@ export default async function PastShowPage({ params }: { params: Promise<{ slug:
     location: {
       "@type": "Place",
       name: show.venue ?? show.town,
+      geo: { "@type": "GeoCoordinates", latitude: show.geo.lat, longitude: show.geo.lng },
       address: {
         "@type": "PostalAddress",
         addressLocality: show.town,

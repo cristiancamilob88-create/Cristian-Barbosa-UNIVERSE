@@ -32,6 +32,11 @@ export interface PastShow {
   details: string[];
   image?: { src: string; alt: string; width: number; height: number };
   collaborator?: { name: string; role: string };
+  /**
+   * The town's coordinates (municipal center — public geographic fact,
+   * not the exact venue), for the shows map and Event structured data.
+   */
+  geo: { lat: number; lng: number };
   /** Slug of the QR campaign landing used at this show, if any. */
   campaignSlug?: string;
 }
@@ -43,6 +48,7 @@ export const pastShows: PastShow[] = [
     town: "Támesis",
     region: "Antioquia",
     venue: "Coliseo Cubierto de Támesis (CIC)",
+    geo: { lat: 5.6644, lng: -75.7142 },
     whenLabel: "Septiembre de 2026 · cierre el lunes 14",
     startDate: "2026-09-11",
     endDate: "2026-09-14",
@@ -67,6 +73,7 @@ export const pastShows: PastShow[] = [
     title: "Concordia — espectáculo del Circo Santiago de Chile",
     town: "Concordia",
     region: "Antioquia",
+    geo: { lat: 6.0464, lng: -75.9078 },
     whenLabel: "Septiembre de 2026",
     startDate: "2026-09-04",
     summary:
@@ -88,3 +95,6 @@ export const pastShowsIndexPath = "/shows/realizados";
 export function pastShowPath(slug: string): string {
   return `${pastShowsIndexPath}/${slug}`;
 }
+
+/** Where Cristian is based — the map's home marker. */
+export const homeBase = { town: "Envigado", region: "Antioquia", geo: { lat: 6.1719, lng: -75.5866 } };

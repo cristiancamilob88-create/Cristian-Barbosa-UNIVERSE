@@ -8,6 +8,7 @@ import { buildMetadata } from "@/lib/seo";
 import { goLinks } from "@/config/site";
 import { pastShows, pastShowsIndexPath } from "@/config/pastShows";
 import { PastShowCard } from "@/components/shows/PastShowCard";
+import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
 import Link from "next/link";
 
 /**
@@ -168,7 +169,10 @@ export default function ShowsPage() {
               Ver todos →
             </Link>
           </div>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          <div className="mt-8">
+            <ShowsMapLazy />
+          </div>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
             {pastShows.map((show) => (
               <PastShowCard key={show.slug} show={show} />
             ))}
