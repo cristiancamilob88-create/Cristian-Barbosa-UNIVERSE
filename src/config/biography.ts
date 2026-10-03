@@ -11,6 +11,8 @@
  * conversation notes in docs/RUNNING_CHECKLIST.md.
  */
 
+import { circusCountLabel } from "@/config/tourStops";
+
 export const bioFacts = {
   age: 22,
   grewUpIn: "Bogotá y Fusagasugá (Cundinamarca)",
@@ -19,7 +21,7 @@ export const bioFacts = {
   arrivedMedellin: "julio de 2022",
   joinedCircus: "junio de 2024",
   circusName: "Circo Santiago de Chile",
-  municipalitiesCount: "más de 15",
+  municipalitiesCount: circusCountLabel(),
 } as const;
 
 export const achievements = {
@@ -75,7 +77,7 @@ export const timeline: TimelineEntry[] = [
     when: "Primeros shows",
     title: "Colegios y alcaldías",
     detail:
-      "En Fusagasugá y Bogotá empieza a hacer presentaciones deportivas en colegios y para alcaldías.",
+      "En Fusagasugá y en colegios de Bosa El Porvenir, en Bogotá, empieza a hacer presentaciones deportivas en colegios y para alcaldías.",
   },
   {
     when: "Julio de 2022",
@@ -92,7 +94,7 @@ export const timeline: TimelineEntry[] = [
     when: "Junio de 2024",
     title: "El Circo Santiago de Chile",
     detail:
-      "El circo lo conoce por sus redes sociales y lo suma a su elenco. Desde entonces se ha presentado en más de 15 municipios de Antioquia y Chocó, en los coliseos cubiertos de cada pueblo.",
+      `El circo lo conoce por sus redes sociales y lo suma a su elenco. Desde entonces se ha presentado en ${circusCountLabel()} municipios del Suroeste, el Nordeste, el Norte y el Occidente de Antioquia, y en El Carmen de Atrato (Chocó), en los coliseos cubiertos de cada pueblo.`,
   },
   {
     when: "2025",
@@ -109,14 +111,15 @@ export const timeline: TimelineEntry[] = [
 ];
 
 /**
- * Mission / vision / values — drafted from Cristian's own words ("que
- * la gente se entretenga, aprenda, se motive e inspire con mi
- * historia"); his to change.
+ * Mission / vision / values — written with Cristian (2026-10-04, he
+ * asked us to create them) from his own words: entertain, teach,
+ * inspire with his story; music + calistenia + body expression on the
+ * biggest stages; a community that grows wherever he performs.
  */
 export const purpose = {
   mission:
-    "Entretener, inspirar y enseñar a través del movimiento, la música y el espectáculo: demostrar con cada show, cada canción y cada video que el cuerpo también es un instrumento de expresión, y acompañar a quien quiera empezar su propio camino.",
+    "Entretener, inspirar y enseñar a través del movimiento, la música y el espectáculo. Llevar la calistenia a coliseos, colegios, escenarios y pantallas para demostrar que la disciplina transforma —como transformó a un niño flaco de Fusagasugá— y acompañar a quien quiera empezar su propio camino.",
   vision:
-    "Llevar desde Antioquia un espectáculo que une calistenia, música y expresión corporal a los escenarios más grandes de Latinoamérica y del mundo, con una comunidad que crece en cada lugar que visita.",
-  values: ["Disciplina", "Autenticidad", "Superación", "Comunidad", "Respeto por el público"],
+    "Ser el artista latinoamericano que une calistenia, música y expresión corporal en un solo espectáculo: llegar a los grandes festivales y escenarios del mundo con canciones propias, firmar con una disquera internacional y construir una comunidad que crezca en cada lugar que visita.",
+  values: ["Disciplina", "Superación", "Autenticidad", "Comunidad", "Respeto por el público", "Gratitud"],
 } as const;

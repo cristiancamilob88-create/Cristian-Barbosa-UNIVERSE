@@ -22,8 +22,11 @@ session.
   `/servicios`, El Diamante en `/musica`. Misión/visión/valores son
   borrador para que él los ajuste. Temas personales (padre, primo,
   pérdidas económicas, relaciones) deliberadamente fuera hasta que
-  decida — involucran a terceros. Pendiente: nombres de los +15
-  municipios del circo y fotos por show; links de Telemedellín.
+  decida — involucran a terceros. Lista de municipios recibida
+  (2026-10-04) → src/config/tourStops.ts + mapa. Pendiente: fotos por
+  municipio, competencias y Pride; nombre exacto del artista con quien
+  fue a colegios de Medellín ("el OSCAR"); entrevista de Telemedellín
+  (consultar derechos antes de subirla completa a YouTube).
 
 - **Google Maps API key — esperando a Cristian** (2026-10-02): la clave
   que envió es válida pero Google la rechaza: falta activar facturación

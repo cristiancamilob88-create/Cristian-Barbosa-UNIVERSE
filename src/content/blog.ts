@@ -81,7 +81,7 @@ export const blogPosts: BlogPost[] = [
     sections: [
       {
         paragraphs: [
-          "Desde junio de 2024 Cristian Barbosa hace parte del Circo Santiago de Chile, que lo conoció por sus redes sociales. Con el circo se ha presentado en más de 15 municipios de Antioquia y Chocó, del oriente al suroeste, el nordeste y el occidente, incluido El Carmen de Atrato. No es una carpa: las funciones son en el coliseo cubierto de cada municipio, cuatro noches seguidas, de viernes a lunes, con dos formatos de espectáculo: La Casa del Terror y Espectáculo Extremo.",
+          "Desde junio de 2024 Cristian Barbosa hace parte del Circo Santiago de Chile, que lo conoció por sus redes sociales. Con el circo se ha presentado en más de 20 municipios del Suroeste, el Nordeste, el Norte y el Occidente de Antioquia, además de El Carmen de Atrato, en Chocó. Y por su cuenta ha llevado su show a colegios y alcaldías de Medellín, Envigado, San Rafael, Bogotá y Fusagasugá. No es una carpa: las funciones son en el coliseo cubierto de cada municipio, cuatro noches seguidas, de viernes a lunes, con dos formatos de espectáculo: La Casa del Terror y Espectáculo Extremo.",
         ],
       },
       {

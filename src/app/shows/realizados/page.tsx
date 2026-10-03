@@ -4,13 +4,15 @@ import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { PastShowCard } from "@/components/shows/PastShowCard";
 import { buildMetadata } from "@/lib/seo";
-import { homeBase, pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { pastShowPath, pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { circusCountLabel, circusStops, groupBySubregion, tourStops } from "@/config/tourStops";
+import Link from "next/link";
 import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Shows realizados en Antioquia",
+  title: "Shows realizados en Antioquia — más de 20 municipios",
   description:
-    "Los shows que Cristian Barbosa ya ha presentado en Antioquia: Támesis, Concordia y más. Mira dónde ha estado y contrata el tuyo.",
+    "Dónde se ha presentado Cristian Barbosa: gira con el Circo Santiago de Chile por el Suroeste, Nordeste, Norte y Occidente de Antioquia y Chocó, y shows en colegios y alcaldías.",
   path: pastShowsIndexPath,
 });
 
@@ -25,10 +27,11 @@ export default function ShowsRealizadosPage() {
       <section className="pt-16">
         <Container className="flex flex-col gap-3">
           <ShowsMapLazy />
-          <p className="text-sm text-steel">
-            {pastShows.map((show) => `${show.town}, ${show.region}`).join(" · ")} — base en {homeBase.town},{" "}
-            {homeBase.region}.
-          </p>
+          <ul className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-steel">
+            <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-ember" aria-hidden="true" />Gira con el Circo Santiago de Chile</li>
+            <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-tide" aria-hidden="true" />Colegios, alcaldías y eventos</li>
+            <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-chalk" aria-hidden="true" />Envigado, su base</li>
+          </ul>
         </Container>
       </section>
       <section className="py-16">
@@ -36,6 +39,59 @@ export default function ShowsRealizadosPage() {
           {pastShows.map((show) => (
             <PastShowCard key={show.slug} show={show} />
           ))}
+        </Container>
+      </section>
+      {/* The full list as text — what search engines actually read. */}
+      <section className="border-t border-steel-dim/40 py-16">
+        <Container className="grid gap-12 lg:grid-cols-2">
+          <div>
+            <h2 className="font-display text-2xl font-black uppercase tracking-tight text-chalk">
+              Gira con el Circo Santiago de Chile
+            </h2>
+            <p className="mt-2 text-sm text-steel">
+              {circusCountLabel()} municipios desde junio de 2024, cuatro noches por municipio en el coliseo cubierto.
+            </p>
+            <div className="mt-6 flex flex-col gap-6">
+              {groupBySubregion(circusStops).map((group) => (
+                <div key={group.subregion}>
+                  <h3 className="font-mono text-xs uppercase tracking-widest text-ember">{group.subregion}</h3>
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {group.stops.map((stop) => (
+                      <li key={stop.town} className="border border-steel-dim/50 px-3 py-1 text-sm text-chalk">
+                        {stop.showSlug ? (
+                          <Link href={pastShowPath(stop.showSlug)} className="underline decoration-ember underline-offset-4 hover:text-ember">
+                            {stop.town}
+                          </Link>
+                        ) : (
+                          stop.town
+                        )}
+                        {stop.corregimientos?.length ? (
+                          <span className="text-steel"> · {stop.corregimientos.join(", ")}</span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h2 className="font-display text-2xl font-black uppercase tracking-tight text-chalk">
+              Colegios, alcaldías y eventos
+            </h2>
+            <ul className="mt-6 flex flex-col gap-4">
+              {tourStops
+                .filter((stop) => stop.kind === "instituciones")
+                .map((stop) => (
+                  <li key={stop.town} className="border-l-2 border-tide pl-4">
+                    <p className="font-display text-lg font-black uppercase tracking-tight text-chalk">
+                      {stop.town} <span className="font-mono text-xs font-normal text-steel-dim">{stop.department}</span>
+                    </p>
+                    {stop.note && <p className="mt-1 text-sm text-steel">{stop.note}</p>}
+                  </li>
+                ))}
+            </ul>
+          </div>
         </Container>
       </section>
       <section className="border-t border-steel-dim/40 py-16">

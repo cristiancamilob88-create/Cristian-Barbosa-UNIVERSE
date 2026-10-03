@@ -106,9 +106,14 @@ body {
   border: 2px solid var(--color-chalk);
   box-shadow: 0 0 0 6px rgb(242 36 26 / 0.25), 0 0 18px rgb(242 36 26 / 0.8);
 }
-.cb-map-pin--home {
+.cb-map-pin--edu {
   background: var(--color-tide);
   box-shadow: 0 0 0 6px rgb(31 184 224 / 0.25), 0 0 18px rgb(31 184 224 / 0.8);
+}
+.cb-map-pin--home {
+  background: var(--color-chalk);
+  border-color: var(--color-ember);
+  box-shadow: 0 0 0 6px rgb(243 241 234 / 0.25), 0 0 18px rgb(243 241 234 / 0.8);
 }
 .cb-shows-map .leaflet-popup-content-wrapper,
 .cb-shows-map .leaflet-popup-tip {

@@ -43,7 +43,7 @@ const services: Service[] = [
     title: "Shows en vivo",
     price: "Cotización según el evento",
     detail:
-      "Calistenia extrema, paradas de manos, fuego y expresión corporal. Para municipios, colegios, empresas, ferias, festivales y eventos privados en Medellín y toda Antioquia. Más de 15 municipios recorridos con el Circo Santiago de Chile.",
+      "Calistenia extrema, paradas de manos, fuego y expresión corporal. Para municipios, colegios, empresas, ferias, festivales y eventos privados en Medellín y toda Antioquia. Más de 20 municipios recorridos con el Circo Santiago de Chile.",
     primary: { kind: "link", href: "/contacto?topic=shows", label: "Cotizar un show", cta: "intent_shows" },
     secondary: { kind: "link", href: "/shows", label: "Ver shows", cta: "intent_shows" },
     featured: true,

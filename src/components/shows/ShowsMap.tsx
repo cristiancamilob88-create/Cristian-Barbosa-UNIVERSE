@@ -2,11 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
-import { homeBase, pastShowPath, pastShows } from "@/config/pastShows";
+import { pastShowPath } from "@/config/pastShows";
+import { tourStops } from "@/config/tourStops";
 
 /**
- * "Dónde ha estado" — every real show (src/config/pastShows.ts) as a
- * glowing pin on a dark map of Antioquia, plus Envigado as home base.
+ * "Dónde ha estado" — every place he has performed
+ * (src/config/tourStops.ts): circus tour stops in ember, schools/
+ * alcaldías in tide, Envigado (home) in chalk, on a dark map.
  * Cristian's ask (2026-10-02): our own map, no Google Maps key needed.
  *
  * Leaflet (open source, ~40 KB) + CARTO's dark OpenStreetMap tiles
@@ -41,33 +43,39 @@ export function ShowsMap() {
       const pin = (className: string) =>
         L.divIcon({ className: "", html: `<span class="${className}"></span>`, iconSize: [18, 18], iconAnchor: [9, 9] });
 
+      // Frame Antioquia + Chocó; Bogotá/Fusagasugá stay reachable by
+      // panning instead of zooming the whole map out to Cundinamarca.
       const points: [number, number][] = [];
-      for (const show of pastShows) {
-        points.push([show.geo.lat, show.geo.lng]);
+      for (const stop of tourStops) {
+        const home = stop.town === "Envigado";
+        const className = home ? "cb-map-pin cb-map-pin--home" : stop.kind === "circo" ? "cb-map-pin" : "cb-map-pin cb-map-pin--edu";
+        if (stop.department === "Antioquia" || stop.department === "Chocó") points.push([stop.geo.lat, stop.geo.lng]);
+
         const popup = document.createElement("div");
         const title = document.createElement("strong");
-        title.textContent = `${show.town}, ${show.region}`;
-        const when = document.createElement("div");
-        when.textContent = show.whenLabel;
-        const link = document.createElement("a");
-        link.href = pastShowPath(show.slug);
-        link.textContent = "Ver el show →";
-        popup.append(title, when, link);
-        L.marker([show.geo.lat, show.geo.lng], { icon: pin("cb-map-pin"), title: show.town, keyboard: true })
+        title.textContent = `${stop.town}${home ? " — base de Cristian" : ""}`;
+        const where = document.createElement("div");
+        where.textContent = `${stop.subregion === stop.department ? stop.department : `${stop.subregion}, ${stop.department}`}`;
+        const what = document.createElement("div");
+        what.textContent = stop.note ?? "Gira con el Circo Santiago de Chile";
+        popup.append(title, where, what);
+        if (stop.corregimientos?.length) {
+          const extra = document.createElement("div");
+          extra.textContent = `También: ${stop.corregimientos.join(", ")}`;
+          popup.append(extra);
+        }
+        if (stop.showSlug) {
+          const link = document.createElement("a");
+          link.href = pastShowPath(stop.showSlug);
+          link.textContent = "Ver el show →";
+          popup.append(link);
+        }
+        L.marker([stop.geo.lat, stop.geo.lng], { icon: pin(className), title: stop.town, keyboard: true })
           .addTo(map)
           .bindPopup(popup);
       }
 
-      points.push([homeBase.geo.lat, homeBase.geo.lng]);
-      const home = document.createElement("div");
-      const homeTitle = document.createElement("strong");
-      homeTitle.textContent = `${homeBase.town} — base de Cristian`;
-      home.append(homeTitle);
-      L.marker([homeBase.geo.lat, homeBase.geo.lng], { icon: pin("cb-map-pin cb-map-pin--home"), title: homeBase.town })
-        .addTo(map)
-        .bindPopup(home);
-
-      map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 10 });
+      map.fitBounds(L.latLngBounds(points), { padding: [32, 32], maxZoom: 10 });
     })();
 
     return () => {
