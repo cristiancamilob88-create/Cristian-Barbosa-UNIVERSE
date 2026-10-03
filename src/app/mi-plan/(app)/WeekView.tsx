@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { weekCompletion, type DayLog, type Routine } from "@/lib/training";
 
 interface Props {
@@ -170,6 +171,14 @@ export function WeekView({ week, routine, initialLogs, readOnly }: Props) {
                         onBlur={(e) => saveResult(dayIndex, exerciseIndex, e.target.value)}
                         className="min-w-0 flex-1 border border-steel-dim/40 bg-ink px-2 py-1.5 text-sm text-chalk outline-none placeholder:text-steel-dim focus:border-ember"
                       />
+                      {exercise.exerciseId && (
+                        <Link
+                          href={`/mi-plan/biblioteca/${exercise.exerciseId}`}
+                          className="shrink-0 font-mono text-[11px] uppercase tracking-wider text-tide underline-offset-4 hover:underline"
+                        >
+                          Cómo se hace
+                        </Link>
+                      )}
                     </div>
                   </li>
                 );

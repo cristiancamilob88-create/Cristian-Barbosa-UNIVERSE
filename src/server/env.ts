@@ -56,6 +56,16 @@ const serverEnvSchema = z.object({
   // never logs out the other. Optional: unset means /mi-plan sign-in
   // reports "not configured" (fail closed). `openssl rand -hex 32`.
   MEMBER_SESSION_SECRET: z.string().min(32).optional(),
+  // Exercise-library video uploads (2026-10-03, docs/TRAINING.md): the
+  // project URL (https://<ref>.supabase.co) and the service-role key the
+  // server uses ONLY to mint short-lived signed upload URLs for the
+  // `exercise-videos` bucket — the key never leaves the server; the
+  // browser uploads straight to the signed URL (Vercel functions can't
+  // take a request body that large). Both optional: unset means the admin
+  // library hides the upload button and video links (YouTube etc.) still
+  // work. The key is in Supabase → Project Settings → API keys.
+  SUPABASE_URL: z.string().url().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(20).optional(),
   // Welcome-email automation (2026-08-25, Cristian's own request — see
   // docs/AUTOMATIONS.md), sent via Gmail SMTP: no domain purchase
   // needed to start (Resend/similar require a verified domain to email
@@ -109,6 +119,8 @@ export function getServerEnv() {
     ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH || undefined,
     ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET || undefined,
     MEMBER_SESSION_SECRET: process.env.MEMBER_SESSION_SECRET || undefined,
+    SUPABASE_URL: process.env.SUPABASE_URL || undefined,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || undefined,
     GMAIL_USER: process.env.GMAIL_USER || undefined,
     GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD || undefined,
     META_WHATSAPP_ACCESS_TOKEN: process.env.META_WHATSAPP_ACCESS_TOKEN || undefined,
