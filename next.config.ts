@@ -26,12 +26,18 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self' https://*.googleapis.com https://*.google.com https://*.gstatic.com data: blob:",
+      // *.supabase.co: the admin's browser uploads exercise videos straight
+      // to a signed Supabase Storage URL (2026-10-03, docs/TRAINING.md).
+      "connect-src 'self' https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.supabase.co data: blob:",
+      // Exercise-library videos are served from Supabase Storage's public bucket.
+      "media-src 'self' https://*.supabase.co blob:",
       "worker-src 'self' blob:",
       // Only Instagram's own /embed iframe (InstagramEmbed.tsx) — a
       // plain iframe, not a vendor SDK. Added with the first real use,
       // 2026-08-25.
-      "frame-src https://www.instagram.com https://*.google.com",
+      // youtube-nocookie.com: exercise demo videos in the student library
+      // (privacy-enhanced embed — no tracking cookies until play).
+      "frame-src https://www.instagram.com https://*.google.com https://www.youtube-nocookie.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },

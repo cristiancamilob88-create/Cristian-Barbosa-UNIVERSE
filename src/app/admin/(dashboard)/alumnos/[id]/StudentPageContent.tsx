@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { fetchExerciseLibrary } from "@/lib/adminExercises";
+import { searchKey, type Exercise as LibraryExercise } from "@/lib/exercises";
 import { LoadingBlock, ErrorBlock } from "@/components/admin/states";
 import {
   AdminTrainingApiError,
@@ -289,6 +291,18 @@ function RoutineEditor({ detail, onSaved }: { detail: StudentWeekDetail; onSaved
   const [error, setError] = useState<string | null>(null);
   const hasLogs = Object.keys(detail.logs).length > 0;
 
+  // The exercise library, for name suggestions and linking: an exercise
+  // whose name matches a library entry gets its exerciseId, so the
+  // student sees "Cómo se hace" next to it. The editor works without it.
+  const [library, setLibrary] = useState<LibraryExercise[]>([]);
+  useEffect(() => {
+    fetchExerciseLibrary()
+      .then((data) => setLibrary(data.exercises.filter((e) => e.active)))
+      .catch(() => setLibrary([]));
+  }, []);
+  const byName = useMemo(() => new Map(library.map((e) => [searchKey(e.name), e])), [library]);
+  const libraryMatch = (name: string) => byName.get(searchKey(name));
+
   function updateDay(dayIndex: number, patch: Partial<Routine[number]>) {
     setDays((current) => current.map((d, i) => (i === dayIndex ? { ...d, ...patch } : d)));
   }
@@ -384,13 +398,25 @@ function RoutineEditor({ detail, onSaved }: { detail: StudentWeekDetail; onSaved
           <ul className="flex flex-col gap-2">
             {day.exercises.map((exercise, exerciseIndex) => (
               <li key={exerciseIndex} className="grid gap-2 border-t border-steel-dim/30 pt-2 sm:grid-cols-[2fr_1fr_2fr_auto]">
-                <input
-                  value={exercise.name}
-                  onChange={(e) => updateExercise(dayIndex, exerciseIndex, { name: e.target.value })}
-                  placeholder="Ejercicio"
-                  aria-label="Ejercicio"
-                  className={fieldClass}
-                />
+                <div className="flex flex-col gap-1">
+                  <input
+                    value={exercise.name}
+                    list="exercise-library"
+                    onChange={(e) => {
+                      const match = libraryMatch(e.target.value);
+                      updateExercise(dayIndex, exerciseIndex, {
+                        name: match ? match.name : e.target.value,
+                        exerciseId: match?.id,
+                      });
+                    }}
+                    placeholder="Ejercicio"
+                    aria-label="Ejercicio"
+                    className={fieldClass}
+                  />
+                  {exercise.exerciseId && (
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-tide">En biblioteca · el alumno ve el video</span>
+                  )}
+                </div>
                 <input
                   value={exercise.dose}
                   onChange={(e) => updateExercise(dayIndex, exerciseIndex, { dose: e.target.value })}
@@ -435,6 +461,12 @@ function RoutineEditor({ detail, onSaved }: { detail: StudentWeekDetail; onSaved
           </button>
         </div>
       ))}
+
+      <datalist id="exercise-library">
+        {library.map((e) => (
+          <option key={e.id} value={e.name} />
+        ))}
+      </datalist>
 
       <button
         type="button"
