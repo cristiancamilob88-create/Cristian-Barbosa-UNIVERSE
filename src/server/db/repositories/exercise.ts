@@ -117,6 +117,21 @@ export async function updateExercise(db: Pool | PoolClient, id: string, input: E
   }
 }
 
+/**
+ * Total bytes stored in the exercise-videos bucket, for the "X MB de
+ * 1 GB" meter in /admin/biblioteca. Read straight from Supabase's own
+ * `storage.objects` table (same Postgres); null where that table doesn't
+ * exist (local/CI Postgres) so the meter just hides.
+ */
+export async function getVideoStorageUsedBytes(db: Pool | PoolClient): Promise<number | null> {
+  const exists = await db.query<{ present: boolean }>("select to_regclass('storage.objects') is not null as present");
+  if (!exists.rows[0]?.present) return null;
+  const result = await db.query<{ total: string | null }>(
+    "select coalesce(sum((metadata->>'size')::bigint), 0) as total from storage.objects where bucket_id = 'exercise-videos'",
+  );
+  return Number(result.rows[0]?.total ?? 0);
+}
+
 /** Attaches (or with null, removes) the uploaded video; returns the previous path so the caller can delete that file. */
 export async function setExerciseVideoPath(
   client: PoolClient,

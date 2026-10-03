@@ -1,25 +1,35 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getPool } from "@/server/db/pool";
 import { requireAdminApiSession } from "@/server/admin/auth";
-import { DuplicateExerciseNameError, createExercise, listExercises } from "@/server/db/repositories/exercise";
+import {
+  DuplicateExerciseNameError,
+  createExercise,
+  getVideoStorageUsedBytes,
+  listExercises,
+} from "@/server/db/repositories/exercise";
 import { toPublicExercise } from "@/server/training/exercises";
 import { isVideoUploadConfigured } from "@/server/storage/exerciseVideos";
 import { exerciseInputSchema } from "@/lib/exercises";
 
 /**
  * The exercise library for /admin/biblioteca (docs/TRAINING.md, "Exercise
- * library"). Admin session only. GET: every entry (inactive too) plus
- * whether video upload is configured. POST: a new entry.
+ * library"). Admin session only. GET: every entry (inactive too), whether
+ * video upload is configured, and how much video storage is used (null
+ * where it can't be read). POST: a new entry.
  */
 
 export async function GET(request: NextRequest) {
   const denied = requireAdminApiSession(request);
   if (denied) return denied;
 
-  const rows = await listExercises(getPool(), { activeOnly: false });
+  const db = getPool();
+  const [rows, storageUsedBytes] = await Promise.all([
+    listExercises(db, { activeOnly: false }),
+    getVideoStorageUsedBytes(db).catch(() => null),
+  ]);
   return NextResponse.json({
     ok: true,
-    data: { exercises: rows.map(toPublicExercise), uploadEnabled: isVideoUploadConfigured() },
+    data: { exercises: rows.map(toPublicExercise), uploadEnabled: isVideoUploadConfigured(), storageUsedBytes },
   });
 }
 

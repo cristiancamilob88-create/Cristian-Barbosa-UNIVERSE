@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { exerciseInputSchema, searchKey, youtubeEmbedUrl, youtubeId } from "./exercises";
+import { exerciseInputSchema, formatBytes, searchKey, videoSizeAdvice, youtubeEmbedUrl, youtubeId } from "./exercises";
 
 describe("youtubeId", () => {
   it("reads every common YouTube link form", () => {
@@ -38,5 +38,34 @@ describe("exerciseInputSchema", () => {
 describe("searchKey", () => {
   it("ignores accents and case", () => {
     expect(searchKey("Tríceps EN Banco")).toBe("triceps en banco");
+  });
+});
+
+describe("videoSizeAdvice", () => {
+  const MB = 1024 * 1024;
+
+  it("lets a compressed clip through silently", () => {
+    expect(videoSizeAdvice(4 * MB)).toEqual({ level: "ok" });
+    expect(videoSizeAdvice(15 * MB)).toEqual({ level: "ok" });
+  });
+
+  it("warns about a heavy video but still allows it", () => {
+    const advice = videoSizeAdvice(38 * MB);
+    expect(advice.level).toBe("heavy");
+    if (advice.level === "heavy") expect(advice.message).toContain("38 MB");
+  });
+
+  it("blocks anything over the 50 MB bucket limit, with how to fix it", () => {
+    const advice = videoSizeAdvice(120 * MB);
+    expect(advice.level).toBe("too_big");
+    if (advice.level === "too_big") expect(advice.message).toMatch(/720p/);
+  });
+});
+
+describe("formatBytes", () => {
+  it("formats MB and GB in Colombian style", () => {
+    expect(formatBytes(4.25 * 1024 * 1024)).toBe("4,3 MB");
+    expect(formatBytes(152 * 1024 * 1024)).toBe("152 MB");
+    expect(formatBytes(1.5 * 1024 * 1024 * 1024)).toBe("1,5 GB");
   });
 });

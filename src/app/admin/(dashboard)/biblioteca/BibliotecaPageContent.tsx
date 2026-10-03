@@ -11,7 +11,17 @@ import {
   updateExerciseEntry,
   uploadExerciseVideo,
 } from "@/lib/adminExercises";
-import { MUSCLE_GROUPS, MUSCLE_GROUP_LABEL, searchKey, type Exercise, type ExerciseInput, type MuscleGroup } from "@/lib/exercises";
+import {
+  FREE_STORAGE_BYTES,
+  MUSCLE_GROUPS,
+  MUSCLE_GROUP_LABEL,
+  formatBytes,
+  searchKey,
+  videoSizeAdvice,
+  type Exercise,
+  type ExerciseInput,
+  type MuscleGroup,
+} from "@/lib/exercises";
 
 const fieldClass =
   "rounded border border-steel-dim/60 bg-ink px-3 py-2 text-sm text-chalk outline-none placeholder:text-steel-dim focus:border-ember";
@@ -28,7 +38,7 @@ function errorText(err: unknown, fallback: string): string {
 type State =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; exercises: Exercise[]; uploadEnabled: boolean };
+  | { status: "ready"; exercises: Exercise[]; uploadEnabled: boolean; storageUsedBytes: number | null };
 
 export function BibliotecaPageContent() {
   const [state, setState] = useState<State>({ status: "loading" });
@@ -72,6 +82,8 @@ export function BibliotecaPageContent() {
         </p>
       )}
 
+      {state.uploadEnabled && state.storageUsedBytes !== null && <StorageMeter usedBytes={state.storageUsedBytes} />}
+
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex min-w-48 flex-1 flex-col gap-1">
           <span className={labelClass}>Buscar</span>
@@ -101,6 +113,7 @@ export function BibliotecaPageContent() {
             replace(saved);
             setEditing(saved.id);
           }}
+          onVideoChanged={load}
         />
       )}
 
@@ -121,6 +134,7 @@ export function BibliotecaPageContent() {
                         uploadEnabled={state.uploadEnabled}
                         onCancel={() => setEditing(null)}
                         onSaved={replace}
+                        onVideoChanged={load}
                       />
                     </li>
                   ) : (
@@ -156,18 +170,53 @@ export function BibliotecaPageContent() {
   );
 }
 
+function StorageMeter({ usedBytes }: { usedBytes: number }) {
+  const ratio = Math.min(usedBytes / FREE_STORAGE_BYTES, 1);
+  const tone = ratio >= 0.9 ? "bg-ember" : ratio >= 0.7 ? "bg-chalk" : "bg-tide";
+  return (
+    <div className="flex flex-col gap-2 border border-steel-dim/40 bg-ink-raised px-4 py-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className={labelClass}>Espacio de videos</span>
+        <span className="font-mono text-sm text-chalk">
+          {formatBytes(usedBytes)} de {formatBytes(FREE_STORAGE_BYTES)}
+        </span>
+      </div>
+      <div
+        className="h-2 overflow-hidden bg-steel-dim/30"
+        role="progressbar"
+        aria-valuenow={Math.round(ratio * 100)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Espacio de videos usado"
+      >
+        <div className={`h-full ${tone}`} style={{ width: `${Math.max(ratio * 100, usedBytes > 0 ? 1 : 0)}%` }} />
+      </div>
+      {ratio >= 0.9 && (
+        <p className="text-sm text-ember">
+          Casi lleno. Comprime los videos más pesados o usa links de YouTube «no listado» para los nuevos.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function ExerciseForm({
   exercise,
   uploadEnabled,
   onSaved,
   onCancel,
+  onVideoChanged,
 }: {
   exercise?: Exercise;
   uploadEnabled: boolean;
   onSaved: (exercise: Exercise) => void;
   onCancel: () => void;
+  /** After an upload/removal — refreshes the storage meter. */
+  onVideoChanged: () => void;
 }) {
   const [pending, setPending] = useState<"save" | "upload" | "remove" | null>(null);
+  // A heavy (but allowed) file waits here until Cristian confirms or cancels.
+  const [heavyFile, setHeavyFile] = useState<{ file: File; message: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [current, setCurrent] = useState<Exercise | undefined>(exercise);
@@ -198,15 +247,32 @@ function ExerciseForm({
     }
   }
 
+  function chooseFile(file: File) {
+    setNotice(null);
+    const advice = videoSizeAdvice(file.size);
+    if (advice.level === "too_big") {
+      setError(advice.message);
+      return;
+    }
+    if (advice.level === "heavy") {
+      setError(null);
+      setHeavyFile({ file, message: advice.message });
+      return;
+    }
+    void upload(file);
+  }
+
   async function upload(file: File) {
     if (!current) return;
+    setHeavyFile(null);
     setPending("upload");
     setError(null);
     try {
       const saved = await uploadExerciseVideo(current.id, file);
       setCurrent(saved);
-      setNotice("Video subido.");
+      setNotice(`Video subido (${formatBytes(file.size)}).`);
       onSaved(saved);
+      onVideoChanged();
     } catch (err) {
       setError(errorText(err, "No se pudo subir el video."));
     } finally {
@@ -222,6 +288,7 @@ function ExerciseForm({
       const saved = await removeExerciseVideo(current.id);
       setCurrent(saved);
       onSaved(saved);
+      onVideoChanged();
     } catch (err) {
       setError(errorText(err, "No se pudo quitar el video."));
     } finally {
@@ -297,7 +364,7 @@ function ExerciseForm({
               disabled={pending !== null}
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) void upload(file);
+                if (file) chooseFile(file);
                 e.target.value = "";
               }}
             />
@@ -307,7 +374,23 @@ function ExerciseForm({
               {pending === "remove" ? "Quitando…" : "Quitar video subido"}
             </button>
           )}
-          <span className="text-xs text-steel-dim">MP4, MOV o WebM · máx. 50 MB · ideal: clip corto, vertical, sin audio</span>
+          <span className="text-xs text-steel-dim">
+            MP4, MOV o WebM · máx. 50 MB · ideal: clip de 20 s en 720p, vertical, sin audio (3–5 MB)
+          </span>
+        </div>
+      )}
+
+      {heavyFile && (
+        <div role="alertdialog" aria-label="Video pesado" className="flex flex-col gap-3 border border-chalk/40 bg-ink p-4 sm:col-span-2">
+          <p className="text-sm text-chalk">{heavyFile.message}</p>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" className={ghostButton} onClick={() => setHeavyFile(null)}>
+              Cancelar y comprimirlo
+            </button>
+            <button type="button" className={primaryButton} onClick={() => void upload(heavyFile.file)}>
+              Subir igual
+            </button>
+          </div>
         </div>
       )}
 

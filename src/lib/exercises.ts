@@ -113,3 +113,46 @@ export function searchKey(text: string): string {
     .toLowerCase()
     .trim();
 }
+
+/** Supabase Free plan: 1 GB of Storage for the whole organization (docs/TRAINING.md, "Video storage"). */
+export const FREE_STORAGE_BYTES = 1024 * 1024 * 1024;
+/** The bucket's own per-file cap (migration 0019) — Supabase Free's upload limit too. */
+export const MAX_VIDEO_UPLOAD_BYTES = 50 * 1024 * 1024;
+/** Above this a 20-second demo clip is almost certainly uncompressed 1080p/4K — worth a warning. */
+export const HEAVY_VIDEO_BYTES = 15 * 1024 * 1024;
+
+export type VideoSizeAdvice =
+  | { level: "ok" }
+  | { level: "heavy"; message: string }
+  | { level: "too_big"; message: string };
+
+const COMPRESS_TIP =
+  "Comprímelo a 720p antes de subirlo (app «Video Compressor» en el celular o HandBrake en el computador) o graba en 720p: un clip de 20 segundos queda en 3–5 MB.";
+
+/** Formats bytes as "4,2 MB" / "1,1 GB" (es-CO). */
+export function formatBytes(bytes: number): string {
+  const mb = bytes / (1024 * 1024);
+  if (mb >= 1024) return `${(mb / 1024).toLocaleString("es-CO", { maximumFractionDigits: 1 })} GB`;
+  return `${mb.toLocaleString("es-CO", { maximumFractionDigits: mb < 10 ? 1 : 0 })} MB`;
+}
+
+/**
+ * What to tell Cristian before a video upload. Too big → the bucket would
+ * refuse it anyway, so say so and how to fix it. Heavy → it fits, but a
+ * handful of these fills the free 1 GB, so warn and let him decide.
+ */
+export function videoSizeAdvice(bytes: number): VideoSizeAdvice {
+  if (bytes > MAX_VIDEO_UPLOAD_BYTES) {
+    return {
+      level: "too_big",
+      message: `Este video pesa ${formatBytes(bytes)} y el máximo es 50 MB. ${COMPRESS_TIP}`,
+    };
+  }
+  if (bytes > HEAVY_VIDEO_BYTES) {
+    return {
+      level: "heavy",
+      message: `Este video pesa ${formatBytes(bytes)}. Con videos así, el espacio gratis (1 GB) se llena con pocos ejercicios. ${COMPRESS_TIP}`,
+    };
+  }
+  return { level: "ok" };
+}

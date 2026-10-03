@@ -62,6 +62,8 @@ describe("/api/admin/exercises", () => {
 
     const { data } = await (await list(req("/api/admin/exercises"))).json();
     expect(data.uploadEnabled).toBe(false);
+    // No Supabase storage schema on local/CI Postgres — the meter hides instead of failing.
+    expect(data.storageUsedBytes).toBeNull();
     expect(data.exercises).toHaveLength(1);
   });
 

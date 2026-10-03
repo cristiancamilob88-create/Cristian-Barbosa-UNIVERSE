@@ -32,7 +32,12 @@ const json = (method: string, data: unknown): RequestInit => ({
   body: JSON.stringify(data),
 });
 
-export function fetchExerciseLibrary(): Promise<{ exercises: Exercise[]; uploadEnabled: boolean }> {
+export function fetchExerciseLibrary(): Promise<{
+  exercises: Exercise[];
+  uploadEnabled: boolean;
+  /** Bytes used in the video bucket; null when it can't be read. */
+  storageUsedBytes: number | null;
+}> {
   return request("/api/admin/exercises");
 }
 
