@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatInteger, formatCents, formatRatio, formatDuration } from "./format";
+import { formatInteger, formatCents, formatRatio, formatDuration, formatPostDate } from "./format";
 
 describe("formatInteger", () => {
   it("groups thousands", () => {
@@ -64,5 +64,11 @@ describe("formatDuration", () => {
 
   it("rounds fractional seconds", () => {
     expect(formatDuration(59.6)).toBe("1:00");
+  });
+});
+
+describe("formatPostDate", () => {
+  it("formats a calendar date in Spanish without shifting the day", () => {
+    expect(formatPostDate("2026-10-03")).toBe("3 de octubre de 2026");
   });
 });

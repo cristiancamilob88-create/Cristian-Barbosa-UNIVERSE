@@ -48,3 +48,11 @@ export function formatDuration(seconds: number | null | undefined): string {
   const remainingSeconds = total % 60;
   return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
 }
+
+/** "2026-10-03" -> "3 de octubre de 2026" — a calendar date, no timezone shift. */
+export function formatPostDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  return new Intl.DateTimeFormat("es-CO", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(
+    new Date(Date.UTC(year, month - 1, day)),
+  );
+}

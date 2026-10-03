@@ -1,4 +1,5 @@
 import { pressCoverage, siteConfig } from "@/config/site";
+import { achievements } from "@/config/biography";
 import type { SocialProfile } from "@/types/crm";
 
 /**
@@ -28,12 +29,15 @@ export function personJsonLd(sameAs: string[] = []) {
       address: { "@type": "PostalAddress", addressLocality: "Envigado", addressRegion: "Antioquia", addressCountry: "CO" },
     },
     knowsAbout: ["Música", "Shows en vivo", "Creación de contenido", "Calistenia"],
-    subjectOf: pressCoverage.map((item) => ({
-      "@type": "NewsArticle",
-      headline: item.label,
-      url: item.url,
-      publisher: { "@type": "Organization", name: item.outlet },
-    })),
+    award: achievements.titles.map((title) => title.label),
+    subjectOf: pressCoverage
+      .filter((item) => item.url)
+      .map((item) => ({
+        "@type": "NewsArticle",
+        headline: item.label,
+        url: item.url,
+        publisher: { "@type": "Organization", name: item.outlet },
+      })),
     ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 }

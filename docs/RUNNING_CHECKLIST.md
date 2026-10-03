@@ -16,6 +16,15 @@ session.
 
 ## Open
 
+- **Historia/Blog/Servicios — publicado, falta revisión de Cristian**
+  (2026-10-03): `/about` reescrita con su historia real
+  (src/config/biography.ts), `/blog` con 3 entradas (src/content/blog.ts),
+  `/servicios`, El Diamante en `/musica`. Misión/visión/valores son
+  borrador para que él los ajuste. Temas personales (padre, primo,
+  pérdidas económicas, relaciones) deliberadamente fuera hasta que
+  decida — involucran a terceros. Pendiente: nombres de los +15
+  municipios del circo y fotos por show; links de Telemedellín.
+
 - **Google Maps API key — esperando a Cristian** (2026-10-02): la clave
   que envió es válida pero Google la rechaza: falta activar facturación
   y "Places API (New)" en su proyecto de Google Cloud. NO subirla a

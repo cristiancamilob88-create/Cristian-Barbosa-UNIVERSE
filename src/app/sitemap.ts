@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { navItems, secondaryNavItems, siteConfig } from "@/config/site";
 import { legalLinks } from "@/config/legal";
 import { pastShowPath, pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { blogPostPath, blogPosts } from "@/content/blog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // A navItem can point at an anchor within another page (e.g.
@@ -16,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...legalLinks.map((link) => link.href),
     pastShowsIndexPath,
     ...pastShows.map((show) => pastShowPath(show.slug)),
+    ...blogPosts.map((post) => blogPostPath(post.slug)),
   ];
 
   return routes.map((path) => ({

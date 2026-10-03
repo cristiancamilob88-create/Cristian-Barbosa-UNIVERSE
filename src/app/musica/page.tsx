@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import Link from "next/link";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { buildMetadata } from "@/lib/seo";
 import { formatCents } from "@/lib/format";
@@ -29,6 +30,22 @@ export default function MusicaPage() {
           Quiero escucharla antes que nadie
         </TrackedLink>
       </PageHero>
+      {/* First real release (Cristian, 2026-10-03). */}
+      <section className="pt-16">
+        <Container>
+          <div className="flex flex-col gap-4 border border-ember/60 bg-ink-raised p-8">
+            <p className="font-mono text-xs uppercase tracking-widest text-ember">Lanzamiento · 15 de octubre de 2026</p>
+            <h2 className="font-display text-4xl font-black uppercase tracking-tight text-chalk sm:text-5xl">El Diamante</h2>
+            <p className="max-w-2xl text-sm leading-relaxed text-steel">
+              Su primer rap con equipo profesional: una idea escrita a mano que se volvió canción, grabada en un
+              estudio en la vereda La Miel de Caldas, Antioquia, con el productor Cristian Alvia.
+            </p>
+            <Link href="/blog/el-diamante-cancion" className="w-fit text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide">
+              La historia detrás de la canción →
+            </Link>
+          </div>
+        </Container>
+      </section>
       <section className="py-16">
         <Container className="grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-3">
           {[

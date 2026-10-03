@@ -34,14 +34,32 @@ export const siteConfig = {
  * 0011 — verified live when Cristian sent it, 2026-09-04); /about is the
  * indexable home for it, campaign landings are noindex.
  */
-export const pressCoverage = [
+export interface PressItem {
+  outlet: string;
+  label: string;
+  year: number;
+  /** Public link, when there is one (TV segments often aren't online). */
+  url?: string;
+  /** Real clipping/photo of the coverage, when Cristian sent one. */
+  image?: string;
+}
+
+export const pressCoverage: PressItem[] = [
   {
     outlet: "El Colombiano",
     label: "Entrevista con El Colombiano",
-    url: "https://www.elcolombiano.com/amp/deportes/cristian-barbosa-caliestania-envigado-practica-que-crece-en-area-metropolitana-PP33788025",
+    year: 2026,
+    // Canonical (non-AMP) URL, sent by Cristian 2026-10-03.
+    url: "https://www.elcolombiano.com/deportes/cristian-barbosa-caliestania-envigado-practica-que-crece-en-area-metropolitana-PP33788025",
     image: "/brand/press-el-colombiano.jpg",
   },
-] as const;
+  {
+    // Cristian's own account (2026-10-03); no public link yet.
+    outlet: "Telemedellín",
+    label: "Entrevista en Telemedellín, en el programa de Mayita",
+    year: 2025,
+  },
+];
 
 export interface NavItem {
   /** Short mono-space tag used as the visual/identifier label, e.g. "TRAIN". */
@@ -163,6 +181,22 @@ export const navItems: NavItem[] = [
 ];
 
 export const secondaryNavItems: NavItem[] = [
+  {
+    tag: "SERVICES",
+    label: "Servicios",
+    href: "/servicios",
+    description: "Shows, sesiones 1:1, coaching y alianzas — todo en un solo lugar.",
+    intent: "Quiero ver sus servicios",
+    intentId: "intent_services",
+  },
+  {
+    tag: "BLOG",
+    label: "Blog",
+    href: "/blog",
+    description: "Historias, shows y música.",
+    intent: "Quiero leer sus historias",
+    intentId: "intent_blog",
+  },
   {
     tag: "CONTACT",
     label: "Contacto",

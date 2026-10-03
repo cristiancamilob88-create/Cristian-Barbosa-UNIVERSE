@@ -4,37 +4,18 @@ import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { buildMetadata } from "@/lib/seo";
+import Link from "next/link";
 import { navItems, pressCoverage } from "@/config/site";
+import { achievements, bioFacts, purpose, timeline } from "@/config/biography";
+import { blogPostPath, blogPosts } from "@/content/blog";
 
 export const metadata: Metadata = buildMetadata({
   title: "Historia de Cristian Barbosa — artista, shows y calistenia",
   absoluteTitle: true,
   description:
-    "Quién es Cristian Barbosa: de entrenar calistenia en una barra a construir una comunidad, llevar la disciplina a un escenario y hacer música.",
+    "Cristian Barbosa, 22 años, de Fusagasugá a Envigado: cuatro veces campeón nacional de calistenia, artista del Circo Santiago de Chile y músico. Su historia.",
   path: "/about",
 });
-
-/**
- * Historia is a Brand Story / Authority Layer, not an isolated bio
- * (docs/MASTER_BRIEF_BLOCK_07_10.md, "07.7"). Every section below is a
- * real theme the brief names — the copy inside each stays an honest
- * placeholder ("contenido pendiente de redacción") wherever the actual
- * biographical detail hasn't been provided, per the same instruction's
- * own "no inventar datos biográficos que no estén documentados." The
- * structure is real; the specifics aren't invented.
- */
-const storyThemes = [
-  { title: "Historia", detail: "De la calistenia en una barra al universo que existe hoy." },
-  { title: "Evolución", detail: "Cómo pasó de entrenar solo a construir una comunidad." },
-  { title: "Calistenia", detail: "La disciplina física que sostiene todo lo demás." },
-  { title: "Trayectoria", detail: "El camino recorrido — entrenamiento, competencias, escenario." },
-  { title: "Competencias", detail: "Resultados y momentos que marcaron el camino." },
-  { title: "Música", detail: "El lado artístico — de dónde viene y hacia dónde va." },
-  { title: "Shows", detail: "Llevar la disciplina física a un escenario real." },
-  { title: "Comunidad", detail: "Por qué construir una comunidad, no solo una audiencia." },
-  { title: "Visión", detail: "Hacia dónde va el universo de Cristian Barbosa." },
-  { title: "Proyectos", detail: "Lo que viene — entrenamiento, música, marca." },
-];
 
 /**
  * Historia should connect toward every pillar, not just a curated
@@ -66,27 +47,143 @@ export default function AboutPage() {
       <PageHero
         tag="ABOUT"
         title="Historia"
-        description="Cristian Barbosa no empezó como marca — empezó entrenando en una barra."
+        description={`De ${bioFacts.grewUpIn} a ${bioFacts.basedIn}: ${bioFacts.age} años, más de una década entrenando, cuatro veces campeón nacional de calistenia.`}
       />
+      {/* Real story, from Cristian's own account (2026-10-03) — see
+          src/config/biography.ts for sources and what's deliberately
+          left out. */}
       <section className="py-16">
-        <Container>
-          <p className="max-w-2xl text-steel">
-            Esta página cuenta la historia personal de Cristian: de la calistenia a la
-            comunidad, del entrenamiento a la música y los shows. Contenido pendiente de
-            redacción final.
+        <Container className="flex max-w-3xl flex-col gap-5 text-lg leading-relaxed text-steel">
+          <p>
+            Cristian Barbosa creció entre Bogotá y Fusagasugá. Era un niño muy delgado al que molestaban
+            por su físico, hasta que a los {bioFacts.startedCalisthenicsAge} años vio el cambio de su primo
+            Michael y decidió entrenar con él. El primer día terminó agotado y enamorado: había encontrado
+            algo que le exigía todo.
+          </p>
+          <p>
+            Desde entonces no ha parado. Compitió por todo el país hasta ser{" "}
+            <strong className="text-chalk">cuatro veces campeón nacional de calistenia</strong>, empezó a hacer
+            shows en colegios y alcaldías, y en {bioFacts.arrivedMedellin} llegó a Medellín invitado por la
+            Alcaldía a presentarse frente a más de 80.000 personas. Se quedó, sin dinero y sin contactos, y
+            empezó desde cero.
+          </p>
+          <p>
+            Hoy vive en Envigado. Desde {bioFacts.joinedCircus} es artista del {bioFacts.circusName}, con el
+            que se ha presentado en {bioFacts.municipalitiesCount} municipios de Antioquia y Chocó. Crea
+            contenido, entrena a otros y el 15 de octubre de 2026 lanza su canción &quot;El Diamante&quot;. Su
+            meta: unir calistenia, música y espectáculo en los escenarios más grandes.
           </p>
         </Container>
       </section>
+
       <section className="border-t border-steel-dim/40 py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">El universo, por capítulos</p>
-          <div className="mt-6 grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-2 lg:grid-cols-3">
-            {storyThemes.map((theme) => (
-              <div key={theme.title} className="bg-ink p-6">
-                <h2 className="font-display text-lg font-black uppercase tracking-tight text-chalk">
-                  {theme.title}
-                </h2>
-                <p className="mt-2 text-sm text-steel">{theme.detail}</p>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Logros</p>
+          <div className="mt-6 grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 md:grid-cols-3">
+            <div className="bg-ink p-6">
+              <h2 className="font-display text-lg font-black uppercase tracking-tight text-ember">4 veces campeón nacional</h2>
+              <ul className="mt-3 flex flex-col gap-2 text-sm text-steel">
+                {achievements.titles.map((item) => (
+                  <li key={item.label}>{item.label.replace("Campeón nacional de calistenia — ", "")}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-ink p-6">
+              <h2 className="font-display text-lg font-black uppercase tracking-tight text-chalk">Subcampeón nacional</h2>
+              <ul className="mt-3 flex flex-col gap-2 text-sm text-steel">
+                {achievements.runnerUp.map((item) => (
+                  <li key={item.label}>{item.label.replace("Subcampeón nacional — ", "")}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-ink p-6">
+              <h2 className="font-display text-lg font-black uppercase tracking-tight text-chalk">Embajador y artista</h2>
+              <ul className="mt-3 flex flex-col gap-2 text-sm text-steel">
+                {achievements.roles.map((item) => (
+                  <li key={item.label}>{item.label}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-t border-steel-dim/40 py-16">
+        <Container>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">El camino</p>
+          <ol className="mt-8 flex max-w-3xl flex-col">
+            {timeline.map((entry) => (
+              <li key={entry.title} className="relative border-l border-steel-dim/50 pb-10 pl-8 last:pb-0">
+                <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-ember" aria-hidden="true" />
+                <p className="font-mono text-xs uppercase tracking-widest text-steel-dim">{entry.when}</p>
+                <h3 className="mt-1 font-display text-xl font-black uppercase tracking-tight text-chalk">{entry.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-steel">{entry.detail}</p>
+              </li>
+            ))}
+          </ol>
+        </Container>
+      </section>
+
+      <section className="border-t border-steel-dim/40 py-16">
+        <Container className="grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 md:grid-cols-3">
+          <div className="bg-ink p-6">
+            <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Misión</h2>
+            <p className="mt-3 text-sm leading-relaxed text-steel">{purpose.mission}</p>
+          </div>
+          <div className="bg-ink p-6">
+            <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Visión</h2>
+            <p className="mt-3 text-sm leading-relaxed text-steel">{purpose.vision}</p>
+          </div>
+          <div className="bg-ink p-6">
+            <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Valores</h2>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {purpose.values.map((value) => (
+                <li key={value} className="border border-steel-dim/50 px-3 py-1 text-sm text-chalk">
+                  {value}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-t border-steel-dim/40 py-16">
+        <Container>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Prensa y entrevistas</p>
+          <div className="mt-6 flex flex-wrap gap-8">
+            {pressCoverage.map((item) => (
+              <div key={item.label} className="flex w-full max-w-xs flex-col gap-3">
+                {item.url && item.image && (
+                  <TrackedLink
+                    href={item.url}
+                    external
+                    event={{ name: "cta_click", cta: "press_link_image", topic: "about" }}
+                    className="block overflow-hidden border border-steel-dim/40"
+                  >
+                    <Image
+                      src={item.image}
+                      alt={`${item.label} — recorte de prensa`}
+                      width={480}
+                      height={640}
+                      className="h-auto w-full object-cover"
+                    />
+                  </TrackedLink>
+                )}
+                <p className="font-mono text-xs uppercase tracking-widest text-steel-dim">
+                  {item.outlet} · {item.year}
+                </p>
+                {item.url ? (
+                  <TrackedLink
+                    href={item.url}
+                    external
+                    event={{ name: "cta_click", cta: "press_link_text", topic: "about" }}
+                    className="text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
+                  >
+                    {item.label} →
+                  </TrackedLink>
+                ) : (
+                  <p className="text-sm text-chalk">{item.label}</p>
+                )}
               </div>
             ))}
           </div>
@@ -94,35 +191,19 @@ export default function AboutPage() {
       </section>
       <section className="border-t border-steel-dim/40 py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Prensa</p>
-          <div className="mt-6 flex flex-wrap gap-8">
-            {pressCoverage.map((item) => (
-              <div key={item.url} className="flex w-full max-w-xs flex-col gap-3">
-                <TrackedLink
-                  href={item.url}
-                  external
-                  event={{ name: "cta_click", cta: "press_link_image", topic: "about" }}
-                  className="block overflow-hidden border border-steel-dim/40"
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Su historia, por capítulos</p>
+          <ul className="mt-6 flex flex-col gap-4">
+            {blogPosts.map((post) => (
+              <li key={post.slug}>
+                <Link
+                  href={blogPostPath(post.slug)}
+                  className="font-display text-xl font-black uppercase tracking-tight text-chalk hover:text-ember"
                 >
-                  <Image
-                    src={item.image}
-                    alt={`${item.label} — recorte de prensa`}
-                    width={480}
-                    height={640}
-                    className="h-auto w-full object-cover"
-                  />
-                </TrackedLink>
-                <TrackedLink
-                  href={item.url}
-                  external
-                  event={{ name: "cta_click", cta: "press_link_text", topic: "about" }}
-                  className="text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
-                >
-                  {item.label} →
-                </TrackedLink>
-              </div>
+                  {post.title} →
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </Container>
       </section>
       <section className="border-t border-steel-dim/40 py-16">
