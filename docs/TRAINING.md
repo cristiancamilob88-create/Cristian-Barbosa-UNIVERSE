@@ -122,11 +122,11 @@ Supabase Free: **1 GB storage** per organization, **50 MB per file**, and
 project in the organization (UNIVERSE and dysfunction-tournament). A
 20-second clip at 720p is ~3–5 MB (30 clips ≈ 150 MB); straight from a
 phone at 1080p it's 30–45 MB and 4K won't even upload. So the admin form
-checks size before uploading (\`videoSizeAdvice()\`, src/lib/exercises.ts):
+checks size before uploading (`videoSizeAdvice()`, src/lib/exercises.ts):
 over 50 MB it refuses with how to compress; over 15 MB it warns and asks
 ("Subir igual" / "Cancelar y comprimirlo"). /admin/biblioteca shows a
-"X MB de 1 GB" meter read from \`storage.objects\`
-(\`getVideoStorageUsedBytes()\`, hidden where that table doesn't exist).
+"X MB de 1 GB" meter read from `storage.objects`
+(`getVideoStorageUsedBytes()`, hidden where that table doesn't exist).
 Long videos belong on YouTube «no listado» (unlimited, free) — the library
 takes either per exercise.
 
