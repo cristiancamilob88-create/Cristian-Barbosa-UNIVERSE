@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { GoLink } from "@/components/ui/GoLink";
 import { navItems, secondaryNavItems, siteConfig, goLinks } from "@/config/site";
-import { legalLinks } from "@/config/legal";
+import { legalEntity, legalLinks } from "@/config/legal";
 
 export function Footer() {
   return (
@@ -78,9 +78,10 @@ export function Footer() {
           <p className="text-xs text-steel-dim">
             © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
           </p>
-          {/* The seller/data-controller identity (name, C.C./RUT, domicile)
-              lives on /privacidad and /terminos, linked right here — removed
-              from the footer itself at Cristian's request (2026-10-04). */}
+          {/* Name and C.C./RUT live on /privacidad and /terminos, linked
+              right here — removed from the footer at Cristian's request
+              (2026-10-04); he asked to keep the city. */}
+          <p className="text-xs text-steel-dim">{legalEntity.city}</p>
           <nav aria-label="Legal" className="flex flex-wrap gap-4">
             {legalLinks.map((link) => (
               <Link key={link.href} href={link.href} className="text-xs text-steel-dim hover:text-steel">
