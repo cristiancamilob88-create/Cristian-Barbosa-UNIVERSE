@@ -56,7 +56,7 @@ export const tourStops: TourStop[] = [
   { town: "Ebéjico", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.326, lng: -75.768 }, corregimientos: ["Sevilla"] },
 
   // Instituciones educativas, alcaldías y eventos
-  { town: "Medellín", department: "Antioquia", subregion: "Valle de Aburrá", kind: "instituciones", geo: { lat: 6.244, lng: -75.581 }, note: "Pride 2022 frente a más de 80.000 personas, invitado por la Alcaldía, y presentaciones en colegios." },
+  { town: "Medellín", department: "Antioquia", subregion: "Valle de Aburrá", kind: "instituciones", geo: { lat: 6.244, lng: -75.581 }, note: "Pride 2022 frente a más de 80.000 personas, invitado por la Alcaldía, y presentaciones en colegios junto al artista El Oscar." },
   { town: "Envigado", department: "Antioquia", subregion: "Valle de Aburrá", kind: "instituciones", geo: { lat: 6.172, lng: -75.587 }, note: "Su base. Presentaciones con la Alcaldía, en varios colegios y en Club Nativos." },
   { town: "San Rafael", department: "Antioquia", subregion: "Oriente", kind: "instituciones", geo: { lat: 6.294, lng: -75.028 }, note: "Presentaciones con la Alcaldía de San Rafael." },
   { town: "Bogotá", department: "Bogotá D.C.", subregion: "Cundinamarca", kind: "instituciones", geo: { lat: 4.624, lng: -74.19 }, note: "Colegios de Bosa El Porvenir." },
