@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { GoLink } from "@/components/ui/GoLink";
 import { navItems, secondaryNavItems, siteConfig, goLinks } from "@/config/site";
-import { legalEntity, legalLinks } from "@/config/legal";
+import { legalLinks } from "@/config/legal";
 
 export function Footer() {
   return (
@@ -78,13 +78,9 @@ export function Footer() {
           <p className="text-xs text-steel-dim">
             © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
           </p>
-          {/* Seller/data-controller identity — required on a site that
-              sells online and collects personal data (Ley 1480 art. 50,
-              Ley 1581). Source: src/config/legal.ts. */}
-          <p className="text-xs text-steel-dim">
-            {legalEntity.name} · {legalEntity.documentLabel} {legalEntity.documentNumber} ·{" "}
-            {legalEntity.city}, {legalEntity.country} · {legalEntity.email}
-          </p>
+          {/* The seller/data-controller identity (name, C.C./RUT, domicile)
+              lives on /privacidad and /terminos, linked right here — removed
+              from the footer itself at Cristian's request (2026-10-04). */}
           <nav aria-label="Legal" className="flex flex-wrap gap-4">
             {legalLinks.map((link) => (
               <Link key={link.href} href={link.href} className="text-xs text-steel-dim hover:text-steel">
