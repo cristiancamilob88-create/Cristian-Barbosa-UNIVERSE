@@ -16,6 +16,13 @@ session.
 
 ## Open
 
+- **Agenda — esperando fechas** (2026-10-04): `/eventos` y `/shows`
+  leen src/config/upcomingShows.ts (vacío hoy → invitación a contratar).
+  Cuando Cristian confirme una fecha: agregarla ahí (fecha, municipio,
+  coliseo, coordenadas); sale sola como pin dorado + Event schema y
+  desaparece el día después. Páginas por municipio solo con historia
+  real/fotos (pastShows.ts); el resto vive en la lista + mapa.
+
 - **Historia/Blog/Servicios — publicado, falta revisión de Cristian**
   (2026-10-03): `/about` reescrita con su historia real
   (src/config/biography.ts), `/blog` con 3 entradas (src/content/blog.ts),

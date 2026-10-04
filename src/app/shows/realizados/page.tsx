@@ -8,6 +8,7 @@ import { pastShowPath, pastShows, pastShowsIndexPath } from "@/config/pastShows"
 import { circusCountLabel, circusStops, groupBySubregion, tourStops } from "@/config/tourStops";
 import Link from "next/link";
 import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
+import { MapLegend } from "@/components/shows/MapLegend";
 
 export const metadata: Metadata = buildMetadata({
   title: "Shows realizados en Antioquia — más de 20 municipios",
@@ -27,11 +28,7 @@ export default function ShowsRealizadosPage() {
       <section className="pt-16">
         <Container className="flex flex-col gap-3">
           <ShowsMapLazy />
-          <ul className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-steel">
-            <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-ember" aria-hidden="true" />Gira con el Circo Santiago de Chile</li>
-            <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-tide" aria-hidden="true" />Colegios, alcaldías y eventos</li>
-            <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-chalk" aria-hidden="true" />Envigado, su base</li>
-          </ul>
+          <MapLegend />
         </Container>
       </section>
       <section className="py-16">

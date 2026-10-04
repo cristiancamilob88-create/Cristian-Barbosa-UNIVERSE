@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
 import { pastShowPath } from "@/config/pastShows";
 import { tourStops } from "@/config/tourStops";
+import { getUpcomingShows } from "@/config/upcomingShows";
+import { formatDateRange } from "@/lib/format";
 
 /**
  * "Dónde ha estado" — every place he has performed
@@ -71,6 +73,35 @@ export function ShowsMap() {
           popup.append(link);
         }
         L.marker([stop.geo.lat, stop.geo.lng], { icon: pin(className), title: stop.town, keyboard: true })
+          .addTo(map)
+          .bindPopup(popup);
+      }
+
+      // Upcoming dates (src/config/upcomingShows.ts): pulsing gold pins.
+      for (const show of getUpcomingShows()) {
+        points.push([show.geo.lat, show.geo.lng]);
+        const popup = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = `Próximamente: ${show.town}`;
+        const when = document.createElement("div");
+        when.textContent = formatDateRange(show.date, show.endDate);
+        const what = document.createElement("div");
+        what.textContent = [show.title, show.venue].filter(Boolean).join(" · ");
+        popup.append(title, when, what);
+        if (show.url) {
+          const link = document.createElement("a");
+          link.href = show.url;
+          link.rel = "noopener noreferrer";
+          link.target = "_blank";
+          link.textContent = "Más información →";
+          popup.append(link);
+        }
+        L.marker([show.geo.lat, show.geo.lng], {
+          icon: pin("cb-map-pin cb-map-pin--next"),
+          title: `Próximamente: ${show.town}`,
+          keyboard: true,
+          zIndexOffset: 1000,
+        })
           .addTo(map)
           .bindPopup(popup);
       }

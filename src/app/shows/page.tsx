@@ -9,6 +9,8 @@ import { goLinks } from "@/config/site";
 import { pastShows, pastShowsIndexPath } from "@/config/pastShows";
 import { PastShowCard } from "@/components/shows/PastShowCard";
 import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
+import { MapLegend } from "@/components/shows/MapLegend";
+import { UpcomingShows } from "@/components/shows/UpcomingShows";
 import Link from "next/link";
 
 /**
@@ -23,6 +25,9 @@ const actionPhotos = [
   { src: "/brand/show-crowd-01.jpg", alt: "Cristian Barbosa con público en uno de sus shows" },
   { src: "/brand/show-crowd-02.jpg", alt: "Cristian Barbosa con público en uno de sus shows" },
 ];
+
+// Upcoming dates expire daily (src/config/upcomingShows.ts).
+export const revalidate = 86400;
 
 export const metadata: Metadata = buildMetadata({
   title: "Shows de calistenia en vivo",
@@ -160,9 +165,9 @@ export default function ShowsPage() {
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Shows realizados</p>
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Agenda y shows realizados</p>
               <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-chalk">
-                Donde ya ha estado
+                Dónde va a estar y dónde ha estado
               </h2>
             </div>
             <Link href={pastShowsIndexPath} className="text-sm text-steel underline underline-offset-4 hover:text-chalk">
@@ -170,7 +175,14 @@ export default function ShowsPage() {
             </Link>
           </div>
           <div className="mt-8">
+            <UpcomingShows topic="shows" />
+          </div>
+          <div className="mt-8 flex flex-col gap-3">
             <ShowsMapLazy />
+            <MapLegend />
+            <Link href="/eventos" className="w-fit text-sm text-steel underline underline-offset-4 hover:text-chalk">
+              Ver la agenda completa →
+            </Link>
           </div>
           <div className="mt-6 grid gap-6 sm:grid-cols-2">
             {pastShows.map((show) => (

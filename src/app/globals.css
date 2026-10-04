@@ -110,6 +110,18 @@ body {
   background: var(--color-tide);
   box-shadow: 0 0 0 6px rgb(31 184 224 / 0.25), 0 0 18px rgb(31 184 224 / 0.8);
 }
+.cb-map-pin--next {
+  background: #ffc857;
+  border-color: var(--color-ink);
+  animation: cb-pin-pulse 1.6s ease-out infinite;
+}
+@keyframes cb-pin-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(255 200 87 / 0.7), 0 0 18px rgb(255 200 87 / 0.9); }
+  100% { box-shadow: 0 0 0 16px rgb(255 200 87 / 0), 0 0 18px rgb(255 200 87 / 0.9); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cb-map-pin--next { animation: none; }
+}
 .cb-map-pin--home {
   background: var(--color-chalk);
   border-color: var(--color-ember);

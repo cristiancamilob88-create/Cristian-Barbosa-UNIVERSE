@@ -56,3 +56,14 @@ export function formatPostDate(isoDate: string): string {
     new Date(Date.UTC(year, month - 1, day)),
   );
 }
+
+/** "2026-10-16".."2026-10-19" -> "16 al 19 de octubre de 2026" (spells out months/years only when they differ). */
+export function formatDateRange(start: string, end?: string): string {
+  if (!end || end === start) return formatPostDate(start);
+  const [sy, sm] = start.split("-").map(Number);
+  const [ey, em] = end.split("-").map(Number);
+  const day = (iso: string) => Number(iso.split("-")[2]);
+  if (sy === ey && sm === em) return `${day(start)} al ${formatPostDate(end)}`;
+  if (sy === ey) return `${formatPostDate(start).replace(` de ${sy}`, "")} al ${formatPostDate(end)}`;
+  return `${formatPostDate(start)} al ${formatPostDate(end)}`;
+}
