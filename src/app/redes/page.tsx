@@ -85,6 +85,11 @@ export default async function RedesPage() {
   const training = route("intent_training");
   const shows = route("intent_shows");
   const music = route("intent_music");
+  // The rest of the universe, for "Conoce mi universo": every nav route
+  // this page doesn't already feature above (coaching is /entrenar again,
+  // redes is this page).
+  const featured = new Set([training, shows, music, route("intent_coaching"), route("intent_social")]);
+  const universe = navItems.filter((item) => !featured.has(item));
 
   return (
     <Container className="py-12 sm:py-16">
@@ -164,6 +169,34 @@ export default async function RedesPage() {
           <CardBody icon="music" title="Mi música" detail="Lanzamientos y la historia detrás de cada canción" />
         </TrackedLink>
       </Section>
+
+      <section className="mt-10">
+        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Conoce mi universo</h2>
+        <TrackedLink
+          event={{ name: "cta_click", cta: "redes_home", topic: TOPIC }}
+          href="/"
+          className={`mt-3 ${cardClass}`}
+        >
+          <CardBody
+            icon="home"
+            title="Entra a mi sitio web"
+            detail="Mi historia, shows realizados, productos y todo lo demás"
+          />
+        </TrackedLink>
+        <ul className="mt-3 grid grid-cols-2 gap-3">
+          {universe.map((item) => (
+            <li key={item.href}>
+              <TrackedLink
+                event={{ name: "cta_click", cta: item.intentId, topic: TOPIC }}
+                href={item.href}
+                className="flex h-full items-center justify-center border border-steel-dim/40 bg-ink-raised p-3 text-center font-display text-base font-black uppercase tracking-tight text-chalk transition-colors hover:border-ember hover:text-ember"
+              >
+                {item.label}
+              </TrackedLink>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <Section title="Embajador de marca">
         {ambassadorships.map((brand) => (

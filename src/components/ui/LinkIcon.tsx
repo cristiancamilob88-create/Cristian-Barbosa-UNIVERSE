@@ -4,7 +4,7 @@
  * path data instead of adding the package as a dependency: the page needs
  * seven of its ~3,000 icons. LinkedIn is not in Simple Icons (removed at
  * LinkedIn's request), so its path is the standard "in" mark drawn here.
- * The generic glyphs (training, show, music, community, support) are
+ * The generic glyphs (training, show, music, community, home, support) are
  * stroke icons in the Lucide style (ISC).
  */
 
@@ -50,6 +50,12 @@ const glyphs: Record<string, React.ReactNode> = {
       <circle cx="9" cy="7" r="4" />
       <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </>
+  ),
+  home: (
+    <>
+      <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+      <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
     </>
   ),
   support: (
