@@ -9,7 +9,7 @@ import { linkVisitorToContact } from "@/server/db/repositories/visitor";
 import { createLead } from "@/server/db/repositories/lead";
 import { createB2bOpportunity, type B2bCategory } from "@/server/db/repositories/b2bOpportunity";
 import { recordInteraction } from "@/server/db/repositories/interaction";
-import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
+import { createVisitorRateLimiter } from "@/server/rateLimit";
 import { privacyPolicyVersion } from "@/config/legal";
 import { eventAddressSchema } from "@/lib/eventAddress";
 import { runAfterResponse } from "@/server/afterResponse";
@@ -107,12 +107,13 @@ const TOPIC_TO_B2B_CATEGORY: Record<string, B2bCategory | undefined> = {
 // NAT would otherwise share one IP and trip a low per-IP cap, turning
 // real leads into false 429s at exactly the moment this endpoint matters
 // most. Still low enough to stop a scripted flood.
-const leadRateLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 30 });
+// 2026-10-07: per visitor (5/min) with a loose per-IP ceiling (300/min)
+// instead of 30/min per IP — same carrier-NAT reasoning, at viral scale.
+const leadRateLimiter = createVisitorRateLimiter({ windowMs: 60_000, perVisitor: 5, perIp: 300 });
 
 export async function POST(request: NextRequest) {
-  const ip = getRequestIp(request);
 
-  if (leadRateLimiter.isRateLimited(ip)) {
+  if (leadRateLimiter.isRateLimited(request, VISITOR_COOKIE)) {
     return NextResponse.json(
       { ok: false, error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." },
       { status: 429 },
