@@ -119,7 +119,7 @@ export default function ServiciosPage() {
   return (
     <>
       <PageHero
-        tag="SERVICES"
+        tag="SERVICIOS"
         title="Servicios"
         description="Shows, entrenamiento, coaching y alianzas — todo lo que puedes hacer con Cristian Barbosa, en un solo lugar."
       />

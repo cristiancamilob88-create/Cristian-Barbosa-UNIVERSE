@@ -81,7 +81,7 @@ export const ambassadorships = [
 ] as const;
 
 export interface NavItem {
-  /** Short mono-space tag used as the visual/identifier label, e.g. "TRAIN". */
+  /** Short mono-space tag used as the visual/identifier label, e.g. "ENTRENAR". */
   tag: string;
   label: string;
   href: string;
@@ -96,6 +96,8 @@ export interface NavItem {
   intent: string;
   /** Semantic id for cta_click's `cta` field (docs/ANALYTICS_ENGINE.md, "Event taxonomy audit") — no new event, just a stable name for this intention. */
   intentId: string;
+  /** In the main menu and the homepage hub; the rest go under "Más". */
+  primary?: boolean;
 }
 
 /**
@@ -103,14 +105,12 @@ export interface NavItem {
  * the homepage pillar grid, and sitemap.ts — add a route here once and it
  * shows up everywhere it needs to.
  *
- * Order is Cristian's own, updated 2026-08-28 (third pass, same day):
- * entrenar, comunidad, coaching, shows, música, marcas, eventos,
- * productos, historia, redes. Productos moved to near-last on purpose —
- * his own words: the checkout/payment gateway and shipping (Dropi or
- * similar) aren't configured yet, so it's not the page he wants leading
- * people right now. Historia/Redes swapped from the previous pass
- * (Claude's suggestion, Cristian agreed): "seguir en redes" reads as
- * the natural closing action after "conoce mi historia", not before it.
+ * Reorganized 2026-10-07 with Cristian ("le hace falta orden… mucha
+ * información desorganizada"): 13 menu links became 4 paths + the map
+ * — Música, Shows, Mapa y agenda, Entrenar, Historia (`primary: true`),
+ * the main menu and the homepage hub. The rest stay real pages, listed
+ * under "Más" (footer, mobile menu, sitemap). Productos stays out of the
+ * main menu until there are real products to sell.
  */
 /**
  * The ONE public link for "dónde va a estar y dónde ha estado" (Cristian,
@@ -122,16 +122,55 @@ export interface NavItem {
 export const agendaHref = "/agenda";
 
 export const navItems: NavItem[] = [
+  // ---- The main menu: 4 paths + the map (primary: true) ----
   {
-    tag: "TRAIN",
-    label: "Entrenar",
-    href: "/entrenar",
-    description: "Calistenia, coaching y el camino de entrenamiento con Cristian.",
-    intent: "Quiero entrenar",
-    intentId: "intent_training",
+    tag: "MÚSICA",
+    label: "Música",
+    href: "/musica",
+    description: "El Diamante, la historia detrás de cada canción y el acceso anticipado.",
+    intent: "Quiero escuchar su música",
+    intentId: "intent_music",
+    primary: true,
   },
   {
-    tag: "COMMUNITY",
+    tag: "SHOWS",
+    label: "Shows",
+    href: "/shows",
+    description: "Shows en vivo para empresas, colegios, alcaldías y eventos.",
+    intent: "Quiero contratar un show",
+    intentId: "intent_shows",
+    primary: true,
+  },
+  {
+    tag: "MAPA",
+    label: "Mapa y agenda",
+    href: agendaHref,
+    description: "Próximos shows y el mapa de dónde se ha presentado.",
+    intent: "Quiero ver la agenda",
+    intentId: "intent_events",
+    primary: true,
+  },
+  {
+    tag: "ENTRENAR",
+    label: "Entrenar",
+    href: "/entrenar",
+    description: "De la comunidad gratis a la sesión 1:1 y el coaching personalizado.",
+    intent: "Quiero entrenar",
+    intentId: "intent_training",
+    primary: true,
+  },
+  {
+    tag: "HISTORIA",
+    label: "Historia",
+    href: "/about",
+    description: "Quién es Cristian Barbosa: su historia, logros y prensa.",
+    intent: "Quiero conocer su historia",
+    intentId: "intent_story",
+    primary: true,
+  },
+  // ---- "Más": real pages, reachable from the footer and the mobile menu ----
+  {
+    tag: "COMUNIDAD",
     label: "Comunidad",
     href: "/comunidad",
     description: "WhatsApp gratuito y Entrena con Cristian Barbosa (Facebook Subscription).",
@@ -139,10 +178,7 @@ export const navItems: NavItem[] = [
     intentId: "intent_community",
   },
   {
-    // Not a separate page — same /entrenar page, jumping straight to its
-    // "Coaching personalizado" card via #coaching. Cristian explicitly
-    // wants both: this dedicated card here AND the same offer still
-    // reachable as part of "Quiero entrenar" (kept unchanged above).
+    // Not a separate page — /entrenar's "Coaching personalizado" card.
     tag: "COACHING",
     label: "Coaching",
     href: "/entrenar#coaching",
@@ -151,39 +187,15 @@ export const navItems: NavItem[] = [
     intentId: "intent_coaching",
   },
   {
-    tag: "SHOWS",
-    label: "Shows",
-    href: "/shows",
-    description: "Shows en vivo para empresas, colegios, universidades y eventos.",
-    intent: "Quiero contratar un show",
-    intentId: "intent_shows",
-  },
-  {
-    tag: "MUSIC",
-    label: "Música",
-    href: "/musica",
-    description: "Lanzamientos, historia detrás de la canción y acceso anticipado.",
-    intent: "Quiero escuchar su música",
-    intentId: "intent_music",
-  },
-  {
-    tag: "BRANDS",
+    tag: "MARCAS",
     label: "Marcas",
     href: "/marcas",
-    description: "Partnerships, sponsors y colaboraciones de marca.",
+    description: "Patrocinios, alianzas y colaboraciones de marca.",
     intent: "Quiero trabajar con Cristian",
     intentId: "intent_brands",
   },
   {
-    tag: "EVENTS",
-    label: "Mapa y agenda",
-    href: agendaHref,
-    description: "Próximos shows y el mapa de dónde se ha presentado.",
-    intent: "Quiero ver la agenda",
-    intentId: "intent_events",
-  },
-  {
-    tag: "SHOP",
+    tag: "PRODUCTOS",
     label: "Productos",
     href: "/productos",
     description: "Productos físicos y digitales — ropa, accesorios, cursos.",
@@ -191,15 +203,7 @@ export const navItems: NavItem[] = [
     intentId: "intent_products",
   },
   {
-    tag: "ABOUT",
-    label: "Historia",
-    href: "/about",
-    description: "Quién es Cristian Barbosa.",
-    intent: "Quiero conocer su historia",
-    intentId: "intent_story",
-  },
-  {
-    tag: "NETWORK",
+    tag: "REDES",
     label: "Redes",
     href: "/redes",
     description: "Todos los canales oficiales, en un solo lugar.",
@@ -210,7 +214,7 @@ export const navItems: NavItem[] = [
 
 export const secondaryNavItems: NavItem[] = [
   {
-    tag: "SERVICES",
+    tag: "SERVICIOS",
     label: "Servicios",
     href: "/servicios",
     description: "Shows, sesiones 1:1, coaching y alianzas — todo en un solo lugar.",
@@ -226,7 +230,7 @@ export const secondaryNavItems: NavItem[] = [
     intentId: "intent_blog",
   },
   {
-    tag: "CONTACT",
+    tag: "CONTACTO",
     label: "Contacto",
     href: "/contacto",
     description: "Hablemos — shows, marcas o preguntas generales.",
@@ -267,3 +271,11 @@ export const goLinks = {
   paypalDonate: "paypal-donate",
   nequiDonate: "nequi-donate",
 } as const;
+
+/** The main menu and homepage hub: the 4 paths + the map. */
+export const primaryNavItems = navItems.filter((item) => item.primary);
+
+/** Everything else, for "Más" (footer, mobile menu). */
+export const moreNavItems = [...navItems.filter((item) => !item.primary), ...secondaryNavItems.filter((item) => item.href !== "/contacto")];
+
+export const contactNavItem = secondaryNavItems.find((item) => item.href === "/contacto")!;

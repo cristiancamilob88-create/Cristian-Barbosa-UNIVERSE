@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
-import { navItems, secondaryNavItems, siteConfig } from "@/config/site";
+import { contactNavItem, primaryNavItems, siteConfig } from "@/config/site";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { MoreMenu } from "@/components/layout/MoreMenu";
 
 export function Header() {
   return (
@@ -29,8 +30,10 @@ export function Header() {
           </span>
         </Link>
 
-        <nav aria-label="Principal" className="ml-6 hidden items-center gap-4 xl:flex 2xl:gap-6">
-          {navItems.map((item) => (
+        {/* 2026-10-07 reorganization: the 4 paths + the map, a "Más"
+            menu for the rest, and Contacto as the one button. */}
+        <nav aria-label="Principal" className="ml-6 hidden items-center gap-6 lg:flex">
+          {primaryNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -39,18 +42,16 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+          <MoreMenu />
         </nav>
 
-        <div className="ml-6 hidden shrink-0 items-center gap-4 xl:flex">
-          {secondaryNavItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm text-steel transition-colors hover:text-chalk"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <div className="ml-6 hidden shrink-0 items-center lg:flex">
+          <Link
+            href={contactNavItem.href}
+            className="whitespace-nowrap border border-ember px-4 py-2 font-mono text-xs uppercase tracking-wider text-ember transition-colors hover:bg-ember hover:text-ink"
+          >
+            {contactNavItem.label}
+          </Link>
         </div>
 
         <MobileNav />

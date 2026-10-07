@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems, secondaryNavItems, type NavItem } from "@/config/site";
+import { contactNavItem, moreNavItems, primaryNavItems } from "@/config/site";
 
 /**
  * Block 08 mobile-navigability fix (docs/MASTER_BRIEF_BLOCK_08.md,
@@ -29,10 +29,9 @@ import { navItems, secondaryNavItems, type NavItem } from "@/config/site";
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const allItems: NavItem[] = [...navItems, ...secondaryNavItems];
 
   return (
-    <div className="xl:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -53,18 +52,42 @@ export function MobileNav() {
       {open &&
         createPortal(
           <div id="mobile-nav-panel" className="fixed inset-0 z-30 overflow-y-auto bg-ink pt-16">
-            <nav aria-label="Principal (mobile)" className="flex flex-col divide-y divide-steel-dim/30 px-4">
-              {allItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  aria-current={pathname === item.href ? "page" : undefined}
-                  className="py-4 font-display text-lg font-black uppercase tracking-tight text-chalk transition-colors hover:text-ember"
-                >
-                  {item.label}
-                </Link>
-              ))}
+            {/* 2026-10-07: the 4 paths + the map big, the rest under "Más". */}
+            <nav aria-label="Principal (mobile)" className="flex flex-col px-4 pb-10">
+              <div className="flex flex-col divide-y divide-steel-dim/30">
+                {primaryNavItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    aria-current={pathname === item.href ? "page" : undefined}
+                    className="py-4 font-display text-2xl font-black uppercase tracking-tight text-chalk transition-colors hover:text-ember"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+              <Link
+                href={contactNavItem.href}
+                onClick={() => setOpen(false)}
+                className="mt-4 border border-ember px-4 py-3 text-center font-mono text-sm uppercase tracking-wider text-ember"
+              >
+                {contactNavItem.label}
+              </Link>
+              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-steel-dim">Más</p>
+              <div className="mt-2 grid grid-cols-2 gap-x-4">
+                {moreNavItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    aria-current={pathname === item.href ? "page" : undefined}
+                    className="py-2.5 text-sm text-steel transition-colors hover:text-chalk"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             </nav>
           </div>,
           document.body,

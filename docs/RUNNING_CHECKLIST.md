@@ -327,3 +327,12 @@ session.
 - [x] /admin/actividad: la actividad del día persona por persona.
 - [x] Menú: "Mapa y agenda" (antes "Eventos"); el mapa va primero en /agenda y también está en /shows. Mapa claro tipo Google por defecto, zoom hasta nivel calle, nombres de los municipios visibles al acercarse.
 - [ ] Cuando haya fecha confirmada, agregarla a src/config/upcomingShows.ts — aparece primero en /agenda con pin dorado.
+
+## 2026-10-07 — Orden del sitio, links por red, tráfico viral
+
+- [x] Menú: 4 caminos + mapa (Música, Shows, Mapa y agenda, Entrenar, Historia) + botón Contacto; el resto en "Más" (escritorio), sección "Más" (celular) y el pie de página. `primary` en src/config/site.ts.
+- [x] Inicio: 5 cuadros en vez de 10; títulos en español en todo el sitio; Música sin las cajas de relleno; Marcas y Shows sin palabras en inglés.
+- [x] /admin/actividad: tiempo de la visita, "Le interesó", desde dónde vino (bio/historia/reel) y señales de venta.
+- [x] Links cortos para bios: /ig, /tt, /fb, /yt, /wa (src/config/shortLinks.ts).
+- [x] Límites por visitante en /api/track, /api/lead y /api/checkout (no por IP) para no perder visitas en un pico viral.
+- [ ] Productos vuelve al menú principal cuando haya productos reales.

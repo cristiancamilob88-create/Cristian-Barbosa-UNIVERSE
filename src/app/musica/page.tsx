@@ -18,7 +18,7 @@ export default function MusicaPage() {
   return (
     <>
       <PageHero
-        tag="MUSIC"
+        tag="MÚSICA"
         title="Música"
         description="La historia detrás de cada canción, el backstage, y el acceso anticipado antes de que llegue a las plataformas."
       >
@@ -47,20 +47,10 @@ export default function MusicaPage() {
         </Container>
       </section>
       <section className="py-16">
-        <Container className="grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-3">
-          {[
-            { title: "Lanzamiento", detail: "La canción y su historia." },
-            { title: "Backstage", detail: "Contenido detrás de cámaras." },
-            { title: "Early access", detail: "Acceso anticipado antes del lanzamiento público." },
-          ].map((block) => (
-            <div key={block.title} className="bg-ink p-8">
-              <h2 className="font-display text-xl font-black uppercase tracking-tight text-chalk">
-                {block.title}
-              </h2>
-              <p className="mt-2 text-sm text-steel">{block.detail}</p>
-            </div>
-          ))}
-        </Container>
+        {/* The three "Lanzamiento / Backstage / Early access" boxes that
+            stood here were promises with nothing behind them yet —
+            removed 2026-10-07 (site review). Bring a section back once
+            there is real backstage content to show. */}
         {/*
          * "Escuchar música" is the intention this whole page answers;
          * "comprar canción" is a separate conversion — never conflated
@@ -71,7 +61,7 @@ export default function MusicaPage() {
          * inventing the song. This section states the confirmed
          * business model without pretending a purchase flow exists.
          */}
-        <Container className="mt-10 border border-steel-dim/40 bg-ink p-8">
+        <Container className="border border-steel-dim/40 bg-ink p-8">
           <p className="font-mono text-xs uppercase tracking-widest text-ember">Próximamente</p>
           <p className="mt-3 max-w-2xl text-sm text-steel">
             Cada canción se venderá individualmente por{" "}

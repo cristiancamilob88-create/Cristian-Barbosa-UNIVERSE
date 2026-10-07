@@ -45,7 +45,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
       </section>
       <PageHero
-        tag="ABOUT"
+        tag="HISTORIA"
         title="Historia"
         description={`De ${bioFacts.grewUpIn} a ${bioFacts.basedIn}: ${bioFacts.age} años, más de una década entrenando, cuatro veces campeón nacional de calistenia.`}
       />

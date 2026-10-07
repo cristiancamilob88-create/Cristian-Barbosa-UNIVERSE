@@ -42,7 +42,7 @@ const audiences = [
   "Productoras",
   "Eventos privados",
   "Quince años",
-  "Rooftops",
+  "Terrazas",
   "Eventos masivos",
   "Circo / espectáculos",
 ];
@@ -57,10 +57,10 @@ const audiences = [
  */
 const packages = [
   { name: "Corporativo", detail: "Activaciones y shows para empresas — eventos internos, lanzamientos, convenciones." },
-  { name: "Productoras / festivales", detail: "Shows dentro de una producción o cartel más grande." },
+  { name: "Productoras y festivales", detail: "Shows dentro de una producción o cartel más grande." },
   { name: "Colegios", detail: "Formato adaptado a audiencia escolar, con enfoque en disciplina y esfuerzo." },
   { name: "Eventos privados", detail: "Quince años, celebraciones y experiencias a medida." },
-  { name: "Rooftops / venues", detail: "Formato reducido, ideal para espacios íntimos." },
+  { name: "Terrazas y espacios íntimos", detail: "Formato reducido, ideal para espacios íntimos." },
 ];
 
 export default function ShowsPage() {

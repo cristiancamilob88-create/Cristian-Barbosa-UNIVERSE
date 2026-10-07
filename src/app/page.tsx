@@ -6,7 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { InstagramEmbed } from "@/components/ui/InstagramEmbed";
 import { ParticleBody } from "@/components/ui/ParticleBody";
 import Link from "next/link";
-import { agendaHref, goLinks, navItems, siteConfig } from "@/config/site";
+import { agendaHref, goLinks, primaryNavItems, siteConfig } from "@/config/site";
 import { GoLink } from "@/components/ui/GoLink";
 import { blogIndexPath, blogPostPath, blogPosts } from "@/content/blog";
 import { circusCountLabel } from "@/config/tourStops";
@@ -164,9 +164,11 @@ export default async function HomePage() {
           <h2 className="font-display text-2xl font-black uppercase tracking-tight text-chalk sm:text-3xl">
             ¿Qué quieres hacer?
           </h2>
-          <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-none border border-steel-dim/40 bg-steel-dim/40 lg:grid-cols-3">
-            {navItems.map((item, i) => (
-              <Reveal key={item.href} delay={(i % 3) * 0.08} className="bg-ink">
+          {/* 2026-10-07: the same 4 paths + map as the main menu (was 10
+              cards — too many choices). Música leads, full width on mobile. */}
+          <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-none border border-steel-dim/40 bg-steel-dim/40 lg:grid-cols-5">
+            {primaryNavItems.map((item, i) => (
+              <Reveal key={item.href} delay={(i % 5) * 0.06} className={`bg-ink ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
                 <TrackedLink
                   href={item.href}
                   event={{ name: "cta_click", cta: item.intentId, topic: item.tag.toLowerCase() }}
