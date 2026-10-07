@@ -13,7 +13,7 @@ import { recordInteraction } from "@/server/db/repositories/interaction";
 import { ensureFreeEnrollment } from "@/server/db/repositories/training";
 import { issueLoginCode } from "@/server/db/repositories/memberLoginCode";
 import { sendMemberLoginCodeEmail } from "@/server/notifications/email";
-import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
+import { createVisitorRateLimiter } from "@/server/rateLimit";
 import { todayInBogota } from "@/lib/training";
 
 /**
@@ -37,13 +37,14 @@ const signupSchema = z.object({
   company: z.string().max(200).optional().default(""),
 });
 
-// Generous per-IP: a class or a venue on shared wifi signing up together is the good case.
-const limiter = createRateLimiter({ windowMs: 60_000, maxRequests: 20 });
+// Per visitor, with a loose per-IP ceiling (src/server/rateLimit.ts): a
+// viral TikTok means many phones behind one carrier IP signing up at once.
+const limiter = createVisitorRateLimiter({ windowMs: 60_000, perVisitor: 5, perIp: 300 });
 
 const ROUTE = "/entrenar/gratis";
 
 export async function POST(request: NextRequest) {
-  if (limiter.isRateLimited(getRequestIp(request))) {
+  if (limiter.isRateLimited(request, VISITOR_COOKIE)) {
     return NextResponse.json({ ok: false, error: "Demasiados intentos. Espera un minuto." }, { status: 429 });
   }
   const { MEMBER_SESSION_SECRET } = getServerEnv();

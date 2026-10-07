@@ -5,7 +5,8 @@ import { privacyPolicyVersion } from "@/config/legal";
 import { withTransaction } from "@/server/db/transaction";
 import { verifyLoginCode } from "@/server/db/repositories/memberLoginCode";
 import { MEMBER_SESSION_COOKIE, createMemberSessionToken, memberSessionCookieOptions } from "@/server/auth/memberSession";
-import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
+import { createVisitorRateLimiter } from "@/server/rateLimit";
+import { VISITOR_COOKIE } from "@/lib/attribution";
 
 /**
  * Step 2 of student sign-in: email + code in, session cookie out. The
@@ -19,10 +20,12 @@ const verifySchema = z.object({
   consent: z.boolean().optional().default(false),
 });
 
-const limiter = createRateLimiter({ windowMs: 60_000, maxRequests: 10 });
+// Per visitor + loose per-IP ceiling (src/server/rateLimit.ts) — many students on
+// one carrier IP is normal; the per-code attempt cap is the real brute-force guard.
+const limiter = createVisitorRateLimiter({ windowMs: 60_000, perVisitor: 10, perIp: 300 });
 
 export async function POST(request: NextRequest) {
-  if (limiter.isRateLimited(getRequestIp(request))) {
+  if (limiter.isRateLimited(request, VISITOR_COOKIE)) {
     return NextResponse.json({ ok: false, error: "Demasiados intentos. Espera un minuto." }, { status: 429 });
   }
 
