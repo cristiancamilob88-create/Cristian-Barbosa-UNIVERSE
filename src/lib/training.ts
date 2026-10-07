@@ -13,6 +13,8 @@ export const exerciseSchema = z.object({
   name: z.string().trim().min(1).max(120),
   dose: z.string().trim().max(60).default(""),
   cue: z.string().trim().max(200).default(""),
+  /** The library entry this exercise points at (migration 0019) — the student taps it to see how it's done. */
+  exerciseId: z.string().uuid().optional(),
 });
 
 export const routineDaySchema = z.object({

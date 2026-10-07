@@ -83,6 +83,53 @@ Endpoints added: `GET/PATCH /api/admin/training/enrollments/[id]`
 (`?semana=N`) and `PUT /api/admin/training/enrollments/[id]/routine`
 (`{ week, days, mode: "week" | "forward" }`), admin session only.
 
+## Exercise library (migration 0019, 2026-10-03)
+
+Cristian's request: students look up how to do an exercise when he isn't
+there. Table `exercise`: name (unique, case-insensitive), group
+(pecho, espalda, abdomen, tríceps, pierna, cuerpo completo, skills,
+movilidad), "cómo se hace" (one step per line), common mistakes,
+progression (free text, e.g. "Dominada · paso 2 de 4"), a video link and/or
+an uploaded video, and `active` (hidden entries never reach students).
+
+- **Admin:** `/admin/biblioteca` — search, filter by group, create/edit,
+  upload or replace a video. API: `GET/POST /api/admin/exercises`,
+  `PATCH /api/admin/exercises/[id]`, `POST|PUT|DELETE
+  /api/admin/exercises/[id]/video`.
+- **Students:** `/mi-plan/biblioteca` (search + group chips) and
+  `/mi-plan/biblioteca/[id]` (video, numbered steps, "Evita").
+- **Routines link to it:** a routine exercise may carry `exerciseId`.
+  In the routine editor the name field suggests library names; picking
+  one links it ("En biblioteca"), and the student's Mi semana shows
+  "Cómo se hace" next to that exercise.
+- **Videos:** an uploaded clip plays in a muted, looping `<video>`; a
+  YouTube link embeds via youtube-nocookie.com; any other link is a
+  button. Uploads go **browser → Supabase Storage directly** through a
+  signed URL the server mints with `SUPABASE_SERVICE_ROLE_KEY` (a
+  phone video is far larger than a Vercel function body). Public bucket
+  `exercise-videos` (50 MB, mp4/mov/webm), created by 0019. The API only
+  attaches paths it minted for that same exercise; a replaced video's old
+  file is deleted after the response. Without `SUPABASE_URL` +
+  `SUPABASE_SERVICE_ROLE_KEY` the upload button is hidden and links
+  still work. CSP gained `media-src https://*.supabase.co`,
+  `connect-src https://*.supabase.co` and `frame-src
+  https://www.youtube-nocookie.com`.
+
+### Video storage limits (checked against Supabase's docs, 2026-10-03)
+
+Supabase Free: **1 GB storage** per organization, **50 MB per file**, and
+**5 GB uncached + 5 GB cached egress per month** — shared with every
+project in the organization (UNIVERSE and dysfunction-tournament). A
+20-second clip at 720p is ~3–5 MB (30 clips ≈ 150 MB); straight from a
+phone at 1080p it's 30–45 MB and 4K won't even upload. So the admin form
+checks size before uploading (`videoSizeAdvice()`, src/lib/exercises.ts):
+over 50 MB it refuses with how to compress; over 15 MB it warns and asks
+("Subir igual" / "Cancelar y comprimirlo"). /admin/biblioteca shows a
+"X MB de 1 GB" meter read from `storage.objects`
+(`getVideoStorageUsedBytes()`, hidden where that table doesn't exist).
+Long videos belong on YouTube «no listado» (unlimited, free) — the library
+takes either per exercise.
+
 ## Rules (`src/lib/training.ts` — pure, unit-tested)
 
 - Week N = `start_date + 7(N-1)` … `+6`, in **America/Bogota** dates
