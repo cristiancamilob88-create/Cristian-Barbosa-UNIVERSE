@@ -736,3 +736,21 @@ production. This closes that gap:
   was written: the write path had existed since Block 07 itself
   (`docs/COMMERCE.md`'s own entry says so). This section is the
   correction — the write path was never the gap, visibility was.
+
+## Actividad del día (/admin/actividad, 2026-10-07)
+
+Cristian asked to read a day's traffic as "who touched which button,
+when, and where they came from" instead of totals. One new read model
+(`src/server/analytics/activity.ts`, `getActivityFeed()`: every
+interaction in the range grouped per visitor, capped at
+`ACTIVITY_ROW_LIMIT`) behind one new endpoint (`/api/analytics/activity`),
+consumed by `src/app/admin/(dashboard)/actividad/`. Plain-Spanish
+labels for routes, `intent_*` button ids and `/go/*` slugs live in
+`src/lib/adminActivity.ts`, derived from `src/config/site.ts`, the blog
+and past shows so they never drift from what the site renders.
+
+- **Privacy:** raw `visitor_id`s never leave the read model — visitors
+  are "Visitante N" in arrival order; a contact is a boolean only.
+- **Colombian days, not UTC:** the page has its own Hoy/Ayer/Anteayer
+  picker (`bogotaDayRange()`) instead of the shared DateRangeControl,
+  whose "today" starts at midnight UTC (7 p. m. in Colombia).

@@ -6,6 +6,7 @@ import { logoutAction } from "./actions";
 
 const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Resumen" },
+  { href: "/admin/actividad", label: "Actividad" },
   { href: "/admin/fuentes", label: "Fuentes" },
   { href: "/admin/social", label: "Social" },
   { href: "/admin/qr", label: "QR" },
