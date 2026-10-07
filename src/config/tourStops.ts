@@ -22,6 +22,13 @@ export interface TourStop {
   geo: { lat: number; lng: number };
   /** Corregimientos of this municipality where he also performed. */
   corregimientos?: string[];
+  /**
+   * Corregimientos that get their own pin on the map (Cristian,
+   * 2026-10-07: "te faltó señalar Tapartó… y Farallones del Citará").
+   * Coordinates are the village's center from GeoNames/OpenStreetMap,
+   * rounded — never a venue.
+   */
+  corregimientoGeo?: Record<string, { lat: number; lng: number }>;
   /** What happened there, when it's more than "show with the circus". */
   note?: string;
   /** src/config/pastShows.ts slug, when the show has its own page. */
@@ -31,8 +38,8 @@ export interface TourStop {
 export const tourStops: TourStop[] = [
   // Gira con el Circo Santiago de Chile — Suroeste (+ El Carmen de Atrato, Chocó)
   { town: "El Carmen de Atrato", department: "Chocó", subregion: "Chocó", kind: "circo", geo: { lat: 5.899, lng: -76.143 } },
-  { town: "Ciudad Bolívar", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.851, lng: -76.021 }, corregimientos: ["Farallones del Citará"] },
-  { town: "Andes", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.657, lng: -75.879 }, corregimientos: ["Tapartó"] },
+  { town: "Ciudad Bolívar", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.851, lng: -76.021 }, corregimientos: ["Farallones del Citará"], corregimientoGeo: { "Farallones del Citará": { lat: 5.799, lng: -76.029 } } },
+  { town: "Andes", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.657, lng: -75.879 }, corregimientos: ["Tapartó"], corregimientoGeo: { "Tapartó": { lat: 5.701, lng: -75.965 } } },
   { town: "Venecia", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.965, lng: -75.735 }, corregimientos: ["Bolombolo"] },
   { town: "Fredonia", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.928, lng: -75.674 } },
   { town: "Angelópolis", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 6.11, lng: -75.711 } },

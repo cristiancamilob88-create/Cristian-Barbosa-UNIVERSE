@@ -70,9 +70,23 @@ function fromUpcoming(show: UpcomingShow): MapPlace {
   };
 }
 
-/** Upcoming first (soonest first), then home, then the tour in config order. */
+/** A corregimiento with its own pin — same kind/story as its municipality. */
+function corregimientoPlaces(stop: TourStop): MapPlace[] {
+  return Object.entries(stop.corregimientoGeo ?? {}).map(([name, geo]) => ({
+    id: `corr-${stop.town}-${name}`,
+    kind: stop.kind === "circo" ? "circo" : "edu",
+    town: name,
+    region: `Corregimiento de ${stop.town} · ${regionOf(stop)}`,
+    detail: stop.note ?? "Gira con el Circo Santiago de Chile",
+    showPath: stop.showSlug ? pastShowPath(stop.showSlug) : undefined,
+    geo,
+    googleMapsUrl: googleMapsSearchUrl(`${name}, ${stop.town}`, stop.department),
+  }));
+}
+
+/** Upcoming first (soonest first), then home, then the tour in config order (corregimientos right after their municipality). */
 export function buildMapPlaces(upcoming: UpcomingShow[] = getUpcomingShows()): MapPlace[] {
-  const stops = tourStops.map(fromStop);
+  const stops = tourStops.flatMap((stop) => [fromStop(stop), ...corregimientoPlaces(stop)]);
   return [
     ...upcoming.map(fromUpcoming),
     ...stops.filter((p) => p.kind === "home"),

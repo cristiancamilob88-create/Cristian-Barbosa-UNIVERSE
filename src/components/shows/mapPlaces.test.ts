@@ -14,10 +14,19 @@ const upcoming = {
 describe("buildMapPlaces", () => {
   it("puts upcoming dates first, then home, then every tour stop", () => {
     const places = buildMapPlaces([upcoming]);
-    expect(places).toHaveLength(tourStops.length + 1);
+    const corregimientoPins = tourStops.reduce((n, stop) => n + Object.keys(stop.corregimientoGeo ?? {}).length, 0);
+    expect(places).toHaveLength(tourStops.length + corregimientoPins + 1);
     expect(places[0]).toMatchObject({ kind: "next", town: "Jardín" });
     expect(places[1]).toMatchObject({ kind: "home", town: "Envigado" });
     expect(places.find((p) => p.town === "Támesis")?.showPath).toBe("/shows/realizados/tamesis-2026");
+  });
+
+  it("gives Tapartó and Farallones del Citará their own pins under their municipality", () => {
+    const places = buildMapPlaces([]);
+    const taparto = places.find((p) => p.town === "Tapartó");
+    expect(taparto).toMatchObject({ kind: "circo", region: "Corregimiento de Andes · Suroeste, Antioquia" });
+    expect(places.findIndex((p) => p.town === "Tapartó")).toBe(places.findIndex((p) => p.town === "Andes") + 1);
+    expect(places.find((p) => p.town === "Farallones del Citará")?.region).toContain("Ciudad Bolívar");
   });
 
   it("links every place to Google Maps without an API key", () => {
