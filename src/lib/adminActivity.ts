@@ -83,7 +83,9 @@ const ROUTE_LABELS: Record<string, string> = {
   "/privacidad": "Privacidad",
   "/terminos": "Términos",
   "/redes": "Redes",
-  [pastShowsIndexPath]: "Shows realizados",
+  // Old links, now redirected to /agenda — kept so past days still read well.
+  "/eventos": "Agenda (link viejo /eventos)",
+  [pastShowsIndexPath]: "Shows realizados (link viejo)",
   ...Object.fromEntries(allNavItems.map((item) => [item.href, item.label])),
   ...Object.fromEntries(blogPosts.map((post) => [blogPostPath(post.slug), `Blog: "${post.title}"`])),
   ...Object.fromEntries(pastShows.map((show) => [pastShowPath(show.slug), `Show: ${show.title}`])),

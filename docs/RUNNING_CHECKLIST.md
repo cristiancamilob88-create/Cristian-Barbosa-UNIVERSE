@@ -319,3 +319,10 @@ session.
   reales con visitantes, leads y solicitudes de shows/marcas reales
   corriendo en producción, verificadas repetidamente vía `/admin` y
   consultas directas a Supabase.
+
+## 2026-10-07 — Un solo link para los shows + mapa interactivo
+
+- [x] `/agenda` es EL link para compartir: próximo show → mapa → shows destacados → lista completa → contratar. `/eventos` y `/shows/realizados` redirigen ahí (308 permanente, next.config.ts). `/shows` queda como la página para contratar un show y enlaza a /agenda.
+- [x] Mapa interactivo (src/components/shows/ShowsMap.tsx): filtros que son la leyenda, buscador sin tildes, lista de municipios que vuela al pin, mapa Oscuro/Calles, pantalla completa, "Abrir en Google Maps" en cada pin (sin API key).
+- [x] /admin/actividad: la actividad del día persona por persona.
+- [ ] Cuando haya fecha confirmada, agregarla a src/config/upcomingShows.ts — aparece primero en /agenda con pin dorado.

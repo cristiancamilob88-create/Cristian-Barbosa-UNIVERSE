@@ -5,13 +5,10 @@ import { Container } from "@/components/ui/Container";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { GoLink } from "@/components/ui/GoLink";
 import { buildMetadata } from "@/lib/seo";
-import { goLinks } from "@/config/site";
-import { pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { agendaHref, goLinks } from "@/config/site";
+import { pastShows } from "@/config/pastShows";
+import { circusCountLabel } from "@/config/tourStops";
 import { PastShowCard } from "@/components/shows/PastShowCard";
-import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
-import { MapLegend } from "@/components/shows/MapLegend";
-import { UpcomingShows } from "@/components/shows/UpcomingShows";
-import Link from "next/link";
 
 /**
  * Real photos from Cristian's own shows (2026-08-28) — confirmed with
@@ -159,32 +156,28 @@ export default function ShowsPage() {
           </div>
         </Container>
       </section>
-      {/* Proof first (2026-09-28): real shows already done, each with
-          its own page — src/config/pastShows.ts. */}
+      {/* Proof (2026-09-28), kept short on purpose (2026-10-07): the full
+          agenda + map is ONE shareable page, /agenda — this page is for
+          organizers hiring a show, so it shows the proof and links over
+          instead of repeating the whole agenda here. */}
       <section className="border-t border-steel-dim/40 py-16">
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Agenda y shows realizados</p>
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Dónde ha estado</p>
               <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-chalk">
-                Dónde va a estar y dónde ha estado
+                {circusCountLabel()} municipios y contando
               </h2>
             </div>
-            <Link href={pastShowsIndexPath} className="text-sm text-steel underline underline-offset-4 hover:text-chalk">
-              Ver todos →
-            </Link>
+            <TrackedLink
+              event={{ name: "cta_click", cta: "intent_events", topic: "shows" }}
+              href={agendaHref}
+              className="inline-flex w-fit items-center border border-tide px-6 py-3 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
+            >
+              Ver la agenda y el mapa
+            </TrackedLink>
           </div>
-          <div className="mt-8">
-            <UpcomingShows topic="shows" />
-          </div>
-          <div className="mt-8 flex flex-col gap-3">
-            <ShowsMapLazy />
-            <MapLegend />
-            <Link href="/eventos" className="w-fit text-sm text-steel underline underline-offset-4 hover:text-chalk">
-              Ver la agenda completa →
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
             {pastShows.map((show) => (
               <PastShowCard key={show.slug} show={show} />
             ))}

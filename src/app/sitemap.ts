@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { navItems, secondaryNavItems, siteConfig } from "@/config/site";
 import { legalLinks } from "@/config/legal";
-import { pastShowPath, pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { pastShowPath, pastShows } from "@/config/pastShows";
 import { blogPostPath, blogPosts } from "@/content/blog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -15,7 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     ...new Set(allHrefs.map((href) => href.split("#")[0])),
     ...legalLinks.map((link) => link.href),
-    pastShowsIndexPath,
     ...pastShows.map((show) => pastShowPath(show.slug)),
     ...blogPosts.map((post) => blogPostPath(post.slug)),
   ];

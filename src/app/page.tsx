@@ -6,10 +6,9 @@ import { Reveal } from "@/components/ui/Reveal";
 import { InstagramEmbed } from "@/components/ui/InstagramEmbed";
 import { ParticleBody } from "@/components/ui/ParticleBody";
 import Link from "next/link";
-import { goLinks, navItems, siteConfig } from "@/config/site";
+import { agendaHref, goLinks, navItems, siteConfig } from "@/config/site";
 import { GoLink } from "@/components/ui/GoLink";
 import { blogIndexPath, blogPostPath, blogPosts } from "@/content/blog";
-import { pastShowsIndexPath } from "@/config/pastShows";
 import { circusCountLabel } from "@/config/tourStops";
 import { buildMetadata } from "@/lib/seo";
 import { personJsonLd, toSameAs } from "@/lib/structuredData";
@@ -237,7 +236,7 @@ export default async function HomePage() {
           </div>
           <TrackedLink
             event={{ name: "cta_click", cta: "intent_shows", topic: "home_tour" }}
-            href={pastShowsIndexPath}
+            href={agendaHref}
             className="inline-flex w-fit items-center border border-tide px-6 py-3 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
           >
             Ver el mapa de la gira

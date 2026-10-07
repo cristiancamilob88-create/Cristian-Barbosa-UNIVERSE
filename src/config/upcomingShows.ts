@@ -1,6 +1,6 @@
 /**
  * Confirmed upcoming dates — "dónde voy a estar pronto" (Cristian,
- * 2026-10-04). Shown first on /eventos (the agenda) and on /shows, as
+ * 2026-10-04). Shown first on /agenda (src/config/site.ts agendaHref), as
  * gold pins on the shared map, and published as schema.org Event data
  * so Google can list them as upcoming events.
  *

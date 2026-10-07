@@ -38,6 +38,15 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // One shareable link for shows (2026-10-07): the old agenda and
+  // past-shows index merged into /agenda (src/config/site.ts, agendaHref).
+  // Permanent so Google moves the already-submitted URLs over.
+  async redirects() {
+    return [
+      { source: "/eventos", destination: "/agenda", permanent: true },
+      { source: "/shows/realizados", destination: "/agenda", permanent: true },
+    ];
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

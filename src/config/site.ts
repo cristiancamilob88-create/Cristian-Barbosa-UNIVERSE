@@ -93,6 +93,15 @@ export interface NavItem {
  * (Claude's suggestion, Cristian agreed): "seguir en redes" reads as
  * the natural closing action after "conoce mi historia", not before it.
  */
+/**
+ * The ONE public link for "dónde va a estar y dónde ha estado" (Cristian,
+ * 2026-10-07: "requerimos de un link para compartirlo en las redes").
+ * Upcoming dates + map + every past show live on this single page;
+ * /eventos and /shows/realizados permanently redirect here
+ * (next.config.ts). /shows stays the page for hiring a show.
+ */
+export const agendaHref = "/agenda";
+
 export const navItems: NavItem[] = [
   {
     tag: "TRAIN",
@@ -148,9 +157,9 @@ export const navItems: NavItem[] = [
   },
   {
     tag: "EVENTS",
-    label: "Eventos",
-    href: "/eventos",
-    description: "Agenda de próximas apariciones y eventos.",
+    label: "Agenda",
+    href: agendaHref,
+    description: "Próximos shows y el mapa de dónde se ha presentado.",
     intent: "Quiero ver la agenda",
     intentId: "intent_events",
   },

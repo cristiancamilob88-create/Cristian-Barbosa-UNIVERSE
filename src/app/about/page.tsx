@@ -5,7 +5,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { buildMetadata } from "@/lib/seo";
 import Link from "next/link";
-import { navItems, pressCoverage } from "@/config/site";
+import { agendaHref, navItems, pressCoverage } from "@/config/site";
 import { achievements, bioFacts, purpose, timeline } from "@/config/biography";
 import { blogPostPath, blogPosts } from "@/content/blog";
 
@@ -24,7 +24,7 @@ export const metadata: Metadata = buildMetadata({
  * /eventos /redes"). Pulled straight from `navItems` — never a second,
  * hardcoded list (AGENTS.md).
  */
-const bridgeSlugs = ["/entrenar", "/comunidad", "/musica", "/productos", "/shows", "/marcas", "/eventos", "/redes"];
+const bridgeSlugs = ["/entrenar", "/comunidad", "/musica", "/productos", "/shows", "/marcas", agendaHref, "/redes"];
 const bridgeItems = navItems.filter((item) => bridgeSlugs.includes(item.href));
 
 export default function AboutPage() {

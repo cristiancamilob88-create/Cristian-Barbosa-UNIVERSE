@@ -1,7 +1,7 @@
 /**
  * Shows Cristian has actually done — each one gets its own page at
  * /shows/realizados/<slug> (Cristian's ask, 2026-09-28: "una página por
- * cada show"), listed on /shows and /eventos. Proof for whoever is about
+ * cada show"), listed on /shows and /agenda. Proof for whoever is about
  * to hire him, and one more indexable page per show with the town's
  * name in it, which is how people actually search ("show calistenia
  * Támesis", "espectáculo Concordia Antioquia").
