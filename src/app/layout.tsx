@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Big_Shoulders, Inter, JetBrains_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
@@ -24,6 +24,13 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
+
+// Browser chrome (address bar on Android, status area on iOS) in the
+// site's own ink color, and the page declared dark-only — see globals.css.
+export const viewport: Viewport = {
+  themeColor: "#0b0d0c",
+  colorScheme: "dark",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),

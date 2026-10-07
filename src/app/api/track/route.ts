@@ -4,7 +4,7 @@ import { visitorCookieOptions, VISITOR_COOKIE } from "@/lib/attribution";
 import { withTransaction } from "@/server/db/transaction";
 import { resolveVisitorContext } from "@/server/db/visitorContext";
 import { recordInteraction, INTERACTION_EVENT_NAMES } from "@/server/db/repositories/interaction";
-import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
+import { createVisitorRateLimiter } from "@/server/rateLimit";
 
 /**
  * Persistence sink for a subset of client-fired analytics events — see
@@ -30,10 +30,13 @@ const trackSchema = z.object({
 // ordinary browsing (page_view, cta_click), so a real visitor can hit it
 // many times a minute just by clicking around — the limit exists to stop
 // a scripted flood, not to constrain normal use.
-const trackRateLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 60 });
+// Per visitor, with a loose per-IP ceiling on top — see
+// createVisitorRateLimiter() for why a per-IP cap alone undercounts a
+// viral spike from mobile carriers.
+const trackRateLimiter = createVisitorRateLimiter({ windowMs: 60_000, perVisitor: 60, perIp: 1500 });
 
 export async function POST(request: NextRequest) {
-  if (trackRateLimiter.isRateLimited(getRequestIp(request))) {
+  if (trackRateLimiter.isRateLimited(request, VISITOR_COOKIE)) {
     // Same "never surface as a user-facing error" contract as a failed
     // persist below — the client-side track() call ignores the response
     // entirely (src/lib/analytics.ts), so 429 vs 200 is purely for

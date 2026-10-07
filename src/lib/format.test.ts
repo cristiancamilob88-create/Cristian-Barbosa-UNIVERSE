@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatInteger, formatCents, formatRatio, formatDuration } from "./format";
+import { formatInteger, formatCents, formatRatio, formatDuration, formatPostDate, formatDateRange } from "./format";
 
 describe("formatInteger", () => {
   it("groups thousands", () => {
@@ -64,5 +64,20 @@ describe("formatDuration", () => {
 
   it("rounds fractional seconds", () => {
     expect(formatDuration(59.6)).toBe("1:00");
+  });
+});
+
+describe("formatPostDate", () => {
+  it("formats a calendar date in Spanish without shifting the day", () => {
+    expect(formatPostDate("2026-10-03")).toBe("3 de octubre de 2026");
+  });
+});
+
+describe("formatDateRange", () => {
+  it("collapses same month and same year", () => {
+    expect(formatDateRange("2026-10-16", "2026-10-19")).toBe("16 al 19 de octubre de 2026");
+    expect(formatDateRange("2026-10-30", "2026-11-02")).toBe("30 de octubre al 2 de noviembre de 2026");
+    expect(formatDateRange("2026-12-31", "2027-01-02")).toBe("31 de diciembre de 2026 al 2 de enero de 2027");
+    expect(formatDateRange("2026-10-16")).toBe("16 de octubre de 2026");
   });
 });

@@ -74,7 +74,11 @@ void main() {
   float d = length(uv);
   if (d > 0.5) discard;
   float edge = smoothstep(0.5, 0.2, d);
-  gl_FragColor = vec4(vColor, vAlpha * edge);
+  // Premultiplied output: what every browser compositor expects by
+  // default. The earlier straight-alpha setup (premultipliedAlpha: false)
+  // rendered a whitish veil on some phones.
+  float a = vAlpha * edge;
+  gl_FragColor = vec4(vColor * a, a);
 }
 `;
 
@@ -161,7 +165,7 @@ export function ParticleBody({ children }: { children?: React.ReactNode }) {
     }
     const section = sectionRef.current;
     const canvas = canvasRef.current;
-    const gl = canvas?.getContext("webgl", { antialias: false, premultipliedAlpha: false, alpha: true });
+    const gl = canvas?.getContext("webgl", { antialias: false, premultipliedAlpha: true, alpha: true });
     if (!section || !canvas || !gl) {
       fail();
       return;
@@ -285,7 +289,7 @@ export function ParticleBody({ children }: { children?: React.ReactNode }) {
       bindAttribute("aColor", cloud.colors, 3);
       bindAttribute("aRand", cloud.rands, 4);
       gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       resize();
       kick();
     };
