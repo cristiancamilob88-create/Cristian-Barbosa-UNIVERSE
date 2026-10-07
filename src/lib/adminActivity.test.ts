@@ -51,10 +51,38 @@ describe("originLabel / summarizeActivity", () => {
     expect(originLabel({ source: "instagram", campaign: "lanzamiento-web", qr: null })).toBe("Instagram · lanzamiento-web");
 
     const summary = summarizeActivity([
-      { label: "Visitante 1", firstAt: "", lastAt: "", source: "instagram", campaign: null, qr: null, isContact: false, steps: [step({ eventName: "landing_view" }), step({ eventName: "cta_click" })] },
-      { label: "Visitante 2", firstAt: "", lastAt: "", source: null, campaign: null, qr: null, isContact: false, steps: [step({ eventName: "whatsapp_click" })] },
+      { label: "Visitante 1", firstAt: "", lastAt: "", source: "instagram", campaign: null, qr: null, medium: null, isContact: false, steps: [step({ eventName: "landing_view" }), step({ eventName: "cta_click" })] },
+      { label: "Visitante 2", firstAt: "", lastAt: "", source: null, campaign: null, qr: null, medium: null, isContact: false, steps: [step({ eventName: "whatsapp_click" })] },
     ]);
     expect(summary).toMatchObject({ people: 2, pages: 1, buttons: 1, whatsapp: 1 });
     expect(summary.bySource).toEqual([["Instagram", 1], ["Sin origen", 1]]);
+  });
+});
+
+describe("visitor conclusions", () => {
+  it("reads what a visitor cared about and the actions worth a call", async () => {
+    const { visitorInterest, visitDurationLabel } = await import("./adminActivity");
+    const visitor = {
+      label: "Visitante 1",
+      firstAt: "2026-10-07T06:21:00Z",
+      lastAt: "2026-10-07T06:24:00Z",
+      source: "instagram",
+      campaign: "lanzamiento-web",
+      qr: null,
+      medium: "historia",
+      isContact: false,
+      steps: [
+        step({ eventName: "landing_view", route: "/" }),
+        step({ eventName: "cta_click", cta: "intent_music", route: "/" }),
+        step({ route: "/musica" }),
+        step({ route: "/blog/el-diamante-cancion" }),
+        step({ route: "/entrenar" }),
+        step({ eventName: "whatsapp_click", slug: "whatsapp-commercial", route: "/go/whatsapp-commercial" }),
+      ],
+    };
+    expect(visitorInterest(visitor)).toEqual({ area: "Música", signals: ["Quiso escribirte por WhatsApp (negocios)"] });
+    expect(visitDurationLabel(visitor)).toBe("Estuvo unos 3 min");
+    expect(visitDurationLabel({ ...visitor, steps: [visitor.steps[0]] })).toBe("Vio una sola página y se fue");
+    expect(originLabel(visitor)).toBe("Instagram, desde una historia · lanzamiento-web");
   });
 });

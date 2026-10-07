@@ -10,6 +10,8 @@ import {
   formatBogotaTime,
   originLabel,
   summarizeActivity,
+  visitDurationLabel,
+  visitorInterest,
   type ActivityResponse,
   type ActivityVisitor,
   type StepTone,
@@ -98,6 +100,12 @@ function ActivityBody({ visitors, truncated }: { visitors: ActivityVisitor[]; tr
         <p className="mt-2 text-sm text-chalk">
           {summary.bySource.map(([source, n]) => `${source}: ${n}`).join(" · ")}
         </p>
+        {summary.byInterest.length > 0 && (
+          <p className="mt-2 text-sm text-chalk">
+            <span className="text-steel">Lo que más les interesó: </span>
+            {summary.byInterest.map(([area, n]) => `${area} (${n})`).join(" · ")}
+          </p>
+        )}
         {summary.wins > 0 && (
           <p className="mt-2 text-sm font-semibold text-[#ffc857]">
             {summary.wins} {summary.wins === 1 ? "persona dejó sus datos o compró" : "personas dejaron sus datos o compraron"} — revisa Registros e Ingresos.
@@ -125,7 +133,10 @@ function ActivityBody({ visitors, truncated }: { visitors: ActivityVisitor[]; tr
                 {visitor.lastAt !== visitor.firstAt && ` – ${formatBogotaTime(visitor.lastAt)}`}
               </p>
             </div>
-            <p className="mt-1 text-xs text-steel">Vino de: <span className="text-chalk">{originLabel(visitor)}</span></p>
+            <p className="mt-1 text-xs text-steel">
+              Vino de: <span className="text-chalk">{originLabel(visitor)}</span> · {visitDurationLabel(visitor)}
+            </p>
+            <VisitorInterest visitor={visitor} />
             <ul className="mt-3 flex flex-col gap-1.5 border-l border-steel-dim/40 pl-4">
               {visitor.steps.map((step, i) => {
                 const { text, tone } = describeStep(step);
@@ -141,5 +152,24 @@ function ActivityBody({ visitors, truncated }: { visitors: ActivityVisitor[]; tr
         ))}
       </ol>
     </>
+  );
+}
+
+function VisitorInterest({ visitor }: { visitor: ActivityVisitor }) {
+  const { area, signals } = visitorInterest(visitor);
+  if (!area && signals.length === 0) return null;
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+      {area && (
+        <span className="text-chalk">
+          <span className="text-steel">Le interesó:</span> <strong>{area}</strong>
+        </span>
+      )}
+      {signals.map((signal) => (
+        <span key={signal} className="rounded-full border border-[#ffc857]/60 px-2 py-0.5 font-semibold text-[#ffc857]">
+          {signal}
+        </span>
+      ))}
+    </div>
   );
 }

@@ -38,6 +38,8 @@ export interface ActivityVisitor {
   source: string | null;
   campaign: string | null;
   qr: string | null;
+  /** Where on that network the link was placed: bio, historia, reel… (`utm_medium`). */
+  medium: string | null;
   /** Became a contact (left their data) — a flag, never the PII itself. */
   isContact: boolean;
   steps: ActivityStep[];
@@ -52,6 +54,7 @@ export interface ActivityRow {
   source_slug: string | null;
   campaign_slug: string | null;
   qr_slug: string | null;
+  medium: string | null;
   created_at: string | Date;
 }
 
@@ -79,6 +82,7 @@ export function groupActivity(rows: ActivityRow[]): ActivityVisitor[] {
         source: null,
         campaign: null,
         qr: null,
+        medium: null,
         isContact: false,
         steps: [],
       };
@@ -89,6 +93,7 @@ export function groupActivity(rows: ActivityRow[]): ActivityVisitor[] {
     visitor.source ??= row.source_slug;
     visitor.campaign ??= row.campaign_slug;
     visitor.qr ??= row.qr_slug;
+    visitor.medium ??= row.medium;
     if (row.contact_id) visitor.isContact = true;
     visitor.steps.push({
       at,
@@ -109,7 +114,7 @@ export async function getActivityFeed(
 ): Promise<{ visitors: ActivityVisitor[]; truncated: boolean }> {
   const { rows } = await db.query<ActivityRow>(
     `select
-       i.visitor_id, i.contact_id, i.event_name, i.route, i.metadata, i.created_at,
+       i.visitor_id, i.contact_id, i.event_name, i.route, i.metadata, i.created_at, i.medium,
        s.slug as source_slug, c.slug as campaign_slug, q.slug as qr_slug
      from interaction i
      left join source s on s.id = i.source_id

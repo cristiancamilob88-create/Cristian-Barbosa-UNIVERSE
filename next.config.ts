@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { shortLinkDestination, shortLinks } from "./src/config/shortLinks";
 
 /**
  * Baseline security headers, applied to every route. These are the
@@ -45,6 +46,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/eventos", destination: "/agenda", permanent: true },
       { source: "/shows/realizados", destination: "/agenda", permanent: true },
+      // Short bio links (/ig, /tt, …) → the page with its UTM tags.
+      ...shortLinks.map((link) => ({ source: link.path, destination: shortLinkDestination(link), permanent: false })),
     ];
   },
   async headers() {

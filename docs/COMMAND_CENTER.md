@@ -754,3 +754,18 @@ and past shows so they never drift from what the site renders.
 - **Colombian days, not UTC:** the page has its own Hoy/Ayer/Anteayer
   picker (`bogotaDayRange()`) instead of the shared DateRangeControl,
   whose "today" starts at midnight UTC (7 p. m. in Colombia).
+
+### Actividad: conclusions per visitor (2026-10-07)
+
+Each visitor card now also shows how long the visit lasted (first to
+last recorded action; a single-page visit reads as a bounce), where on
+the network the link was placed (`utm_medium`: bio, historia, reel…),
+"Le interesó: <área>" (pages weigh 1, a button 2, paying 4 — strongest
+area wins) and the actions worth a call (tocó pagar, WhatsApp de
+negocios, dejó sus datos). The day summary adds "Lo que más les
+interesó". All derived client-side in `src/lib/adminActivity.ts` from
+the same feed — no new query.
+
+Short bio links (`/ig`, `/tt`, `/fb`, `/yt`, `/wa`) live in
+`src/config/shortLinks.ts`: temporary redirects (next.config.ts) to the
+page with its UTM tags, so the proxy attributes them like the long link.

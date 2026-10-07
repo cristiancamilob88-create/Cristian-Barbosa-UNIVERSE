@@ -11,6 +11,7 @@ function row(visitor: string, at: string, overrides: Partial<ActivityRow> = {}):
     source_slug: null,
     campaign_slug: null,
     qr_slug: null,
+    medium: null,
     created_at: at,
     ...overrides,
   };
@@ -33,7 +34,7 @@ describe("groupActivity", () => {
 
   it("keeps the first attribution seen and pulls cta/slug/offer out of metadata", () => {
     const [visitor] = groupActivity([
-      row("v", "2026-10-07T06:21:00Z", { event_name: "landing_view", source_slug: "instagram", campaign_slug: "lanzamiento-web" }),
+      row("v", "2026-10-07T06:21:00Z", { event_name: "landing_view", source_slug: "instagram", campaign_slug: "lanzamiento-web", medium: "historia" }),
       row("v", "2026-10-07T06:22:00Z", { event_name: "cta_click", metadata: { cta: "intent_music" } }),
       row("v", "2026-10-07T06:24:00Z", {
         event_name: "whatsapp_click",
@@ -46,6 +47,7 @@ describe("groupActivity", () => {
 
     expect(visitor.source).toBe("instagram");
     expect(visitor.campaign).toBe("lanzamiento-web");
+    expect(visitor.medium).toBe("historia");
     expect(visitor.isContact).toBe(true);
     expect(visitor.steps[1].cta).toBe("intent_music");
     expect(visitor.steps[2].slug).toBe("whatsapp-commercial");
