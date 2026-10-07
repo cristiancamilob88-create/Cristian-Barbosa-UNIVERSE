@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   currentWeek,
+  formatDuration,
+  measurementInputSchema,
   parseRoutine,
   routineForWeek,
   todayInBogota,
@@ -66,7 +68,7 @@ describe("routineForWeek", () => {
 
 describe("weekCompletion", () => {
   it("counts checked exercises across every day", () => {
-    expect(weekCompletion(routine, { 0: { done: [true, false], results: [], note: null }, 1: { done: [true], results: [], note: null } })).toEqual({
+    expect(weekCompletion(routine, { 0: { done: [true, false], results: [], note: null, durationSeconds: null }, 1: { done: [true], results: [], note: null, durationSeconds: null } })).toEqual({
       done: 2,
       total: 3,
       percent: 67,
@@ -74,7 +76,7 @@ describe("weekCompletion", () => {
   });
 
   it("ignores checks beyond the routine's exercises (a routine that got shorter)", () => {
-    expect(weekCompletion(routine, { 1: { done: [true, true, true], results: [], note: null } }).done).toBe(1);
+    expect(weekCompletion(routine, { 1: { done: [true, true, true], results: [], note: null, durationSeconds: null } }).done).toBe(1);
   });
 
   it("is 0% with nothing logged, and never divides by zero on an empty routine", () => {
@@ -105,5 +107,25 @@ describe("parseRoutine", () => {
   it("degrades a malformed value to an empty routine instead of throwing", () => {
     expect(parseRoutine({ not: "a routine" })).toEqual([]);
     expect(parseRoutine(null)).toEqual([]);
+  });
+});
+
+describe("formatDuration", () => {
+  it("shows m:ss under an hour and h:mm:ss above", () => {
+    expect(formatDuration(5)).toBe("0:05");
+    expect(formatDuration(1930)).toBe("32:10");
+    expect(formatDuration(3900)).toBe("1:05:00");
+  });
+});
+
+describe("measurementInputSchema", () => {
+  it("needs a date and at least one result", () => {
+    expect(measurementInputSchema.safeParse({ measuredOn: "2026-10-07" }).success).toBe(false);
+    expect(measurementInputSchema.safeParse({ measuredOn: "2026-10-07", pushUps: 20 }).success).toBe(true);
+  });
+
+  it("rejects impossible numbers", () => {
+    expect(measurementInputSchema.safeParse({ measuredOn: "2026-10-07", pushUps: -1 }).success).toBe(false);
+    expect(measurementInputSchema.safeParse({ measuredOn: "2026-10-07", weightKg: 5 }).success).toBe(false);
   });
 });

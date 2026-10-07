@@ -75,6 +75,9 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
      from training_enrollment e
      join contact c on c.id = e.contact_id
      join product p on p.id = e.product_id
+     -- Free-tier sign-ups aren't Cristian's students to manage one by one;
+     -- they're counted separately (countFreeUsers) and visible in /admin/leads.
+     where p.slug <> 'rutinas-gratis'
      order by (e.status = 'pending') desc, e.created_at desc
      limit 200`,
   );
@@ -86,8 +89,17 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
       "select enrollment_id, week, days from training_week_routine where enrollment_id = any($1::uuid[])",
       [ids],
     ),
-    db.query<{ enrollment_id: string; week: number; day_index: number; done: boolean[]; results: string[]; note: string | null; updated_at: string }>(
-      `select enrollment_id, week, day_index, done, results, note, updated_at
+    db.query<{
+      enrollment_id: string;
+      week: number;
+      day_index: number;
+      done: boolean[];
+      results: string[];
+      note: string | null;
+      duration_seconds: number | null;
+      updated_at: string;
+    }>(
+      `select enrollment_id, week, day_index, done, results, note, duration_seconds, updated_at
        from training_log where enrollment_id = any($1::uuid[])`,
       [ids],
     ),
@@ -102,7 +114,12 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
   const logs = new Map<string, { week: number; dayIndex: number; log: DayLog; updatedAt: string }[]>();
   for (const r of logRows.rows) {
     const list = logs.get(r.enrollment_id) ?? [];
-    list.push({ week: Number(r.week), dayIndex: Number(r.day_index), log: { done: r.done, results: r.results, note: r.note }, updatedAt: r.updated_at });
+    list.push({ week: Number(r.week), dayIndex: Number(r.day_index), log: {
+        done: r.done,
+        results: r.results,
+        note: r.note,
+        durationSeconds: r.duration_seconds === null ? null : Number(r.duration_seconds),
+      }, updatedAt: r.updated_at });
     logs.set(r.enrollment_id, list);
   }
 
@@ -210,8 +227,8 @@ export async function getStudentWeek(
       enrollmentId,
       week,
     ]),
-    db.query<{ day_index: number; done: boolean[]; results: string[]; note: string | null }>(
-      "select day_index, done, results, note from training_log where enrollment_id = $1 and week = $2",
+    db.query<{ day_index: number; done: boolean[]; results: string[]; note: string | null; duration_seconds: number | null }>(
+      "select day_index, done, results, note, duration_seconds from training_log where enrollment_id = $1 and week = $2",
       [enrollmentId, week],
     ),
   ]);
@@ -233,7 +250,25 @@ export async function getStudentWeek(
     hasOwnRoutine: override.rows.length > 0,
     routine: override.rows[0] ? parseRoutine(override.rows[0].days) : parseRoutine(row.base_routine),
     logs: Object.fromEntries(
-      logRows.rows.map((l) => [Number(l.day_index), { done: l.done, results: l.results, note: l.note }]),
+      logRows.rows.map((l) => [
+        Number(l.day_index),
+        {
+          done: l.done,
+          results: l.results,
+          note: l.note,
+          durationSeconds: l.duration_seconds === null ? null : Number(l.duration_seconds),
+        },
+      ]),
     ),
   };
+}
+
+/** How many people use the free tier (docs/TRAINING.md, "Free tier") — the roster leaves them out. */
+export async function countFreeUsers(db: Pool | PoolClient): Promise<number> {
+  const result = await db.query<{ n: string }>(
+    `select count(*) as n
+     from training_enrollment e join product p on p.id = e.product_id
+     where p.slug = 'rutinas-gratis' and e.status = 'active'`,
+  );
+  return Number(result.rows[0]?.n ?? 0);
 }

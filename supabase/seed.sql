@@ -354,3 +354,14 @@ insert into routine_template (slug, name, days) values ('principiante', 'Princip
 ]
 $json$::jsonb)
 on conflict (slug) do nothing;
+
+-- Rutinas gratis (2026-10-07): the free tier of the student app. Anyone
+-- can sign up at /entrenar/gratis and immediately gets an active
+-- enrollment in this product (same app as Plan Diciembre: weekly routine,
+-- timer, max tests, library) — no approval, no payment. It's the top of
+-- the funnel toward the Facebook subscription and the 1:1 plans
+-- (docs/TRAINING.md, "Free tier"). Migration 0020.
+insert into product (slug, name, kind, description, base_price_cents) values
+  ('rutinas-gratis', 'Rutinas gratis con Cristian Barbosa', 'community',
+   'App gratuita: rutina semanal, cronómetro, pruebas de máximo y biblioteca de ejercicios.', 0)
+on conflict (slug) do nothing;

@@ -120,6 +120,28 @@ export default function EntrenarPage() {
             </div>
           </div>
 
+          {/* Free tier (2026-10-07, docs/TRAINING.md): the app for anyone —
+              routine, timer, max tests, exercise videos. Where the TikTok
+              bio link lands. */}
+          <div id="gratis" className="flex scroll-mt-24 flex-col gap-6 border border-steel-dim/50 bg-ink-raised p-8 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest text-tide">Gratis · App</p>
+              <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-chalk sm:text-4xl">
+                Rutinas gratis
+              </h2>
+              <p className="mt-3 max-w-xl text-sm text-steel">
+                Crea tu cuenta y entrena con tu rutina semanal, cronómetro, pruebas de máximo y videos de cada ejercicio.
+              </p>
+            </div>
+            <TrackedLink
+              event={{ name: "cta_click", cta: "intent_free_app", topic: "entrenar" }}
+              href="/entrenar/gratis"
+              className="inline-flex w-fit items-center border border-tide px-6 py-3 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
+            >
+              Empezar gratis
+            </TrackedLink>
+          </div>
+
           {/* Plan Diciembre (2026-09-30): Cristian's 12-week 1:1 program —
               its own landing with the sign-up form; once approved, the
               student's plan lives in /mi-plan (docs/TRAINING.md). */}

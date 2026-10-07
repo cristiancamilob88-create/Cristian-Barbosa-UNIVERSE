@@ -7,7 +7,7 @@ import { routineForWeek } from "@/lib/training";
 import { createRateLimiter } from "@/server/rateLimit";
 
 /**
- * Saves a student's check-offs, results and/or note for one day of one week
+ * Saves a student's check-offs, results, note and/or workout time for one day of one week
  * (/mi-plan's week view calls this on every checkbox and on leaving the
  * note field). The enrollment is always the signed-in contact's own —
  * resolved from the session here, never taken from the request body — so
@@ -21,8 +21,12 @@ const logSchema = z
     done: z.array(z.boolean()).max(20).optional(),
     results: z.array(z.string().trim().max(60)).max(20).optional(),
     note: z.string().trim().max(1000).optional(),
+    durationSeconds: z.number().int().min(1).max(21600).optional(),
   })
-  .refine((v) => v.done !== undefined || v.results !== undefined || v.note !== undefined, { message: "Nothing to save." });
+  .refine(
+    (v) => v.done !== undefined || v.results !== undefined || v.note !== undefined || v.durationSeconds !== undefined,
+    { message: "Nothing to save." },
+  );
 
 // Per student, not per IP: a whole class ticking boxes on the same gym wifi shouldn't trip it.
 const limiter = createRateLimiter({ windowMs: 60_000, maxRequests: 120 });
@@ -46,7 +50,7 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, error: "Datos inválidos." }, { status: 400 });
   }
-  const { week, dayIndex, done, results, note } = parsed.data;
+  const { week, dayIndex, done, results, note, durationSeconds } = parsed.data;
 
   try {
     const db = getPool();
@@ -63,7 +67,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "Ese día no existe en tu rutina." }, { status: 400 });
     }
 
-    const saved = await saveDayLog(db, { enrollmentId: enrollment.id, week, dayIndex, done, results, note });
+    const saved = await saveDayLog(db, { enrollmentId: enrollment.id, week, dayIndex, done, results, note, durationSeconds });
     return NextResponse.json({ ok: true, data: saved });
   } catch (err) {
     console.error("[member-log] failed to save", err);

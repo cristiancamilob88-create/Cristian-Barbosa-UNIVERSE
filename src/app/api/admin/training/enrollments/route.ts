@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getPool } from "@/server/db/pool";
 import { withTransaction } from "@/server/db/transaction";
 import { requireAdminApiSession } from "@/server/admin/auth";
-import { getTrainingRoster } from "@/server/admin/training";
+import { countFreeUsers, getTrainingRoster } from "@/server/admin/training";
 import { findOrCreateContactDirect } from "@/server/db/repositories/contact";
 import {
   PLAN_DICIEMBRE_PRODUCT_SLUG,
@@ -29,8 +29,10 @@ export async function GET(request: NextRequest) {
   const denied = requireAdminApiSession(request);
   if (denied) return denied;
 
-  const rows = await getTrainingRoster(getPool());
-  return NextResponse.json({ ok: true, data: rows });
+  const db = getPool();
+  const [rows, freeUsers] = await Promise.all([getTrainingRoster(db), countFreeUsers(db)]);
+  // `data` stays the roster rows; the free-tier count rides alongside.
+  return NextResponse.json({ ok: true, data: rows, freeUsers });
 }
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);

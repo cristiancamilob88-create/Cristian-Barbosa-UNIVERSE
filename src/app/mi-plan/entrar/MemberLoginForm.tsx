@@ -24,16 +24,29 @@ async function postJson(url: string, body: unknown): Promise<{ ok: boolean; erro
   }
 }
 
-export function MemberLoginForm() {
+/**
+ * Email → 6-digit code → in. Also used right after the free sign-up
+ * (/entrenar/gratis), opened straight on the code step with the email
+ * already filled in.
+ */
+export function MemberLoginForm({
+  initialEmail = "",
+  initialStep = "email",
+  initialNotice = null,
+}: {
+  initialEmail?: string;
+  initialStep?: Step;
+  initialNotice?: string | null;
+} = {}) {
   const router = useRouter();
-  const [step, setStep] = useState<Step>("email");
-  const [email, setEmail] = useState("");
+  const [step, setStep] = useState<Step>(initialStep);
+  const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState("");
   const [needsConsent, setNeedsConsent] = useState(false);
   const [consent, setConsent] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(initialNotice);
 
   async function requestCode(event?: FormEvent) {
     event?.preventDefault();

@@ -3,7 +3,9 @@ import { cache } from "react";
 import { getPool } from "@/server/db/pool";
 import { getContactById } from "@/server/db/repositories/contact";
 import {
+  FREE_PROGRAM_PRODUCT_SLUG,
   getMemberEnrollment,
+  getProgramOf,
   getTrainingLogs,
   getWeekRoutines,
   type EnrollmentRow,
@@ -12,6 +14,10 @@ import type { Routine, WeekLogs } from "@/lib/training";
 
 export interface MemberPlan {
   name: string | null;
+  /** The program's display name, e.g. "Plan Diciembre — 12 semanas…". */
+  programName: string;
+  /** True on the free tier — the app shows the upsell to the paid options. */
+  isFree: boolean;
   enrollment: EnrollmentRow;
   weekRoutines: Record<number, Routine>;
   logs: WeekLogs;
@@ -28,10 +34,18 @@ export const getMemberPlan = cache(async (contactId: string): Promise<MemberPlan
   const db = getPool();
   const enrollment = await getMemberEnrollment(db, contactId);
   if (!enrollment) return null;
-  const [contact, weekRoutines, logs] = await Promise.all([
+  const [contact, weekRoutines, logs, program] = await Promise.all([
     getContactById(db, contactId),
     getWeekRoutines(db, enrollment.id),
     getTrainingLogs(db, enrollment.id),
+    getProgramOf(db, enrollment.id),
   ]);
-  return { name: contact?.name ?? null, enrollment, weekRoutines, logs };
+  return {
+    name: contact?.name ?? null,
+    programName: program?.name ?? "Tu plan",
+    isFree: program?.slug === FREE_PROGRAM_PRODUCT_SLUG,
+    enrollment,
+    weekRoutines,
+    logs,
+  };
 });

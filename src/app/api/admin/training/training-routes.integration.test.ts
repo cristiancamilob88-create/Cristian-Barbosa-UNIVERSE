@@ -159,7 +159,7 @@ describe("/api/admin/training/enrollments/[id] — student page", () => {
     const { data } = await res.json();
     expect(data.week).toBe(2);
     expect(data.hasOwnRoutine).toBe(false);
-    expect(data.logs[1]).toEqual({ done: [true], results: ["12, 10, 9"], note: "Bien" });
+    expect(data.logs[1]).toEqual({ done: [true], results: ["12, 10, 9"], note: "Bien", durationSeconds: null });
     expect(data.contact.name).toBe("Ana Pérez");
   });
 

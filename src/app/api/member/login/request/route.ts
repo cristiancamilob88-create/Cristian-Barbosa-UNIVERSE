@@ -4,7 +4,8 @@ import { getServerEnv } from "@/server/env";
 import { withTransaction } from "@/server/db/transaction";
 import { issueLoginCode } from "@/server/db/repositories/memberLoginCode";
 import { sendMemberLoginCodeEmail } from "@/server/notifications/email";
-import { createRateLimiter, getRequestIp } from "@/server/rateLimit";
+import { createVisitorRateLimiter } from "@/server/rateLimit";
+import { VISITOR_COOKIE } from "@/lib/attribution";
 
 /**
  * Step 1 of student sign-in (docs/TRAINING.md): email in, 6-digit code
@@ -21,13 +22,15 @@ const requestSchema = z.object({
   email: z.string().trim().email().max(200),
 });
 
-const limiter = createRateLimiter({ windowMs: 60_000, maxRequests: 10 });
+// Per visitor + loose per-IP ceiling (src/server/rateLimit.ts) — many students on
+// one carrier IP is normal; the per-code attempt cap is the real brute-force guard.
+const limiter = createVisitorRateLimiter({ windowMs: 60_000, perVisitor: 10, perIp: 300 });
 
 const GENERIC_SENT_MESSAGE =
   "Si ese correo tiene un plan activo, te llegó un código de 6 dígitos. Revisa también la carpeta de spam.";
 
 export async function POST(request: NextRequest) {
-  if (limiter.isRateLimited(getRequestIp(request))) {
+  if (limiter.isRateLimited(request, VISITOR_COOKIE)) {
     return NextResponse.json({ ok: false, error: "Demasiados intentos. Espera un minuto." }, { status: 429 });
   }
 
