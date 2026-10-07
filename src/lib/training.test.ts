@@ -66,7 +66,7 @@ describe("routineForWeek", () => {
 
 describe("weekCompletion", () => {
   it("counts checked exercises across every day", () => {
-    expect(weekCompletion(routine, { 0: { done: [true, false], note: null }, 1: { done: [true], note: null } })).toEqual({
+    expect(weekCompletion(routine, { 0: { done: [true, false], results: [], note: null }, 1: { done: [true], results: [], note: null } })).toEqual({
       done: 2,
       total: 3,
       percent: 67,
@@ -74,7 +74,7 @@ describe("weekCompletion", () => {
   });
 
   it("ignores checks beyond the routine's exercises (a routine that got shorter)", () => {
-    expect(weekCompletion(routine, { 1: { done: [true, true, true], note: null } }).done).toBe(1);
+    expect(weekCompletion(routine, { 1: { done: [true, true, true], results: [], note: null } }).done).toBe(1);
   });
 
   it("is 0% with nothing logged, and never divides by zero on an empty routine", () => {

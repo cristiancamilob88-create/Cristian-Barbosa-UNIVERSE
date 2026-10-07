@@ -5,7 +5,7 @@ import Link from "next/link";
 import { z } from "zod";
 import { track } from "@/lib/analytics";
 import { legalEntity } from "@/config/legal";
-import { TRAINING_ZONES } from "@/lib/training";
+import { OBJECTIVE_LABEL, TRAINING_ZONES } from "@/lib/training";
 
 /**
  * Plan Diciembre sign-up (/entrenar/plan-diciembre). Posts to the same
@@ -25,6 +25,9 @@ const clientSchema = z.object({
     .max(20, "Escribe un número de celular válido.")
     .regex(/^[0-9+()\s-]+$/, "Solo números, espacios y +()- ."),
   trainingZone: z.string().trim().max(80),
+  trainingObjective: z.enum(["bajar_peso", "fuerza", "tonificar", "skills", "general"], {
+    error: "Elige tu objetivo principal.",
+  }),
   trainingGoal: z.string().trim().max(300),
   consent: z.literal(true, { error: "Para inscribirte, autoriza el tratamiento de tus datos." }),
 });
@@ -48,6 +51,7 @@ export function PlanDiciembreForm() {
       email: String(formData.get("email") ?? ""),
       phone: String(formData.get("phone") ?? ""),
       trainingZone: String(formData.get("trainingZone") ?? ""),
+      trainingObjective: String(formData.get("trainingObjective") ?? ""),
       trainingGoal: String(formData.get("trainingGoal") ?? ""),
       consent: formData.get("consent") === "on",
     };
@@ -140,8 +144,23 @@ export function PlanDiciembreForm() {
         </select>
       </div>
       <div className="flex flex-col gap-2">
+        <label htmlFor="pd-objective" className={labelClass}>
+          Tu objetivo principal
+        </label>
+        <select id="pd-objective" name="trainingObjective" required defaultValue="" className={`${inputClass} bg-ink`}>
+          <option value="" disabled>
+            Elige uno
+          </option>
+          {Object.entries(OBJECTIVE_LABEL).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex flex-col gap-2">
         <label htmlFor="pd-goal" className={labelClass}>
-          ¿Qué quieres lograr? (opcional)
+          En tus palabras, ¿qué quieres lograr? (opcional)
         </label>
         <input
           id="pd-goal"

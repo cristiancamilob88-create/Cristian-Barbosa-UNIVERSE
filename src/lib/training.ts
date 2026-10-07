@@ -27,9 +27,14 @@ export type Exercise = z.infer<typeof exerciseSchema>;
 export type RoutineDay = z.infer<typeof routineDaySchema>;
 export type Routine = z.infer<typeof routineSchema>;
 
-/** One day's check-offs and note, as stored in training_log. */
+/**
+ * One day's check-offs, results and note, as stored in training_log.
+ * `results[i]` is what the student actually did on exercise i, in their
+ * own words ("10, 8, 7", "35 s") — same positions as `done`.
+ */
 export interface DayLog {
   done: boolean[];
+  results: string[];
   note: string | null;
 }
 
@@ -38,6 +43,16 @@ export type WeekLogs = Record<number, Record<number, DayLog>>;
 
 export type EnrollmentStatus = "pending" | "active" | "paused" | "finished" | "cancelled";
 export type EnrollmentLevel = "principiante" | "intermedio" | "avanzado";
+export type EnrollmentObjective = "bajar_peso" | "fuerza" | "tonificar" | "skills" | "general";
+
+/** A student's main objective — how Cristian programs them (migration 0018). */
+export const OBJECTIVE_LABEL: Record<EnrollmentObjective, string> = {
+  bajar_peso: "Bajar de peso",
+  fuerza: "Ganar fuerza",
+  tonificar: "Tonificar",
+  skills: "Aprender skills",
+  general: "Estar en forma",
+};
 
 export const LEVEL_LABEL: Record<EnrollmentLevel, string> = {
   principiante: "Principiante",

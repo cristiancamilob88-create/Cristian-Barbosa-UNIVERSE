@@ -46,6 +46,7 @@ const createSchema = z.object({
     .optional()
     .default(""),
   goal: z.string().trim().max(300).optional().default(""),
+  objective: z.enum(["bajar_peso", "fuerza", "tonificar", "skills", "general", ""]).optional().default(""),
   level: z.enum(["principiante", "intermedio", "avanzado"]).default("principiante"),
   zone: z.string().trim().max(80).optional().default(""),
   startDate: isoDate.optional(),
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
         contactId: contact.id,
         productId,
         goal: input.goal,
+        objective: input.objective || null,
         level: input.level,
         zone: input.zone,
       });

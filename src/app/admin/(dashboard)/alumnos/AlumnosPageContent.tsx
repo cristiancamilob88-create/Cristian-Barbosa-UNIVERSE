@@ -11,7 +11,17 @@ import {
   whatsappLink,
   type TrainingRosterRow,
 } from "@/lib/adminTraining";
-import { LEVEL_LABEL, STATUS_LABEL, TRAINING_ZONES, todayInBogota, type EnrollmentLevel, type WeekStanding } from "@/lib/training";
+import Link from "next/link";
+import {
+  LEVEL_LABEL,
+  OBJECTIVE_LABEL,
+  STATUS_LABEL,
+  TRAINING_ZONES,
+  todayInBogota,
+  type EnrollmentLevel,
+  type EnrollmentObjective,
+  type WeekStanding,
+} from "@/lib/training";
 
 type State =
   | { status: "loading" }
@@ -134,7 +144,7 @@ function StudentCard({ row, onActivated }: { row: TrainingRosterRow; onActivated
             {[row.contactEmail, row.contactPhone].filter(Boolean).join(" · ")}
           </p>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-widest text-steel-dim">
-            {[LEVEL_LABEL[row.level], row.zone].filter(Boolean).join(" · ")}
+            {[row.objective ? OBJECTIVE_LABEL[row.objective] : null, LEVEL_LABEL[row.level], row.zone].filter(Boolean).join(" · ")}
           </p>
           {row.goal && (
             <p className="mt-1 text-sm text-steel">
@@ -166,6 +176,9 @@ function StudentCard({ row, onActivated }: { row: TrainingRosterRow; onActivated
       {row.lastNote && <p className="border-l-2 border-steel-dim/60 pl-3 text-sm text-steel">“{row.lastNote}”</p>}
 
       <div className="flex flex-wrap items-end gap-3">
+        <Link href={`/admin/alumnos/${row.enrollmentId}`} className={primaryButton}>
+          Ver ficha y rutina
+        </Link>
         {isPending ? (
           <>
             <label className="flex flex-col gap-1">
@@ -216,6 +229,7 @@ function NewStudentForm({ onCreated }: { onCreated: (approved: boolean) => void 
         email: String(data.get("email") ?? ""),
         phone: String(data.get("phone") ?? ""),
         goal: String(data.get("goal") ?? ""),
+        objective: String(data.get("objective") ?? "") as EnrollmentObjective | "",
         level: String(data.get("level") ?? "principiante") as EnrollmentLevel,
         zone: String(data.get("zone") ?? ""),
         startDate: approveNow ? String(data.get("startDate") ?? "") || undefined : undefined,
@@ -259,6 +273,17 @@ function NewStudentForm({ onCreated }: { onCreated: (approved: boolean) => void 
       <label className="flex flex-col gap-1 sm:col-span-2">
         <span className="font-mono text-[11px] uppercase tracking-widest text-steel">Meta</span>
         <input name="goal" maxLength={300} placeholder="Ej: mi primera dominada antes de diciembre" className={fieldClass} />
+      </label>
+      <label className="flex flex-col gap-1 sm:col-span-2">
+        <span className="font-mono text-[11px] uppercase tracking-widest text-steel">Objetivo principal</span>
+        <select name="objective" defaultValue="" className={fieldClass}>
+          <option value="">Sin definir</option>
+          {Object.entries(OBJECTIVE_LABEL).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
       </label>
       <label className="flex flex-col gap-1">
         <span className="font-mono text-[11px] uppercase tracking-widest text-steel">Nivel</span>

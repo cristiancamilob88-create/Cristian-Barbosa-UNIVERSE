@@ -8,6 +8,7 @@ import {
   weekStanding,
   type DayLog,
   type EnrollmentLevel,
+  type EnrollmentObjective,
   type EnrollmentStatus,
   type Routine,
   type WeekStanding,
@@ -20,6 +21,7 @@ export interface TrainingRosterRow {
   contactPhone: string | null;
   programName: string;
   status: EnrollmentStatus;
+  objective: EnrollmentObjective | null;
   level: EnrollmentLevel;
   zone: string | null;
   goal: string | null;
@@ -56,6 +58,7 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
     contact_phone: string | null;
     program_name: string;
     status: EnrollmentStatus;
+    objective: EnrollmentObjective | null;
     level: EnrollmentLevel;
     zone: string | null;
     goal: string | null;
@@ -67,7 +70,7 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
     `select e.id as enrollment_id,
             c.name as contact_name, c.email::text as contact_email, c.phone as contact_phone,
             p.name as program_name,
-            e.status, e.level, e.zone, e.goal, e.start_date::text as start_date, e.weeks, e.base_routine,
+            e.status, e.objective, e.level, e.zone, e.goal, e.start_date::text as start_date, e.weeks, e.base_routine,
             e.created_at
      from training_enrollment e
      join contact c on c.id = e.contact_id
@@ -83,8 +86,8 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
       "select enrollment_id, week, days from training_week_routine where enrollment_id = any($1::uuid[])",
       [ids],
     ),
-    db.query<{ enrollment_id: string; week: number; day_index: number; done: boolean[]; note: string | null; updated_at: string }>(
-      `select enrollment_id, week, day_index, done, note, updated_at
+    db.query<{ enrollment_id: string; week: number; day_index: number; done: boolean[]; results: string[]; note: string | null; updated_at: string }>(
+      `select enrollment_id, week, day_index, done, results, note, updated_at
        from training_log where enrollment_id = any($1::uuid[])`,
       [ids],
     ),
@@ -99,7 +102,7 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
   const logs = new Map<string, { week: number; dayIndex: number; log: DayLog; updatedAt: string }[]>();
   for (const r of logRows.rows) {
     const list = logs.get(r.enrollment_id) ?? [];
-    list.push({ week: Number(r.week), dayIndex: Number(r.day_index), log: { done: r.done, note: r.note }, updatedAt: r.updated_at });
+    list.push({ week: Number(r.week), dayIndex: Number(r.day_index), log: { done: r.done, results: r.results, note: r.note }, updatedAt: r.updated_at });
     logs.set(r.enrollment_id, list);
   }
 
@@ -111,6 +114,7 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
       contactPhone: row.contact_phone,
       programName: row.program_name,
       status: row.status,
+      objective: row.objective,
       level: row.level,
       zone: row.zone,
       goal: row.goal,
@@ -135,4 +139,101 @@ export async function getTrainingRoster(db: Pool | PoolClient, today?: string): 
 
     return { ...base, currentWeek: week, weekPercent: percent, standing, standingLabel: label, lastNote };
   });
+}
+
+export interface StudentWeekDetail {
+  enrollment: {
+    id: string;
+    status: EnrollmentStatus;
+    objective: EnrollmentObjective | null;
+    goal: string | null;
+    level: EnrollmentLevel;
+    zone: string | null;
+    startDate: string | null;
+    weeks: number;
+  };
+  contact: { name: string | null; email: string | null; phone: string | null };
+  week: number;
+  /** Null until the enrollment has a start date. */
+  currentWeek: number | null;
+  /** True when this week has its own routine instead of following the base one. */
+  hasOwnRoutine: boolean;
+  routine: Routine;
+  logs: Record<number, DayLog>;
+}
+
+/**
+ * One student's week for /admin/alumnos/[id]: who they are, the routine
+ * that week uses, and everything they logged against it (check-offs,
+ * results, notes). PII — admin session only, same as the roster. `week`
+ * defaults to the student's current week (or 1 before they start).
+ */
+export async function getStudentWeek(
+  db: Pool | PoolClient,
+  enrollmentId: string,
+  requestedWeek?: number,
+  today?: string,
+): Promise<StudentWeekDetail | null> {
+  const { rows } = await db.query<{
+    id: string;
+    status: EnrollmentStatus;
+    objective: EnrollmentObjective | null;
+    goal: string | null;
+    level: EnrollmentLevel;
+    zone: string | null;
+    start_date: string | null;
+    weeks: number;
+    base_routine: unknown;
+    name: string | null;
+    email: string | null;
+    phone: string | null;
+  }>(
+    `select e.id, e.status, e.objective, e.goal, e.level, e.zone, e.start_date::text as start_date, e.weeks, e.base_routine,
+            c.name, c.email::text as email, c.phone
+     from training_enrollment e
+     join contact c on c.id = e.contact_id
+     where e.id = $1`,
+    [enrollmentId],
+  );
+  const row = rows[0];
+  if (!row) return null;
+
+  const weeks = Number(row.weeks);
+  const thisWeek = row.start_date ? currentWeek(row.start_date, weeks, today) : null;
+  const week =
+    requestedWeek && Number.isInteger(requestedWeek) && requestedWeek >= 1 && requestedWeek <= weeks
+      ? requestedWeek
+      : (thisWeek ?? 1);
+
+  const [override, logRows] = await Promise.all([
+    db.query<{ days: unknown }>("select days from training_week_routine where enrollment_id = $1 and week = $2", [
+      enrollmentId,
+      week,
+    ]),
+    db.query<{ day_index: number; done: boolean[]; results: string[]; note: string | null }>(
+      "select day_index, done, results, note from training_log where enrollment_id = $1 and week = $2",
+      [enrollmentId, week],
+    ),
+  ]);
+
+  return {
+    enrollment: {
+      id: row.id,
+      status: row.status,
+      objective: row.objective,
+      goal: row.goal,
+      level: row.level,
+      zone: row.zone,
+      startDate: row.start_date,
+      weeks,
+    },
+    contact: { name: row.name, email: row.email, phone: row.phone },
+    week,
+    currentWeek: thisWeek,
+    hasOwnRoutine: override.rows.length > 0,
+    routine: override.rows[0] ? parseRoutine(override.rows[0].days) : parseRoutine(row.base_routine),
+    logs: Object.fromEntries(
+      logRows.rows.map((l) => [Number(l.day_index), { done: l.done, results: l.results, note: l.note }]),
+    ),
+  };
 }

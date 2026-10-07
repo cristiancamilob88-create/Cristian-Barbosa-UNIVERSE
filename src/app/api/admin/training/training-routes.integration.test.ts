@@ -7,6 +7,8 @@ import { saveDayLog } from "@/server/db/repositories/training";
 import { hasEntitlement } from "@/server/db/repositories/entitlement";
 import { GET as getRoster, POST as createStudent } from "./enrollments/route";
 import { POST as activate } from "./enrollments/[id]/activate/route";
+import { GET as getStudent, PATCH as patchStudent } from "./enrollments/[id]/route";
+import { PUT as putRoutine } from "./enrollments/[id]/routine/route";
 
 const ADMIN_SECRET = "admin-test-secret-" + "a".repeat(20);
 
@@ -123,5 +125,87 @@ describe("/api/admin/training/*", () => {
     expect(row.weekPercent).toBe(36);
     expect(row.standingLabel).toBe("Se está quedando");
     expect(row.lastNote).toBe("Muy duro");
+  });
+});
+
+describe("/api/admin/training/enrollments/[id] — student page", () => {
+  const ctx = (id: string) => ({ params: Promise.resolve({ id }) });
+
+  it("requires the admin session", async () => {
+    const student = await makeStudent({ startDate: "2026-10-05" });
+    const res = await getStudent(request(`/api/admin/training/enrollments/${student.enrollment.id}`, { admin: false }), ctx(student.enrollment.id));
+    expect(res.status).toBe(401);
+    const put = await putRoutine(
+      request(`/api/admin/training/enrollments/${student.enrollment.id}/routine`, { method: "PUT", admin: false, body: {} }),
+      ctx(student.enrollment.id),
+    );
+    expect(put.status).toBe(401);
+  });
+
+  it("returns the requested week with the student's logs and results", async () => {
+    const student = await makeStudent({ startDate: "2026-10-05" });
+    await saveDayLog(getTestPool(), {
+      enrollmentId: student.enrollment.id,
+      week: 2,
+      dayIndex: 1,
+      done: [true],
+      results: ["12, 10, 9"],
+      note: "Bien",
+    });
+    const res = await getStudent(
+      request(`/api/admin/training/enrollments/${student.enrollment.id}?semana=2`),
+      ctx(student.enrollment.id),
+    );
+    const { data } = await res.json();
+    expect(data.week).toBe(2);
+    expect(data.hasOwnRoutine).toBe(false);
+    expect(data.logs[1]).toEqual({ done: [true], results: ["12, 10, 9"], note: "Bien" });
+    expect(data.contact.name).toBe("Ana Pérez");
+  });
+
+  it("saves a routine for one week and the student page then shows it as its own", async () => {
+    const student = await makeStudent({ startDate: "2026-10-05" });
+    const id = student.enrollment.id;
+    const days = [{ title: "Espalda", kind: "Clase", exercises: [{ name: "Dominadas", dose: "4 × 5", cue: "Pecho arriba" }] }];
+    const put = await putRoutine(
+      request(`/api/admin/training/enrollments/${id}/routine`, { method: "PUT", body: { week: 3, days, mode: "week" } }),
+      ctx(id),
+    );
+    expect(put.status).toBe(200);
+
+    const { data } = await (await getStudent(request(`/api/admin/training/enrollments/${id}?semana=3`), ctx(id))).json();
+    expect(data.hasOwnRoutine).toBe(true);
+    expect(data.routine[0].exercises[0].name).toBe("Dominadas");
+  });
+
+  it("rejects an empty or malformed routine, and a week beyond the plan", async () => {
+    const student = await makeStudent({ startDate: "2026-10-05" });
+    const id = student.enrollment.id;
+    const bad = await putRoutine(
+      request(`/api/admin/training/enrollments/${id}/routine`, { method: "PUT", body: { week: 1, days: [], mode: "week" } }),
+      ctx(id),
+    );
+    expect(bad.status).toBe(400);
+    const days = [{ title: "X", exercises: [{ name: "Y" }] }];
+    const tooFar = await putRoutine(
+      request(`/api/admin/training/enrollments/${id}/routine`, { method: "PUT", body: { week: 13, days, mode: "week" } }),
+      ctx(id),
+    );
+    expect(tooFar.status).toBe(400);
+  });
+
+  it("updates objective and profile", async () => {
+    const student = await makeStudent();
+    const id = student.enrollment.id;
+    const res = await patchStudent(
+      request(`/api/admin/training/enrollments/${id}`, {
+        method: "PATCH",
+        body: { objective: "fuerza", goal: "Muscle up", level: "avanzado", zone: "Envigado" },
+      }),
+      ctx(id),
+    );
+    expect(res.status).toBe(200);
+    const row = await getTestPool().query("select objective, level from training_enrollment where id = $1", [id]);
+    expect(row.rows[0]).toEqual({ objective: "fuerza", level: "avanzado" });
   });
 });
