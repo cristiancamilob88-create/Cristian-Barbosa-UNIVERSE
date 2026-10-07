@@ -47,13 +47,15 @@ const DOT_CLASS: Record<PlaceKind, string> = {
 // "Mapa" first and by default (Cristian, 2026-10-07: "como el mapa de
 // Google Maps, que se vean los municipios").
 //
-// Each base map is a list of tile providers tried in order: on his
-// iPhone CARTO's tiles never arrived (pins over an empty background —
-// screenshot 2026-10-07; the same page renders tiles fine when they
-// do arrive), so a provider that fails before showing a single tile is
-// swapped for the next one automatically. OpenStreetMap's own tiles
-// lead "Mapa": the classic road map, closest to Google's, allowed for
+// No CARTO: its free basemaps now answer every tile with an "API KEY
+// REQUIRED" image (Cristian's iPhone screenshots, 2026-10-07) — a
+// successful image, so it can't even be detected as an error. Both
+// providers below are OpenStreetMap's own, keyless, and allowed for
 // light use with a Referer (browsers send our origin) + attribution.
+// The second (Humanitarian style) is only a fallback: a provider that
+// fails before showing a single tile is swapped automatically.
+// "Oscuro" is the same road map with a CSS filter (.cb-shows-map--dark),
+// not a third tile server.
 interface TileProvider {
   url: string;
   attribution: string;
@@ -62,29 +64,20 @@ interface TileProvider {
 }
 
 const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
-const CARTO_ATTRIBUTION = `${OSM_ATTRIBUTION} &copy; <a href="https://carto.com/attributions">CARTO</a>`;
 
-const OSM: TileProvider = {
-  url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-  attribution: OSM_ATTRIBUTION,
-  maxNativeZoom: 19,
-};
-const CARTO_VOYAGER: TileProvider = {
-  url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-  attribution: CARTO_ATTRIBUTION,
-  subdomains: "abcd",
-  maxNativeZoom: 19,
-};
-const CARTO_DARK: TileProvider = {
-  url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-  attribution: CARTO_ATTRIBUTION,
-  subdomains: "abcd",
-  maxNativeZoom: 19,
-};
+const TILE_PROVIDERS: TileProvider[] = [
+  { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", attribution: OSM_ATTRIBUTION, maxNativeZoom: 19 },
+  {
+    url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+    attribution: `${OSM_ATTRIBUTION}, estilo <a href="https://www.hotosm.org/">HOT</a>`,
+    subdomains: "abc",
+    maxNativeZoom: 19,
+  },
+];
 
-const BASE_LAYERS: Record<"streets" | "dark", { label: string; providers: TileProvider[] }> = {
-  streets: { label: "Mapa", providers: [OSM, CARTO_VOYAGER] },
-  dark: { label: "Oscuro", providers: [CARTO_DARK, OSM] },
+const BASE_LAYERS: Record<"streets" | "dark", { label: string }> = {
+  streets: { label: "Mapa" },
+  dark: { label: "Oscuro" },
 };
 
 /** Tile errors before the first successful tile that make us try the next provider. */
@@ -229,12 +222,12 @@ export function ShowsMap() {
     };
   }, [places]);
 
-  // Base layer.
+  // Tiles (once): try each provider in turn until one shows a tile.
   useEffect(() => {
     const L = leaflet.current;
     const m = map.current;
     if (!ready || !L || !m) return;
-    const providers = BASE_LAYERS[base].providers;
+    const providers = TILE_PROVIDERS;
     let cancelled = false;
 
     const use = (index: number) => {
@@ -264,12 +257,11 @@ export function ShowsMap() {
       tiles.current = layer.addTo(m);
     };
 
-    setTilesFailed(false);
     use(0);
     return () => {
       cancelled = true;
     };
-  }, [ready, base]);
+  }, [ready]);
 
   // Show only the filtered/searched pins, and frame them.
   useEffect(() => {
@@ -384,7 +376,7 @@ export function ShowsMap() {
             ref={host}
             role="region"
             aria-label="Mapa interactivo de los lugares donde Cristian Barbosa se ha presentado"
-            className={`cb-shows-map w-full border border-steel-dim/40 bg-ink-raised ${
+            className={`cb-shows-map ${base === "dark" ? "cb-shows-map--dark" : ""} w-full border border-steel-dim/40 bg-ink-raised ${
               fullscreen ? "h-full" : "h-[420px] sm:h-[520px]"
             }`}
           />
