@@ -4,7 +4,16 @@
  * names/emails/phones (never mixed into the aggregates-only
  * adminAnalytics.ts).
  */
-import type { DayLog, EnrollmentLevel, EnrollmentObjective, EnrollmentStatus, Routine, WeekStanding } from "./training";
+import type {
+  DayLog,
+  EnrollmentLevel,
+  EnrollmentObjective,
+  EnrollmentStatus,
+  Measurement,
+  MeasurementInput,
+  Routine,
+  WeekStanding,
+} from "./training";
 
 export interface TrainingRosterRow {
   enrollmentId: string;
@@ -62,8 +71,14 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return body.data as T;
 }
 
-export function fetchTrainingRoster(): Promise<TrainingRosterRow[]> {
-  return request<TrainingRosterRow[]>("/api/admin/training/enrollments");
+/** The roster (paying programs only) plus how many people use the free tier. */
+export async function fetchTrainingRoster(): Promise<{ rows: TrainingRosterRow[]; freeUsers: number }> {
+  const res = await fetch("/api/admin/training/enrollments", { cache: "no-store" });
+  const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; data?: TrainingRosterRow[]; freeUsers?: number };
+  if (!res.ok || body.ok !== true) {
+    throw new AdminTrainingApiError(res.status, body.error ?? `La solicitud falló (${res.status}).`);
+  }
+  return { rows: body.data ?? [], freeUsers: body.freeUsers ?? 0 };
 }
 
 export function createStudent(input: NewStudentInput): Promise<{ enrollmentId: string; status: EnrollmentStatus }> {
@@ -151,6 +166,18 @@ export function saveStudentRoutine(
 ): Promise<{ enrollmentId: string }> {
   return request(`/api/admin/training/enrollments/${enrollmentId}/routine`, {
     method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function fetchStudentMeasurements(enrollmentId: string): Promise<Measurement[]> {
+  return request(`/api/admin/training/enrollments/${enrollmentId}/measurements`);
+}
+
+export function addStudentMeasurement(enrollmentId: string, input: MeasurementInput): Promise<Measurement> {
+  return request(`/api/admin/training/enrollments/${enrollmentId}/measurements`, {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });

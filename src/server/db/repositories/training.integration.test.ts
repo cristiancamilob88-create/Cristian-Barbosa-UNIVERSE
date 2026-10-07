@@ -85,11 +85,11 @@ describe("training repository (Plan Diciembre)", () => {
     await saveDayLog(db, { enrollmentId: enrollment.id, week: 1, dayIndex: 0, done: [true, false, true, false] });
 
     let logs = await getTrainingLogs(db, enrollment.id);
-    expect(logs[1][0]).toEqual({ done: [true, false, true, false], results: [], note: "Me dolió el hombro" });
+    expect(logs[1][0]).toEqual({ done: [true, false, true, false], results: [], note: "Me dolió el hombro", durationSeconds: null });
 
     await saveDayLog(db, { enrollmentId: enrollment.id, week: 1, dayIndex: 0, note: "" });
     logs = await getTrainingLogs(db, enrollment.id);
-    expect(logs[1][0]).toEqual({ done: [true, false, true, false], results: [], note: null });
+    expect(logs[1][0]).toEqual({ done: [true, false, true, false], results: [], note: null, durationSeconds: null });
   });
 });
 
@@ -147,7 +147,7 @@ describe("personalized routines (phase 2)", () => {
     await saveDayLog(db, { enrollmentId: enrollment.id, week: 1, dayIndex: 0, done: [true, true, false, false] });
     await saveDayLog(db, { enrollmentId: enrollment.id, week: 1, dayIndex: 0, results: ["10, 8, 8", "", "35 s", ""] });
     const logs = await getTrainingLogs(db, enrollment.id);
-    expect(logs[1][0]).toEqual({ done: [true, true, false, false], results: ["10, 8, 8", "", "35 s", ""], note: null });
+    expect(logs[1][0]).toEqual({ done: [true, true, false, false], results: ["10, 8, 8", "", "35 s", ""], note: null, durationSeconds: null });
   });
 
   it("updates the student's profile: objective, goal, level, zone", async () => {

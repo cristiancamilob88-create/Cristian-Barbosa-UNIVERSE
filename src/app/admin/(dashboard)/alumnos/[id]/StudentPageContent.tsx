@@ -4,8 +4,11 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 import { fetchExerciseLibrary } from "@/lib/adminExercises";
 import { searchKey, type Exercise as LibraryExercise } from "@/lib/exercises";
 import { LoadingBlock, ErrorBlock } from "@/components/admin/states";
+import { ProgressView } from "@/components/training/ProgressView";
 import {
   AdminTrainingApiError,
+  addStudentMeasurement,
+  fetchStudentMeasurements,
   fetchStudentWeek,
   saveStudentRoutine,
   updateStudentProfile,
@@ -19,8 +22,10 @@ import {
   formatShortDay,
   weekCompletion,
   weekRange,
+  formatDuration,
   type EnrollmentLevel,
   type EnrollmentObjective,
+  type Measurement,
   type Routine,
 } from "@/lib/training";
 
@@ -97,6 +102,8 @@ export function StudentPageContent({ enrollmentId }: { enrollmentId: string }) {
           load(week);
         }}
       />
+
+      <StudentProgress enrollmentId={enrollment.id} />
 
       <WeekNav detail={data} onChange={(w) => load(w)} />
 
@@ -197,6 +204,38 @@ function ProfileForm({ detail, onSaved }: { detail: StudentWeekDetail; onSaved: 
   );
 }
 
+function StudentProgress({ enrollmentId }: { enrollmentId: string }) {
+  const [measurements, setMeasurements] = useState<Measurement[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchStudentMeasurements(enrollmentId)
+      .then(setMeasurements)
+      .catch((err) => setError(errorText(err, "No se pudieron cargar sus pruebas.")));
+  }, [enrollmentId]);
+
+  return (
+    <section className="flex flex-col gap-3">
+      <h3 className="font-display text-xl font-black uppercase tracking-tight text-chalk">Pruebas de máximo</h3>
+      {error && <p className="text-sm text-ember">{error}</p>}
+      {measurements === null && !error && <LoadingBlock />}
+      {measurements !== null && (
+        <ProgressView
+          measurements={measurements}
+          canEdit
+          onAdd={async (input) => {
+            try {
+              return await addStudentMeasurement(enrollmentId, input);
+            } catch (err) {
+              return errorText(err, "No se pudo guardar la prueba.");
+            }
+          }}
+        />
+      )}
+    </section>
+  );
+}
+
 function WeekNav({ detail, onChange }: { detail: StudentWeekDetail; onChange: (week: number) => void }) {
   const { week, enrollment } = detail;
   const range = enrollment.startDate ? weekRange(enrollment.startDate, week) : null;
@@ -257,7 +296,12 @@ function WeekLog({ detail }: { detail: StudentWeekDetail }) {
             const log = logs[dayIndex];
             return (
               <div key={dayIndex} className="border border-steel-dim/40 bg-ink-raised p-4">
-                <p className="font-display text-lg font-black uppercase tracking-tight text-chalk">{day.title}</p>
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="font-display text-lg font-black uppercase tracking-tight text-chalk">{day.title}</p>
+                  {log?.durationSeconds != null && (
+                    <span className="font-mono text-xs text-tide">⏱ {formatDuration(log.durationSeconds)}</span>
+                  )}
+                </div>
                 <ul className="mt-2 flex flex-col gap-1.5">
                   {day.exercises.map((exercise, i) => (
                     <li key={i} className="flex items-baseline gap-2 text-sm">

@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { weekCompletion, type DayLog, type Routine } from "@/lib/training";
+import { DayTimer } from "./DayTimer";
 
 interface Props {
   week: number;
@@ -12,7 +13,14 @@ interface Props {
   readOnly: boolean;
 }
 
-type SaveBody = { week: number; dayIndex: number; done?: boolean[]; results?: string[]; note?: string };
+type SaveBody = {
+  week: number;
+  dayIndex: number;
+  done?: boolean[];
+  results?: string[];
+  note?: string;
+  durationSeconds?: number;
+};
 
 async function saveLog(body: SaveBody): Promise<string | null> {
   try {
@@ -29,7 +37,7 @@ async function saveLog(body: SaveBody): Promise<string | null> {
   }
 }
 
-const EMPTY_DAY: DayLog = { done: [], results: [], note: null };
+const EMPTY_DAY: DayLog = { done: [], results: [], note: null, durationSeconds: null };
 
 /**
  * The interactive part of "Mi semana". Per exercise the student ticks
@@ -87,6 +95,17 @@ export function WeekView({ week, routine, initialLogs, readOnly }: Props) {
     saved.current[dayIndex] = { ...EMPTY_DAY, ...saved.current[dayIndex], results };
     patchDay(dayIndex, { results });
     flash("Guardado");
+  }
+
+  async function saveDuration(dayIndex: number, seconds: number): Promise<string | null> {
+    const error = await saveLog({ week, dayIndex, durationSeconds: seconds });
+    if (error) {
+      flash(error, true);
+      return error;
+    }
+    patchDay(dayIndex, { durationSeconds: seconds });
+    flash("¡Rutina terminada!");
+    return null;
   }
 
   async function saveNote(dayIndex: number, value: string) {
@@ -184,6 +203,15 @@ export function WeekView({ week, routine, initialLogs, readOnly }: Props) {
                 );
               })}
             </ul>
+            <div className="border-t border-steel-dim/40 px-4 py-3">
+              <DayTimer
+                week={week}
+                dayIndex={dayIndex}
+                durationSeconds={log?.durationSeconds ?? null}
+                readOnly={readOnly}
+                onFinish={(seconds) => saveDuration(dayIndex, seconds)}
+              />
+            </div>
             <div className="flex flex-col gap-2 border-t border-steel-dim/40 px-4 py-3">
               <label htmlFor={`note-${week}-${dayIndex}`} className="font-mono text-[11px] uppercase tracking-widest text-steel">
                 ¿Cómo te fue?

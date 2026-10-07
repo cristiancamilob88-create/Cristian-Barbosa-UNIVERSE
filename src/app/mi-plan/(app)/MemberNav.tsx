@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ITEMS = [
-  { href: "/mi-plan", label: "Mi semana" },
-  { href: "/mi-plan/plan", label: "Mi plan" },
+  { href: "/mi-plan", label: "Semana" },
+  { href: "/mi-plan/plan", label: "Plan" },
+  { href: "/mi-plan/progreso", label: "Progreso" },
   { href: "/mi-plan/biblioteca", label: "Biblioteca" },
 ] as const;
 
@@ -20,7 +21,7 @@ export function MemberNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`-mb-px border-b-2 px-4 py-3 font-mono text-xs uppercase tracking-wider transition-colors ${
+            className={`-mb-px whitespace-nowrap border-b-2 px-3 py-3 font-mono sm:px-4 text-xs uppercase tracking-wider transition-colors ${
               active ? "border-ember text-chalk" : "border-transparent text-steel hover:text-chalk"
             }`}
           >

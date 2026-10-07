@@ -38,6 +38,17 @@ export interface DayLog {
   done: boolean[];
   results: string[];
   note: string | null;
+  /** The workout timer: seconds it took to finish that day's routine (migration 0020). */
+  durationSeconds: number | null;
+}
+
+/** "32:10" / "1:05:00" — the timer's display format. */
+export function formatDuration(totalSeconds: number): string {
+  const s = Math.max(0, Math.round(totalSeconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = String(s % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
 }
 
 /** week -> dayIndex -> log. Only days the student touched have an entry. */
@@ -188,3 +199,44 @@ export function parseRoutine(value: unknown): Routine {
   const parsed = routineSchema.safeParse(value);
   return parsed.success ? parsed.data : [];
 }
+
+/** The max tests a student (or Cristian, in class) logs over time — "Mi progreso". */
+export const MEASUREMENT_METRICS = [
+  { key: "pushUps", label: "Flexiones", unit: "", max: 500, higherIsBetter: true },
+  { key: "pullUps", label: "Dominadas", unit: "", max: 200, higherIsBetter: true },
+  { key: "dips", label: "Fondos", unit: "", max: 300, higherIsBetter: true },
+  { key: "plankSeconds", label: "Plancha", unit: " s", max: 3600, higherIsBetter: true },
+  { key: "weightKg", label: "Peso", unit: " kg", max: 400, higherIsBetter: false },
+] as const;
+
+export type MeasurementKey = (typeof MEASUREMENT_METRICS)[number]["key"];
+
+export interface Measurement {
+  id: string;
+  /** YYYY-MM-DD */
+  measuredOn: string;
+  pushUps: number | null;
+  pullUps: number | null;
+  dips: number | null;
+  plankSeconds: number | null;
+  weightKg: number | null;
+}
+
+const optionalCount = (max: number) => z.number().int().min(0).max(max).nullable().optional();
+
+/** One max-test entry: a date plus at least one number. Validated by both the student and admin APIs. */
+export const measurementInputSchema = z
+  .object({
+    measuredOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    pushUps: optionalCount(500),
+    pullUps: optionalCount(200),
+    dips: optionalCount(300),
+    plankSeconds: optionalCount(3600),
+    weightKg: z.number().min(20).max(400).nullable().optional(),
+  })
+  .refine(
+    (v) => MEASUREMENT_METRICS.some((m) => v[m.key] !== null && v[m.key] !== undefined),
+    { message: "Anota al menos un resultado." },
+  );
+
+export type MeasurementInput = z.infer<typeof measurementInputSchema>;

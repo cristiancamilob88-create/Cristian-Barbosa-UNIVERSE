@@ -4,6 +4,8 @@ import { GoLink } from "@/components/ui/GoLink";
 import { goLinks } from "@/config/site";
 import { MemberNav } from "./MemberNav";
 import { LogoutButton } from "./LogoutButton";
+import { WelcomeGuide } from "./WelcomeGuide";
+import { UpgradeCard } from "./UpgradeCard";
 
 // Per-student data on every request — never prerendered or cached across students.
 export const dynamic = "force-dynamic";
@@ -41,13 +43,14 @@ export default async function MemberAppLayout({ children }: LayoutProps<"/mi-pla
   }
 
   const firstName = plan.name?.split(" ")[0];
+  const programLabel = plan.isFree ? "Rutinas gratis" : plan.programName.split(" — ")[0];
 
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Plan Diciembre</p>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">{programLabel}</p>
             <h1 className="mt-2 font-display text-3xl font-black uppercase tracking-tight text-chalk sm:text-4xl">
               {firstName ? `Hola, ${firstName}` : "Tu plan"}
             </h1>
@@ -61,7 +64,9 @@ export default async function MemberAppLayout({ children }: LayoutProps<"/mi-pla
         </div>
         <MemberNav />
       </header>
+      <WelcomeGuide />
       {children}
+      {plan.isFree && <UpgradeCard />}
     </div>
   );
 }

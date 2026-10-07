@@ -26,7 +26,7 @@ import {
 type State =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; data: TrainingRosterRow[] };
+  | { status: "ready"; data: TrainingRosterRow[]; freeUsers: number };
 
 const STANDING_CLASS: Record<WeekStanding, string> = {
   good: "bg-tide/15 text-tide",
@@ -52,7 +52,7 @@ export function AlumnosPageContent() {
 
   const load = useCallback(() => {
     fetchTrainingRoster()
-      .then((data) => setState({ status: "ready", data }))
+      .then(({ rows, freeUsers }) => setState({ status: "ready", data: rows, freeUsers }))
       .catch((err) => setState({ status: "error", message: errorText(err, "Error inesperado consultando alumnos.") }));
   }, []);
 
@@ -75,6 +75,14 @@ export function AlumnosPageContent() {
       {notice && (
         <p role="status" className="border border-tide/40 bg-tide/10 px-4 py-3 text-sm text-tide">
           {notice}
+        </p>
+      )}
+
+      {state.status === "ready" && (
+        <p className="border border-steel-dim/40 bg-ink-raised px-4 py-3 text-sm text-steel">
+          <span className="font-mono text-chalk">{state.freeUsers}</span>{" "}
+          {state.freeUsers === 1 ? "persona usa" : "personas usan"} las rutinas gratis (registro en /entrenar/gratis). Las
+          ves con su fuente en <Link href="/admin/leads" className="text-chalk underline underline-offset-4">Registros</Link>.
         </p>
       )}
 

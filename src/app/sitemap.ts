@@ -17,6 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     pastShowsIndexPath,
     // Plan Diciembre's sign-up landing (docs/TRAINING.md) — a real page, not a nav pillar.
     "/entrenar/plan-diciembre",
+    // The free tier's sign-up page (docs/TRAINING.md, "Free tier").
+    "/entrenar/gratis",
     ...pastShows.map((show) => pastShowPath(show.slug)),
   ];
 
