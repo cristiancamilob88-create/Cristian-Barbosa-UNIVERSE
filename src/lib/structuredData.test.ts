@@ -65,3 +65,19 @@ describe("personJsonLd", () => {
     expect(personJsonLd(["https://x.com/someone"]).sameAs).toEqual(["https://x.com/someone"]);
   });
 });
+
+describe("performedPlacesJsonLd", () => {
+  it("lists every town and corregimiento as a Place about the Person, with no invented dates", async () => {
+    const { performedPlacesJsonLd, personId } = await import("./structuredData");
+    const { tourStops } = await import("@/config/tourStops");
+    const data = performedPlacesJsonLd(tourStops, "https://example.test/agenda");
+    const corregimientos = tourStops.reduce((n, s) => n + Object.keys(s.corregimientoGeo ?? {}).length, 0);
+
+    expect(data.about).toEqual({ "@id": personId });
+    expect(data.mainEntity.numberOfItems).toBe(tourStops.length + corregimientos);
+    const names = data.mainEntity.itemListElement.map((li) => li.item.name);
+    expect(names).toContain("Támesis, Antioquia");
+    expect(names).toContain("Bolombolo (corregimiento de Venecia), Antioquia");
+    expect(JSON.stringify(data)).not.toMatch(/startDate|"Event"/);
+  });
+});

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { shortLinkDestination, shortLinks } from "./src/config/shortLinks";
 
 /**
  * Baseline security headers, applied to every route. These are the
@@ -38,6 +39,17 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // One shareable link for shows (2026-10-07): the old agenda and
+  // past-shows index merged into /agenda (src/config/site.ts, agendaHref).
+  // Permanent so Google moves the already-submitted URLs over.
+  async redirects() {
+    return [
+      { source: "/eventos", destination: "/agenda", permanent: true },
+      { source: "/shows/realizados", destination: "/agenda", permanent: true },
+      // Short bio links (/ig, /tt, …) → the page with its UTM tags.
+      ...shortLinks.map((link) => ({ source: link.path, destination: shortLinkDestination(link), permanent: false })),
+    ];
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

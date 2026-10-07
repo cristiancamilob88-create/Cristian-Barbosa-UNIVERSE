@@ -35,3 +35,19 @@ describe("site.ts nav items", () => {
     }
   });
 });
+
+describe("menu structure (2026-10-07 reorganization)", () => {
+  it("keeps the main menu to the 4 paths + the map, Contacto apart", async () => {
+    const { primaryNavItems, moreNavItems, contactNavItem } = await import("./site");
+    expect(primaryNavItems.map((i) => i.label)).toEqual(["Música", "Shows", "Mapa y agenda", "Entrenar", "Historia"]);
+    expect(contactNavItem.href).toBe("/contacto");
+    expect(moreNavItems.map((i) => i.href)).not.toContain("/contacto");
+    expect(moreNavItems.length + primaryNavItems.length + 1).toBe(navItems.length + secondaryNavItems.length);
+  });
+
+  it("tags are in Spanish", () => {
+    for (const item of [...navItems, ...secondaryNavItems]) {
+      expect(["TRAIN", "COMMUNITY", "MUSIC", "BRANDS", "EVENTS", "SHOP", "ABOUT", "NETWORK", "SERVICES", "CONTACT"]).not.toContain(item.tag);
+    }
+  });
+});

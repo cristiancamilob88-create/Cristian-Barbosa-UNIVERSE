@@ -16,7 +16,7 @@ export default function ProductosPage() {
   return (
     <>
       <PageHero
-        tag="SHOP"
+        tag="PRODUCTOS"
         title="Productos"
         description="Dos catálogos, un mismo estándar: lo físico para entrenar y vestir, lo digital para aprender."
       />

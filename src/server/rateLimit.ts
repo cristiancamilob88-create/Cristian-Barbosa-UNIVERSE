@@ -46,6 +46,40 @@ export function createRateLimiter(options: { windowMs: number; maxRequests: numb
  * independently (Vercel/most proxies set x-forwarded-for; the first
  * entry is the original client) — centralized so it can't drift.
  */
-export function getRequestIp(request: Request): string {
+export function getRequestIp(request: { headers: Headers }): string {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+}
+
+/**
+ * Two-tier limit for the routes real visitors hit during a traffic spike
+ * (2026-10-07, ahead of a possible viral video): a tight cap per visitor
+ * cookie, plus a much looser cap per IP. A per-IP cap alone treats every
+ * phone behind one carrier NAT (Claro/Tigo mobile data shares exit IPs)
+ * as one client, so a viral spike from Instagram would turn real page
+ * views and leads into silent 429s. A request without the visitor cookie
+ * (a script; every real page load gets one from src/proxy.ts first)
+ * is held to the per-visitor cap on its IP instead.
+ */
+export function createVisitorRateLimiter(options: {
+  windowMs: number;
+  perVisitor: number;
+  perIp: number;
+}): { isRateLimited(request: { headers: Headers; cookies: { get(name: string): { value: string } | undefined } }, visitorCookie: string): boolean; reset(): void } {
+  const visitors = createRateLimiter({ windowMs: options.windowMs, maxRequests: options.perVisitor });
+  const ips = createRateLimiter({ windowMs: options.windowMs, maxRequests: options.perIp });
+  return {
+    isRateLimited(request, visitorCookie) {
+      const ip = getRequestIp(request);
+      const visitor = request.cookies.get(visitorCookie)?.value;
+      if (!visitor) return visitors.isRateLimited(`ip:${ip}`);
+      // Both always record, so neither tier can be bypassed by the other.
+      const visitorLimited = visitors.isRateLimited(`v:${visitor}`);
+      const ipLimited = ips.isRateLimited(ip);
+      return visitorLimited || ipLimited;
+    },
+    reset() {
+      visitors.reset();
+      ips.reset();
+    },
+  };
 }
