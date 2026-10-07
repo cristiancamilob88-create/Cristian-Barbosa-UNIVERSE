@@ -61,6 +61,25 @@ export const pressCoverage: PressItem[] = [
   },
 ];
 
+/**
+ * Brands Cristian officially represents (2026-10-07: brand ambassador for
+ * Club Nativos, a private business club — he keeps it in his Instagram
+ * bio). Their accounts aren't his own channels, so they're never a
+ * `social_profile`/GoLink row; pages link them with `TrackedLink
+ * external`, the same reasoning docs/UNIVERSE_UX.md §10 applies to
+ * collaborator and press links.
+ */
+export const ambassadorships = [
+  {
+    name: "Club Nativos",
+    role: "Embajador de marca",
+    detail: "Club privado de negocios",
+    platform: "instagram",
+    url: "https://www.instagram.com/club.nativos/",
+    cta: "ambassador_club_nativos",
+  },
+] as const;
+
 export interface NavItem {
   /** Short mono-space tag used as the visual/identifier label, e.g. "TRAIN". */
   tag: string;
