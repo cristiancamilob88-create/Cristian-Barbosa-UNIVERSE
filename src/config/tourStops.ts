@@ -40,7 +40,7 @@ export const tourStops: TourStop[] = [
   { town: "El Carmen de Atrato", department: "Chocó", subregion: "Chocó", kind: "circo", geo: { lat: 5.899, lng: -76.143 } },
   { town: "Ciudad Bolívar", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.851, lng: -76.021 }, corregimientos: ["Farallones del Citará"], corregimientoGeo: { "Farallones del Citará": { lat: 5.799, lng: -76.029 } } },
   { town: "Andes", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.657, lng: -75.879 }, corregimientos: ["Tapartó"], corregimientoGeo: { "Tapartó": { lat: 5.701, lng: -75.965 } } },
-  { town: "Venecia", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.965, lng: -75.735 }, corregimientos: ["Bolombolo"] },
+  { town: "Venecia", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.965, lng: -75.735 }, corregimientos: ["Bolombolo"], corregimientoGeo: { Bolombolo: { lat: 5.971, lng: -75.837 } } },
   { town: "Fredonia", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 5.928, lng: -75.674 } },
   { town: "Angelópolis", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 6.11, lng: -75.711 } },
   { town: "Titiribí", department: "Antioquia", subregion: "Suroeste", kind: "circo", geo: { lat: 6.062, lng: -75.792 } },
@@ -60,7 +60,7 @@ export const tourStops: TourStop[] = [
   { town: "Giraldo", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.681, lng: -75.952 } },
   { town: "Frontino", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.776, lng: -76.131 } },
   { town: "Santa Fe de Antioquia", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.557, lng: -75.828 } },
-  { town: "Ebéjico", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.326, lng: -75.768 }, corregimientos: ["Sevilla"] },
+  { town: "Ebéjico", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.326, lng: -75.768 }, corregimientos: ["Sevilla"], corregimientoGeo: { Sevilla: { lat: 6.293, lng: -75.785 } } },
 
   // Instituciones educativas, alcaldías y eventos
   { town: "Medellín", department: "Antioquia", subregion: "Valle de Aburrá", kind: "instituciones", geo: { lat: 6.244, lng: -75.581 }, note: "Pride 2022 frente a más de 80.000 personas, invitado por la Alcaldía, y presentaciones en colegios junto al artista El Oscar." },

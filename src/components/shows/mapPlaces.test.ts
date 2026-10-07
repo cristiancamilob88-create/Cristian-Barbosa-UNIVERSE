@@ -27,6 +27,10 @@ describe("buildMapPlaces", () => {
     expect(taparto).toMatchObject({ kind: "circo", region: "Corregimiento de Andes · Suroeste, Antioquia" });
     expect(places.findIndex((p) => p.town === "Tapartó")).toBe(places.findIndex((p) => p.town === "Andes") + 1);
     expect(places.find((p) => p.town === "Farallones del Citará")?.region).toContain("Ciudad Bolívar");
+    // Every corregimiento listed in the config has its own pin.
+    for (const stop of tourStops) {
+      for (const name of stop.corregimientos ?? []) expect(places.some((p) => p.town === name)).toBe(true);
+    }
   });
 
   it("links every place to Google Maps without an API key", () => {
@@ -48,7 +52,7 @@ describe("filters and search", () => {
 
   it("searches without accents and through corregimientos", () => {
     expect(places.filter((p) => matchesSearch(p, "tamesis")).map((p) => p.town)).toEqual(["Támesis"]);
-    expect(places.filter((p) => matchesSearch(p, "bolombolo")).map((p) => p.town)).toEqual(["Venecia"]);
+    expect(places.filter((p) => matchesSearch(p, "bolombolo")).map((p) => p.town)).toEqual(["Venecia", "Bolombolo"]);
     expect(places.filter((p) => matchesSearch(p, "  ")).length).toBe(places.length);
   });
 });
