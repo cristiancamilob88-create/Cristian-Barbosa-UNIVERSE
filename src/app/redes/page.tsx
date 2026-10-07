@@ -126,7 +126,7 @@ export default async function RedesPage() {
             <span className="block font-display text-xl font-black uppercase leading-tight tracking-tight">
               Escríbeme por WhatsApp
             </span>
-            <span className="block text-sm font-medium">Clases, asesorías, shows o cualquier duda</span>
+            <span className="block text-sm font-medium">Valoración gratis · clases, shows o dudas</span>
           </span>
         </GoLink>
       ) : null}
