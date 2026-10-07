@@ -8,6 +8,11 @@ import { findOrCreateContact, assignInterest } from "@/server/db/repositories/co
 import { linkVisitorToContact } from "@/server/db/repositories/visitor";
 import { createLead } from "@/server/db/repositories/lead";
 import { createB2bOpportunity, type B2bCategory } from "@/server/db/repositories/b2bOpportunity";
+import {
+  PLAN_DICIEMBRE_PRODUCT_SLUG,
+  getProductIdBySlug,
+  upsertPendingEnrollment,
+} from "@/server/db/repositories/training";
 import { recordInteraction } from "@/server/db/repositories/interaction";
 import { createVisitorRateLimiter } from "@/server/rateLimit";
 import { privacyPolicyVersion } from "@/config/legal";
@@ -55,6 +60,7 @@ const leadSchema = z.object({
     "musica",
     "productos_fisicos",
     "productos_digitales",
+    "plan_diciembre",
     "general",
   ]),
   message: z.string().trim().max(2000).optional().default(""),
@@ -70,6 +76,11 @@ const leadSchema = z.object({
   // Where the event is — only sent for "shows" (AddressAutocomplete),
   // validated by the same schema the browser uses.
   eventAddress: eventAddressSchema.optional(),
+  // Plan Diciembre sign-up only (/entrenar/plan-diciembre): where they'd
+  // train and what they want out of it — copied onto the pending
+  // training_enrollment row, ignored for every other topic.
+  trainingZone: z.string().trim().max(80).optional(),
+  trainingGoal: z.string().trim().max(300).optional(),
 });
 
 /**
@@ -88,6 +99,7 @@ const TOPIC_TO_INTEREST_SLUG: Record<string, string | undefined> = {
   musica: "music",
   productos_fisicos: "physical_products",
   productos_digitales: "digital_products",
+  plan_diciembre: "coaching",
   // "general" intentionally maps to no specific interest.
 };
 
@@ -141,6 +153,9 @@ export async function POST(request: NextRequest) {
   }
 
   const { name, email, phone, topic, message } = parsed.data;
+  // Where the form lives — /contacto for every topic except the Plan
+  // Diciembre sign-up, which has its own landing (docs/TRAINING.md).
+  const formRoute = topic === "plan_diciembre" ? "/entrenar/plan-diciembre" : "/contacto";
   // Only a shows request carries an event location; ignore it otherwise.
   const eventAddress = topic === "shows" ? parsed.data.eventAddress : undefined;
 
@@ -160,7 +175,7 @@ export async function POST(request: NextRequest) {
           visitorId: visitorCtx.visitorId,
           contactId: contact.id,
           eventName: "contact_created",
-          route: "/contacto",
+          route: formRoute,
           touch: visitorCtx.touch,
         });
       }
@@ -190,11 +205,26 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      // Plan Diciembre (docs/TRAINING.md): alongside the lead, a pending
+      // enrollment Cristian approves from /admin/alumnos — same "topic
+      // opens its own pipeline row" pattern as b2b_opportunity above.
+      if (topic === "plan_diciembre") {
+        const productId = await getProductIdBySlug(client, PLAN_DICIEMBRE_PRODUCT_SLUG);
+        if (productId) {
+          await upsertPendingEnrollment(client, {
+            contactId: contact.id,
+            productId,
+            goal: parsed.data.trainingGoal || null,
+            zone: parsed.data.trainingZone || null,
+          });
+        }
+      }
+
       await recordInteraction(client, {
         visitorId: visitorCtx.visitorId,
         contactId: contact.id,
         eventName: "lead_submitted",
-        route: "/contacto",
+        route: formRoute,
         touch: visitorCtx.touch,
         metadata: { topic, leadId: lead.id },
       });

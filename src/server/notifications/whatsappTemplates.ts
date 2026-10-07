@@ -44,6 +44,12 @@ export const WELCOME_WHATSAPP_TEMPLATES: Record<string, WhatsAppTemplate> = {
   productos_digitales: {
     body: `¡Hola {name}! 👋 Soy Cristian. Gracias por tu interés — entra a ${SITE_URL}/productos para ver los productos digitales disponibles, y únete gratis a la comunidad en ${SITE_URL}/comunidad. 📲`,
   },
+  // Plan Diciembre (2026-09-30) — wording from Cristian's own sales
+  // script: the next step is the free 20-minute assessment and the
+  // start day, closed by WhatsApp; the app comes once he confirms the spot.
+  plan_diciembre: {
+    body: `¡Hola {name}! 👋 Soy Cristian. Recibí tu inscripción al Plan Diciembre. Te escribo por aquí para agendar tu valoración gratis de 20 minutos y cuadrar el día de arranque. Cuando confirmemos tu cupo te llega el acceso a tu app con tu rutina. 💪`,
+  },
   general: {
     body: `¡Hola {name}! 👋 Soy Cristian Barbosa. Gracias por registrarte. Entra a ${SITE_URL}/comunidad y únete gratis a la comunidad de WhatsApp para conocer todo lo que hago. 💪`,
   },

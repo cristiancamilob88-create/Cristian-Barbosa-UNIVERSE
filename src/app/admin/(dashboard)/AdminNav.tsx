@@ -17,6 +17,7 @@ const ADMIN_NAV_ITEMS = [
   { href: "/admin/leads", label: "Registros" },
   { href: "/admin/contactos", label: "Contactos" },
   { href: "/admin/negocios", label: "Negocios" },
+  { href: "/admin/alumnos", label: "Alumnos" },
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/revenue", label: "Ingresos" },
   { href: "/admin/canales", label: "Canales" },

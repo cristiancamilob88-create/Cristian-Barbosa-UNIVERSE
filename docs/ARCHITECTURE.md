@@ -345,6 +345,12 @@ Full model in docs/SECURITY.md. Summary:
     motion (`gsap-web` from the skills library), once there is real content
     to animate — likely also when the Command Center's own visual pass
     (real charts, the deferred motion) happens.
+10b. **Plan Diciembre — student area (2026-09-30, outside the numbered
+    blocks, Cristian's own request)**: the first multi-user sign-in, scoped
+    to training students only (emailed code, own stateless cookie/secret —
+    not a general accounts system), `/mi-plan` PWA, `/admin/alumnos`,
+    migration 0017. Reuses contact/product/offer/entitlement. See
+    docs/TRAINING.md.
 11. **Later, not scheduled**: multi-user auth/accounts beyond the single
    admin login (needed before any RLS self-service policy), membership
    platform, AI coaching, mobile app, 3D — all explicitly deferred per
