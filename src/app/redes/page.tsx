@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { GoLink } from "@/components/ui/GoLink";
 import { LinkIcon } from "@/components/ui/LinkIcon";
 import { TrackedLink } from "@/components/ui/TrackedLink";
-import { goLinks, navItems } from "@/config/site";
+import { ambassadorships, goLinks, navItems } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
 import { getPool } from "@/server/db/pool";
 import { listActiveSocialProfiles } from "@/server/db/repositories/socialProfile";
@@ -163,6 +163,20 @@ export default async function RedesPage() {
         >
           <CardBody icon="music" title="Mi música" detail="Lanzamientos y la historia detrás de cada canción" />
         </TrackedLink>
+      </Section>
+
+      <Section title="Embajador de marca">
+        {ambassadorships.map((brand) => (
+          <TrackedLink
+            key={brand.name}
+            event={{ name: "cta_click", cta: brand.cta, topic: TOPIC }}
+            href={brand.url}
+            external
+            className={cardClass}
+          >
+            <CardBody icon={brand.platform} title={brand.name} detail={brand.detail} />
+          </TrackedLink>
+        ))}
       </Section>
 
       {freeCommunity.length > 0 ? (
