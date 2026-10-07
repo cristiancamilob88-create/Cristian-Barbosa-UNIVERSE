@@ -45,26 +45,55 @@ const DOT_CLASS: Record<PlaceKind, string> = {
 };
 
 // "Mapa" first and by default (Cristian, 2026-10-07: "como el mapa de
-// Google Maps, que se vean los municipios"): CARTO Voyager reads like
-// Google's road map — towns, roads, rivers, names at every zoom.
-const BASE_LAYERS = {
-  streets: {
-    label: "Mapa",
-    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-  },
-  dark: {
-    label: "Oscuro",
-    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-  },
-} as const;
+// Google Maps, que se vean los municipios").
+//
+// Each base map is a list of tile providers tried in order: on his
+// iPhone CARTO's tiles never arrived (pins over an empty background —
+// screenshot 2026-10-07; the same page renders tiles fine when they
+// do arrive), so a provider that fails before showing a single tile is
+// swapped for the next one automatically. OpenStreetMap's own tiles
+// lead "Mapa": the classic road map, closest to Google's, allowed for
+// light use with a Referer (browsers send our origin) + attribution.
+interface TileProvider {
+  url: string;
+  attribution: string;
+  subdomains?: string;
+  maxNativeZoom: number;
+}
+
+const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const CARTO_ATTRIBUTION = `${OSM_ATTRIBUTION} &copy; <a href="https://carto.com/attributions">CARTO</a>`;
+
+const OSM: TileProvider = {
+  url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  attribution: OSM_ATTRIBUTION,
+  maxNativeZoom: 19,
+};
+const CARTO_VOYAGER: TileProvider = {
+  url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+  attribution: CARTO_ATTRIBUTION,
+  subdomains: "abcd",
+  maxNativeZoom: 19,
+};
+const CARTO_DARK: TileProvider = {
+  url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  attribution: CARTO_ATTRIBUTION,
+  subdomains: "abcd",
+  maxNativeZoom: 19,
+};
+
+const BASE_LAYERS: Record<"streets" | "dark", { label: string; providers: TileProvider[] }> = {
+  streets: { label: "Mapa", providers: [OSM, CARTO_VOYAGER] },
+  dark: { label: "Oscuro", providers: [CARTO_DARK, OSM] },
+};
+
+/** Tile errors before the first successful tile that make us try the next provider. */
+const FAILOVER_AFTER_ERRORS = 3;
 
 const MAX_ZOOM = 19;
 /** From this zoom in, every pin shows its town name, like Google Maps' labels. */
 const LABELS_FROM_ZOOM = 9;
 type BaseLayer = keyof typeof BASE_LAYERS;
-
-const ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
 function popupFor(place: MapPlace): HTMLElement {
   const root = document.createElement("div");
@@ -120,6 +149,7 @@ export function ShowsMap() {
   const [base, setBase] = useState<BaseLayer>("streets");
   const [fullscreen, setFullscreen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [tilesFailed, setTilesFailed] = useState(false);
 
   const host = useRef<HTMLDivElement>(null);
   const shell = useRef<HTMLDivElement>(null);
@@ -204,8 +234,41 @@ export function ShowsMap() {
     const L = leaflet.current;
     const m = map.current;
     if (!ready || !L || !m) return;
-    tiles.current?.remove();
-    tiles.current = L.tileLayer(BASE_LAYERS[base].url, { subdomains: "abcd", maxZoom: MAX_ZOOM, attribution: ATTRIBUTION }).addTo(m);
+    const providers = BASE_LAYERS[base].providers;
+    let cancelled = false;
+
+    const use = (index: number) => {
+      if (cancelled) return;
+      tiles.current?.remove();
+      if (index >= providers.length) {
+        tiles.current = null;
+        setTilesFailed(true);
+        return;
+      }
+      const provider = providers[index];
+      let loaded = 0;
+      let errors = 0;
+      const layer = L.tileLayer(provider.url, {
+        subdomains: provider.subdomains ?? "abc",
+        maxZoom: MAX_ZOOM,
+        maxNativeZoom: provider.maxNativeZoom,
+        attribution: provider.attribution,
+      });
+      layer.on("tileload", () => {
+        loaded += 1;
+      });
+      layer.on("tileerror", () => {
+        errors += 1;
+        if (loaded === 0 && errors === FAILOVER_AFTER_ERRORS) use(index + 1);
+      });
+      tiles.current = layer.addTo(m);
+    };
+
+    setTilesFailed(false);
+    use(0);
+    return () => {
+      cancelled = true;
+    };
   }, [ready, base]);
 
   // Show only the filtered/searched pins, and frame them.
@@ -325,6 +388,11 @@ export function ShowsMap() {
               fullscreen ? "h-full" : "h-[420px] sm:h-[520px]"
             }`}
           />
+          {tilesFailed && (
+            <p className="pointer-events-none absolute inset-x-3 bottom-10 z-[500] bg-ink/90 p-3 text-center text-xs text-steel">
+              No se pudo cargar el fondo del mapa (conexión o bloqueador de anuncios). Los pines y &quot;Abrir en Google Maps&quot; siguen funcionando.
+            </p>
+          )}
           <button
             type="button"
             onClick={showAll}
