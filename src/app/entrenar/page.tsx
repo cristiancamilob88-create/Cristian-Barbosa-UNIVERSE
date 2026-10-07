@@ -78,9 +78,9 @@ export default function EntrenarPage() {
   return (
     <>
       <PageHero
-        tag="TRAIN"
+        tag="ENTRENAR"
         title="Entrena con Cristian"
-        description="Del primer mensaje en WhatsApp al coaching de alto rendimiento — cuatro formas de entrar, un solo camino."
+        description="Empieza por la sesión 1:1 o sube paso a paso: de la comunidad gratis al coaching personalizado."
       />
       <section className="pt-16">
         <Container className="flex flex-col gap-6">

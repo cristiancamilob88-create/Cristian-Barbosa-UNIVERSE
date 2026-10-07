@@ -18,7 +18,7 @@ export default function ComunidadPage() {
   return (
     <>
       <PageHero
-        tag="COMMUNITY"
+        tag="COMUNIDAD"
         title="Comunidad"
         description="Tres formas de estar cerca — la comunidad gratuita en WhatsApp e Instagram, o Entrena con Cristian Barbosa, la suscripción semanal."
       />

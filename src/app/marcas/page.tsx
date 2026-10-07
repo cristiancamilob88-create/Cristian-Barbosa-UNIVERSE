@@ -14,15 +14,15 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const offerings = [
-  "Sponsorship",
-  "Partnerships",
+  "Patrocinio",
+  "Alianzas",
   "Embajador",
   "Campañas",
   "Contenido",
   "Activaciones",
   "Colaboraciones",
   "Eventos",
-  "Fitness / lifestyle",
+  "Fitness y estilo de vida",
   "Oportunidades comerciales",
 ];
 
@@ -33,7 +33,7 @@ export default function MarcasPage() {
   return (
     <>
       <PageHero
-        tag="BRANDS"
+        tag="MARCAS"
         title="Marcas"
         description="Audiencia real, formatos flexibles de colaboración — desde contenido puntual hasta partnerships de largo plazo."
       >

@@ -57,6 +57,17 @@
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
+/* The page itself is dark, not just <body>: on phones the area behind
+   overscroll/bounce and the collapsing address bar shows the <html>
+   background, which was the browser's default white (Cristian saw "un
+   fondo como blanco y extraño" on mobile, 2026-10-03). `color-scheme:
+   dark` also tells Android/Samsung "auto dark mode" the site is already
+   dark, so they don't re-color it, and makes native controls dark. */
+html {
+  background: var(--color-ink);
+  color-scheme: dark;
+}
+
 body {
   background: var(--color-ink);
   color: var(--color-chalk);
@@ -82,4 +93,130 @@ body {
   .ticker-track {
     animation: none;
   }
+}
+
+/* ShowsMap (src/components/shows/ShowsMap.tsx): brand pins + dark popups
+   on top of Leaflet's defaults. */
+.cb-map-pin {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--color-ember);
+  border: 2px solid var(--color-chalk);
+  box-shadow: 0 0 0 6px rgb(242 36 26 / 0.25), 0 0 18px rgb(242 36 26 / 0.8);
+}
+.cb-map-pin--edu {
+  background: var(--color-tide);
+  box-shadow: 0 0 0 6px rgb(31 184 224 / 0.25), 0 0 18px rgb(31 184 224 / 0.8);
+}
+.cb-map-pin--next {
+  background: #ffc857;
+  border-color: var(--color-ink);
+  animation: cb-pin-pulse 1.6s ease-out infinite;
+}
+@keyframes cb-pin-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(255 200 87 / 0.7), 0 0 18px rgb(255 200 87 / 0.9); }
+  100% { box-shadow: 0 0 0 16px rgb(255 200 87 / 0), 0 0 18px rgb(255 200 87 / 0.9); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cb-map-pin--next { animation: none; }
+}
+.cb-map-pin--home {
+  background: var(--color-chalk);
+  border-color: var(--color-ember);
+  box-shadow: 0 0 0 6px rgb(243 241 234 / 0.25), 0 0 18px rgb(243 241 234 / 0.8);
+}
+.cb-shows-map .leaflet-popup-content-wrapper,
+.cb-shows-map .leaflet-popup-tip {
+  background: var(--color-ink-raised);
+  color: var(--color-chalk);
+  border-radius: 0;
+}
+.cb-shows-map .leaflet-popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+}
+.cb-shows-map .leaflet-popup-content a {
+  color: var(--color-ember);
+  font-weight: 600;
+}
+.cb-shows-map.leaflet-container {
+  background: var(--color-ink-raised);
+}
+.cb-shows-map .leaflet-bar a {
+  background: var(--color-ink-raised);
+  color: var(--color-chalk);
+  border-bottom-color: rgb(123 129 122 / 0.4);
+}
+.cb-shows-map .leaflet-bar a:hover {
+  background: var(--color-ink);
+  color: var(--color-ember);
+}
+.cb-shows-map .leaflet-bar {
+  border: 1px solid rgb(123 129 122 / 0.4);
+}
+.cb-shows-map.leaflet-container .leaflet-control-attribution {
+  background: rgb(11 13 12 / 0.7);
+  color: var(--color-steel);
+}
+.cb-shows-map.leaflet-container .leaflet-control-attribution a {
+  color: var(--color-chalk);
+}
+/* Interactive map popups + hover labels (2026-10-07). */
+.cb-shows-map .cb-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.cb-shows-map .leaflet-popup-content .cb-popup-title {
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+.cb-shows-map .leaflet-popup-content .cb-popup-region {
+  color: var(--color-steel);
+  font-size: 12px;
+}
+.cb-shows-map .leaflet-popup-content .cb-popup-when,
+.cb-shows-map .leaflet-popup-content .cb-popup-tag--next {
+  color: #ffc857;
+  font-family: var(--font-mono, ui-monospace), monospace;
+  font-size: 12px;
+}
+.cb-shows-map .leaflet-popup-content .cb-popup-tag {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 10px;
+}
+.cb-shows-map .leaflet-popup-content .cb-popup-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgb(123 129 122 / 0.4);
+}
+.cb-shows-map .leaflet-popup-close-button {
+  color: var(--color-steel) !important;
+}
+.cb-map-tooltip.leaflet-tooltip {
+  background: var(--color-ink);
+  color: var(--color-chalk);
+  border: 1px solid rgb(123 129 122 / 0.5);
+  border-radius: 0;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: none;
+}
+.cb-map-tooltip.leaflet-tooltip-top::before {
+  border-top-color: var(--color-ink);
+}
+
+/* "Oscuro" map: the same OpenStreetMap tiles, inverted (2026-10-07). */
+.cb-shows-map--dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.6);
 }

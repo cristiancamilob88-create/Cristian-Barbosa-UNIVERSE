@@ -16,6 +16,36 @@ session.
 
 ## Open
 
+- **Agenda — esperando fechas** (2026-10-04): `/eventos` y `/shows`
+  leen src/config/upcomingShows.ts (vacío hoy → invitación a contratar).
+  Cuando Cristian confirme una fecha: agregarla ahí (fecha, municipio,
+  coliseo, coordenadas); sale sola como pin dorado + Event schema y
+  desaparece el día después. Páginas por municipio solo con historia
+  real/fotos (pastShows.ts); el resto vive en la lista + mapa.
+
+- **Historia/Blog/Servicios — publicado, falta revisión de Cristian**
+  (2026-10-03): `/about` reescrita con su historia real
+  (src/config/biography.ts), `/blog` con 3 entradas (src/content/blog.ts),
+  `/servicios`, El Diamante en `/musica`. Misión/visión/valores son
+  borrador para que él los ajuste. Temas personales (padre, primo,
+  pérdidas económicas, relaciones) deliberadamente fuera hasta que
+  decida — involucran a terceros. Lista de municipios recibida
+  (2026-10-04) → src/config/tourStops.ts + mapa. Pendiente: fotos por
+  municipio, competencias y Pride; artista de colegios de Medellín = "El Oscar" (confirmado); entrevista de Telemedellín
+  (consultar derechos antes de subirla completa a YouTube).
+
+- **Google Maps API key — esperando a Cristian** (2026-10-02): la clave
+  que envió es válida pero Google la rechaza: falta activar facturación
+  y "Places API (New)" en su proyecto de Google Cloud. NO subirla a
+  Vercel hasta que una prueba contra Places API (New) responda bien —
+  si no, el formulario de shows mostraría un buscador que no encuentra
+  nada. Sin clave el formulario usa el campo de texto simple.
+- **Wikipedia — no todavía** (2026-10-02): Cristian quiere un artículo.
+  Recomendado esperar: Wikipedia exige cobertura significativa en
+  varias fuentes independientes (hoy solo El Colombiano) y desaconseja
+  autobiografías; un artículo prematuro se borra. Camino: más prensa
+  independiente → Wikidata → Wikipedia escrito por un tercero.
+
 - **Primera oferta vendible desde el sitio — EN VIVO** (2026-09-28):
   Sesión 1:1, 70 min, $80.000 en `/entrenar` → Mercado Pago real
   (verificado: `/api/checkout/sesion-1a1-70min` redirige a
@@ -289,3 +319,20 @@ session.
   reales con visitantes, leads y solicitudes de shows/marcas reales
   corriendo en producción, verificadas repetidamente vía `/admin` y
   consultas directas a Supabase.
+
+## 2026-10-07 — Un solo link para los shows + mapa interactivo
+
+- [x] `/agenda` es EL link para compartir: próximo show → mapa → shows destacados → lista completa → contratar. `/eventos` y `/shows/realizados` redirigen ahí (308 permanente, next.config.ts). `/shows` queda como la página para contratar un show y enlaza a /agenda.
+- [x] Mapa interactivo (src/components/shows/ShowsMap.tsx): filtros que son la leyenda, buscador sin tildes, lista de municipios que vuela al pin, mapa Oscuro/Calles, pantalla completa, "Abrir en Google Maps" en cada pin (sin API key).
+- [x] /admin/actividad: la actividad del día persona por persona.
+- [x] Menú: "Mapa y agenda" (antes "Eventos"); el mapa va primero en /agenda y también está en /shows. Mapa claro tipo Google por defecto, zoom hasta nivel calle, nombres de los municipios visibles al acercarse.
+- [ ] Cuando haya fecha confirmada, agregarla a src/config/upcomingShows.ts — aparece primero en /agenda con pin dorado.
+
+## 2026-10-07 — Orden del sitio, links por red, tráfico viral
+
+- [x] Menú: 4 caminos + mapa (Música, Shows, Mapa y agenda, Entrenar, Historia) + botón Contacto; el resto en "Más" (escritorio), sección "Más" (celular) y el pie de página. `primary` en src/config/site.ts.
+- [x] Inicio: 5 cuadros en vez de 10; títulos en español en todo el sitio; Música sin las cajas de relleno; Marcas y Shows sin palabras en inglés.
+- [x] /admin/actividad: tiempo de la visita, "Le interesó", desde dónde vino (bio/historia/reel) y señales de venta.
+- [x] Links cortos para bios: /ig, /tt, /fb, /yt, /wa (src/config/shortLinks.ts).
+- [x] Límites por visitante en /api/track, /api/lead y /api/checkout (no por IP) para no perder visitas en un pico viral.
+- [ ] Productos vuelve al menú principal cuando haya productos reales.

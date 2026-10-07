@@ -1,4 +1,5 @@
 import { pressCoverage, siteConfig } from "@/config/site";
+import { achievements } from "@/config/biography";
 import type { SocialProfile } from "@/types/crm";
 
 /**
@@ -28,12 +29,15 @@ export function personJsonLd(sameAs: string[] = []) {
       address: { "@type": "PostalAddress", addressLocality: "Envigado", addressRegion: "Antioquia", addressCountry: "CO" },
     },
     knowsAbout: ["Música", "Shows en vivo", "Creación de contenido", "Calistenia"],
-    subjectOf: pressCoverage.map((item) => ({
-      "@type": "NewsArticle",
-      headline: item.label,
-      url: item.url,
-      publisher: { "@type": "Organization", name: item.outlet },
-    })),
+    award: achievements.titles.map((title) => title.label),
+    subjectOf: pressCoverage
+      .filter((item) => item.url)
+      .map((item) => ({
+        "@type": "NewsArticle",
+        headline: item.label,
+        url: item.url,
+        publisher: { "@type": "Organization", name: item.outlet },
+      })),
     ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 }
@@ -78,4 +82,62 @@ export function toSameAs(profiles: SocialProfile[]): string[] {
     urls.add(`https://${host}${path}`);
   }
   return [...urls];
+}
+
+/**
+ * Where he has performed, as data Google can read — not only the map
+ * (drawn in the browser, invisible to crawlers) and the text list
+ * (/agenda, Cristian's ask 2026-10-07: "que Google sepa que yo estuve
+ * en esos pueblos"). A WebPage about the Person whose mainEntity is an
+ * ItemList of Places. Deliberately NOT one Event per town: an Event
+ * needs a date and we don't have one per town — inventing dates is off
+ * the table, and dateless Events would show as errors in Search Console.
+ */
+export function performedPlacesJsonLd(
+  stops: {
+    town: string;
+    department: string;
+    kind: "circo" | "instituciones";
+    geo: { lat: number; lng: number };
+    note?: string;
+    corregimientoGeo?: Record<string, { lat: number; lng: number }>;
+  }[],
+  pageUrl: string,
+) {
+  const describe = (stop: (typeof stops)[number]) =>
+    stop.note ?? `${siteConfig.name} se presentó aquí de gira con el Circo Santiago de Chile.`;
+  const town = (stop: (typeof stops)[number]) => ({
+    "@type": "Place",
+    name: `${stop.town}, ${stop.department}`,
+    description: describe(stop),
+    address: { "@type": "PostalAddress", addressLocality: stop.town, addressRegion: stop.department, addressCountry: "CO" },
+    geo: { "@type": "GeoCoordinates", latitude: stop.geo.lat, longitude: stop.geo.lng },
+  });
+
+  const places = stops.flatMap((stop) => [
+    town(stop),
+    ...Object.entries(stop.corregimientoGeo ?? {}).map(([name, geo]) => ({
+      "@type": "Place",
+      name: `${name} (corregimiento de ${stop.town}), ${stop.department}`,
+      description: describe(stop),
+      containedInPlace: { "@type": "Place", name: `${stop.town}, ${stop.department}` },
+      address: { "@type": "PostalAddress", addressLocality: name, addressRegion: stop.department, addressCountry: "CO" },
+      geo: { "@type": "GeoCoordinates", latitude: geo.lat, longitude: geo.lng },
+    })),
+  ]);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${pageUrl}#lugares`,
+    url: pageUrl,
+    name: `Dónde se ha presentado ${siteConfig.name}`,
+    about: { "@id": personId },
+    mainEntity: {
+      "@type": "ItemList",
+      name: `Municipios, corregimientos y ciudades donde se ha presentado ${siteConfig.name}`,
+      numberOfItems: places.length,
+      itemListElement: places.map((place, i) => ({ "@type": "ListItem", position: i + 1, item: place })),
+    },
+  };
 }
