@@ -29,7 +29,7 @@ export default async function ContactoPage(props: PageProps<"/contacto">) {
   return (
     <>
       <PageHero
-        tag="CONTACT"
+        tag="CONTACTO"
         title="Contacto"
         description="Shows, marcas, coaching o una pregunta general — cuéntanos y te respondemos."
       />

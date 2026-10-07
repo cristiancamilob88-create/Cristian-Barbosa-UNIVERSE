@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
-import { navItems, secondaryNavItems, siteConfig } from "@/config/site";
+import { contactNavItem, primaryNavItems, siteConfig } from "@/config/site";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { MoreMenu } from "@/components/layout/MoreMenu";
 
 export function Header() {
   return (
@@ -14,7 +15,7 @@ export function Header() {
             square-cropped emblem (same source as favicon/icon.png),
             not the full poster art (cristian-logo-01.png), which is
             far too wide/detailed for a 64px-tall nav bar. */}
-        <Link href="/" className="group flex items-center gap-2.5">
+        <Link href="/" className="group flex shrink-0 items-center gap-2.5">
           <Image
             src="/icon.png"
             alt=""
@@ -29,28 +30,28 @@ export function Header() {
           </span>
         </Link>
 
-        <nav aria-label="Principal" className="hidden items-center gap-6 lg:flex">
-          {navItems.map((item) => (
+        {/* 2026-10-07 reorganization: the 4 paths + the map, a "Más"
+            menu for the rest, and Contacto as the one button. */}
+        <nav aria-label="Principal" className="ml-6 hidden items-center gap-6 lg:flex">
+          {primaryNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="font-mono text-xs uppercase tracking-wider text-steel transition-colors hover:text-ember"
+              className="whitespace-nowrap font-mono text-xs uppercase tracking-wider text-steel transition-colors hover:text-ember"
             >
               {item.label}
             </Link>
           ))}
+          <MoreMenu />
         </nav>
 
-        <div className="hidden items-center gap-4 lg:flex">
-          {secondaryNavItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm text-steel transition-colors hover:text-chalk"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <div className="ml-6 hidden shrink-0 items-center lg:flex">
+          <Link
+            href={contactNavItem.href}
+            className="whitespace-nowrap border border-ember px-4 py-2 font-mono text-xs uppercase tracking-wider text-ember transition-colors hover:bg-ember hover:text-ink"
+          >
+            {contactNavItem.label}
+          </Link>
         </div>
 
         <MobileNav />

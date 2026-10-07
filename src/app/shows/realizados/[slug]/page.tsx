@@ -7,8 +7,8 @@ import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { GoLink } from "@/components/ui/GoLink";
 import { buildMetadata } from "@/lib/seo";
-import { goLinks, siteConfig } from "@/config/site";
-import { getPastShow, pastShowPath, pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { agendaHref, goLinks, siteConfig } from "@/config/site";
+import { getPastShow, pastShowPath, pastShows } from "@/config/pastShows";
 import { personId } from "@/lib/structuredData";
 
 export function generateStaticParams() {
@@ -48,6 +48,7 @@ export default async function PastShowPage({ params }: { params: Promise<{ slug:
     location: {
       "@type": "Place",
       name: show.venue ?? show.town,
+      geo: { "@type": "GeoCoordinates", latitude: show.geo.lat, longitude: show.geo.lng },
       address: {
         "@type": "PostalAddress",
         addressLocality: show.town,
@@ -122,8 +123,8 @@ export default async function PastShowPage({ params }: { params: Promise<{ slug:
                 Escribir por WhatsApp
               </GoLink>
             </div>
-            <Link href={pastShowsIndexPath} className="text-sm text-steel underline underline-offset-4 hover:text-chalk">
-              ← Ver todos los shows realizados
+            <Link href={agendaHref} className="text-sm text-steel underline underline-offset-4 hover:text-chalk">
+              ← Ver la agenda y todos los shows
             </Link>
           </div>
         </Container>

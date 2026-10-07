@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
-import { PageHero } from "@/components/layout/PageHero";
 import { GoLink } from "@/components/ui/GoLink";
+import { LinkIcon } from "@/components/ui/LinkIcon";
+import { TrackedLink } from "@/components/ui/TrackedLink";
+import { ambassadorships, goLinks, navItems } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
 import { getPool } from "@/server/db/pool";
 import { listActiveSocialProfiles } from "@/server/db/repositories/socialProfile";
+import type { SocialProfile } from "@/types/crm";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Redes sociales",
-  description: "Todos los canales oficiales de Cristian Barbosa, en un solo lugar.",
+  title: "Redes y contacto",
+  description:
+    "Clases personalizadas, shows en vivo, música y todas las redes oficiales de Cristian Barbosa, 4 veces campeón nacional de calistenia.",
   path: "/redes",
 });
 
@@ -17,41 +23,246 @@ export const metadata: Metadata = buildMetadata({
 // one page whose entire purpose is presenting social_profile fully.
 export const dynamic = "force-dynamic";
 
-export default async function RedesPage() {
-  const profiles = await listActiveSocialProfiles(getPool());
+/**
+ * /redes doubles as Cristian's link-in-bio page (the URL in his Instagram/
+ * TikTok bios, 2026-10-07), so it's ordered by what he wants people to do
+ * first — WhatsApp contact, then training, shows, music, the free
+ * community — and only then the full list of channels. Destinations still
+ * come only from social_profile (via GoLink) and navItems (via
+ * TrackedLink); this page decides order and copy, never URLs. A featured
+ * slot whose profile is inactive simply doesn't render.
+ */
 
+const TOPIC = "redes";
+
+function route(intentId: string) {
+  const item = navItems.find((nav) => nav.intentId === intentId);
+  if (!item) throw new Error(`navItems has no route with intentId ${intentId}`);
+  return item;
+}
+
+const cardClass =
+  "group flex items-center gap-4 border border-steel-dim/40 bg-ink-raised p-4 transition-colors hover:border-ember";
+
+function CardBody({ icon, title, detail }: { icon: string; title: string; detail: string }) {
   return (
     <>
-      <PageHero
-        tag="NETWORK"
-        title="Redes"
-        description="Todos los canales oficiales — sin cuentas falsas, sin intermediarios."
-      />
-      <section className="py-16">
-        <Container>
-          {profiles.length === 0 ? (
-            <p className="text-sm text-steel">Todavía no hay canales publicados.</p>
-          ) : (
-            <ul className="grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-2">
-              {profiles.map((profile) => (
-                <li key={profile.id} className="bg-ink">
-                  <GoLink
-                    slug={profile.slug}
-                    className="group flex items-center justify-between gap-4 p-6 transition-colors hover:bg-ink-raised"
-                  >
-                    <span className="font-display text-xl font-black uppercase tracking-tight text-chalk group-hover:text-ember">
-                      {profile.label}
-                    </span>
-                    <span className="font-mono text-xs uppercase tracking-widest text-steel-dim">
-                      {profile.platform}
-                    </span>
-                  </GoLink>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Container>
-      </section>
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-ink text-chalk group-hover:text-ember">
+        <LinkIcon name={icon} />
+      </span>
+      <span className="min-w-0">
+        <span className="block font-display text-lg font-black uppercase leading-tight tracking-tight text-chalk">
+          {title}
+        </span>
+        <span className="block text-sm text-steel">{detail}</span>
+      </span>
     </>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="mt-10">
+      <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">{title}</h2>
+      <div className="mt-3 grid gap-3">{children}</div>
+    </section>
+  );
+}
+
+export default async function RedesPage() {
+  const profiles = await listActiveSocialProfiles(getPool());
+  const bySlug = new Map(profiles.map((profile) => [profile.slug, profile]));
+  const inCategory = (category: string) => profiles.filter((profile) => profile.category === category);
+
+  const whatsapp = bySlug.get(goLinks.whatsappCommercial);
+  const subscription = bySlug.get(goLinks.facebookSubscription);
+  const freeCommunity = [goLinks.whatsappCommunity, goLinks.instagramCommunity]
+    .map((slug) => bySlug.get(slug))
+    .filter((profile): profile is SocialProfile => profile !== undefined);
+  const socials = inCategory("social");
+  const support = inCategory("support");
+
+  const training = route("intent_training");
+  const shows = route("intent_shows");
+  const music = route("intent_music");
+  // The rest of the universe, for "Conoce mi universo": every nav route
+  // this page doesn't already feature above (coaching is /entrenar again,
+  // redes is this page).
+  const featured = new Set([training, shows, music, route("intent_coaching"), route("intent_social")]);
+  const universe = navItems.filter((item) => !featured.has(item));
+
+  return (
+    <Container className="py-12 sm:py-16">
+      <div className="mx-auto max-w-xl">
+      <header className="flex flex-col items-center text-center">
+        <Image
+          src="/brand/cristian-hero-02.jpg"
+          alt="Cristian Barbosa"
+          width={112}
+          height={112}
+          priority
+          className="h-28 w-28 rounded-full border-2 border-ember object-cover"
+        />
+        <h1 className="mt-5 font-display text-4xl font-black uppercase leading-none tracking-tight text-chalk">
+          Cristian Barbosa
+        </h1>
+        <p className="mt-3 text-base text-chalk">🏆 4 veces Campeón Nacional de Calistenia en Colombia</p>
+        <p className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-steel">
+          Clases · Shows · Música · Embajador Club Nativos
+        </p>
+        <p className="mt-4 max-w-sm text-sm text-steel">
+          Bienvenido a mi sitio web oficial. Aquí encuentras mis redes y cómo contactarme si te interesa algún
+          servicio.
+        </p>
+      </header>
+
+      {whatsapp ? (
+        <GoLink
+          slug={whatsapp.slug}
+          className="mt-8 flex items-center gap-4 bg-ember p-5 text-ink transition-colors hover:bg-rust"
+        >
+          <LinkIcon name="whatsapp" className="h-8 w-8 shrink-0" />
+          <span>
+            <span className="block font-display text-xl font-black uppercase leading-tight tracking-tight">
+              Escríbeme por WhatsApp
+            </span>
+            <span className="block text-sm font-medium">Valoración gratis · clases, shows o dudas</span>
+          </span>
+        </GoLink>
+      ) : null}
+
+      <Section title="Entrena conmigo">
+        <TrackedLink
+          event={{ name: "cta_click", cta: training.intentId, topic: TOPIC }}
+          href={training.href}
+          className={cardClass}
+        >
+          <CardBody
+            icon="training"
+            title="Clases personalizadas"
+            detail="A domicilio en Envigado y Medellín, a tu ritmo"
+          />
+        </TrackedLink>
+        {subscription ? (
+          <GoLink slug={subscription.slug} className={cardClass}>
+            <CardBody icon="facebook" title={subscription.label} detail="Suscripción exclusiva en Facebook" />
+          </GoLink>
+        ) : null}
+      </Section>
+
+      <Section title="Shows y eventos">
+        <TrackedLink
+          event={{ name: "cta_click", cta: shows.intentId, topic: TOPIC }}
+          href={shows.href}
+          className={cardClass}
+        >
+          <CardBody
+            icon="show"
+            title="Contrata un show en vivo"
+            detail="Eventos, discotecas, alcaldías, empresas y colegios"
+          />
+        </TrackedLink>
+      </Section>
+
+      <Section title="Música">
+        <TrackedLink
+          event={{ name: "cta_click", cta: music.intentId, topic: TOPIC }}
+          href={music.href}
+          className={cardClass}
+        >
+          <CardBody icon="music" title="Mi música" detail="Lanzamientos y la historia detrás de cada canción" />
+        </TrackedLink>
+      </Section>
+
+      <section className="mt-10">
+        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Conoce mi universo</h2>
+        <TrackedLink
+          event={{ name: "cta_click", cta: "redes_home", topic: TOPIC }}
+          href="/"
+          className={`mt-3 ${cardClass}`}
+        >
+          <CardBody
+            icon="home"
+            title="Entra a mi sitio web"
+            detail="Mi historia, shows realizados, productos y todo lo demás"
+          />
+        </TrackedLink>
+        <ul className="mt-3 grid grid-cols-2 gap-3">
+          {universe.map((item) => (
+            <li key={item.href}>
+              <TrackedLink
+                event={{ name: "cta_click", cta: item.intentId, topic: TOPIC }}
+                href={item.href}
+                className="flex h-full items-center justify-center border border-steel-dim/40 bg-ink-raised p-3 text-center font-display text-base font-black uppercase tracking-tight text-chalk transition-colors hover:border-ember hover:text-ember"
+              >
+                {item.label}
+              </TrackedLink>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <Section title="Embajador de marca">
+        {ambassadorships.map((brand) => (
+          <TrackedLink
+            key={brand.name}
+            event={{ name: "cta_click", cta: brand.cta, topic: TOPIC }}
+            href={brand.url}
+            external
+            className={cardClass}
+          >
+            <CardBody icon={brand.platform} title={brand.name} detail={brand.detail} />
+          </TrackedLink>
+        ))}
+      </Section>
+
+      {freeCommunity.length > 0 ? (
+        <Section title="Comunidad gratis">
+          {freeCommunity.map((profile) => (
+            <GoLink key={profile.id} slug={profile.slug} className={cardClass}>
+              <CardBody
+                icon={profile.platform}
+                title={profile.label}
+                detail={profile.platform === "whatsapp" ? "Tips, retos y novedades, gratis" : "La comunidad que entrena conmigo"}
+              />
+            </GoLink>
+          ))}
+        </Section>
+      ) : null}
+
+      {socials.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Sígueme</h2>
+          <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {socials.map((profile) => (
+              <li key={profile.id}>
+                <GoLink
+                  slug={profile.slug}
+                  className="group flex h-full flex-col items-center gap-2 border border-steel-dim/40 bg-ink-raised p-4 text-center transition-colors hover:border-ember"
+                >
+                  <LinkIcon name={profile.platform} className="h-7 w-7 text-chalk group-hover:text-ember" />
+                  <span className="text-sm text-chalk">{profile.label}</span>
+                </GoLink>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {support.length > 0 ? (
+        <Section title="Apóyame">
+          {support.map((profile) => (
+            <GoLink key={profile.id} slug={profile.slug} className={cardClass}>
+              <CardBody
+                icon={profile.platform === "paypal" ? "paypal" : "support"}
+                title={profile.label}
+                detail="Aporte voluntario para seguir creando"
+              />
+            </GoLink>
+          ))}
+        </Section>
+      ) : null}
+      </div>
+    </Container>
   );
 }

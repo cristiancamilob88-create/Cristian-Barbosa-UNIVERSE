@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { navItems, secondaryNavItems, siteConfig } from "@/config/site";
 import { legalLinks } from "@/config/legal";
-import { pastShowPath, pastShows, pastShowsIndexPath } from "@/config/pastShows";
+import { pastShowPath, pastShows } from "@/config/pastShows";
+import { blogPostPath, blogPosts } from "@/content/blog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // A navItem can point at an anchor within another page (e.g.
@@ -14,12 +15,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     ...new Set(allHrefs.map((href) => href.split("#")[0])),
     ...legalLinks.map((link) => link.href),
-    pastShowsIndexPath,
     // Plan Diciembre's sign-up landing (docs/TRAINING.md) — a real page, not a nav pillar.
     "/entrenar/plan-diciembre",
     // The free tier's sign-up page (docs/TRAINING.md, "Free tier").
     "/entrenar/gratis",
     ...pastShows.map((show) => pastShowPath(show.slug)),
+    ...blogPosts.map((post) => blogPostPath(post.slug)),
   ];
 
   return routes.map((path) => ({
