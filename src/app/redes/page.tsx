@@ -110,6 +110,10 @@ export default async function RedesPage() {
         <p className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-steel">
           Clases · Shows · Música · Embajador Club Nativos
         </p>
+        <p className="mt-4 max-w-sm text-sm text-steel">
+          Bienvenido a mi sitio web oficial. Aquí encuentras mis redes y cómo contactarme si te interesa algún
+          servicio.
+        </p>
       </header>
 
       {whatsapp ? (
