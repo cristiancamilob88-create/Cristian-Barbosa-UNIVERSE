@@ -9,7 +9,8 @@ import { UpcomingShows } from "@/components/shows/UpcomingShows";
 import { getUpcomingShows } from "@/config/upcomingShows";
 import { PastShowCard } from "@/components/shows/PastShowCard";
 import { buildMetadata } from "@/lib/seo";
-import { agendaHref, goLinks } from "@/config/site";
+import { performedPlacesJsonLd } from "@/lib/structuredData";
+import { agendaHref, goLinks, siteConfig } from "@/config/site";
 import { pastShowPath, pastShows } from "@/config/pastShows";
 import { circusCountLabel, circusStops, groupBySubregion, tourStops } from "@/config/tourStops";
 
@@ -45,6 +46,12 @@ export default function AgendaPage() {
   );
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(performedPlacesJsonLd(tourStops, new URL(agendaHref, siteConfig.url).toString())),
+        }}
+      />
       <PageHero
         tag="AGENDA"
         title="Agenda"
