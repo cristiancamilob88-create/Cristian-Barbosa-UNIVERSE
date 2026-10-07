@@ -157,7 +157,7 @@ export const navItems: NavItem[] = [
   },
   {
     tag: "EVENTS",
-    label: "Agenda",
+    label: "Mapa y agenda",
     href: agendaHref,
     description: "Próximos shows y el mapa de dónde se ha presentado.",
     intent: "Quiero ver la agenda",

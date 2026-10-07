@@ -32,7 +32,7 @@ export function MobileNav() {
   const allItems: NavItem[] = [...navItems, ...secondaryNavItems];
 
   return (
-    <div className="lg:hidden">
+    <div className="xl:hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

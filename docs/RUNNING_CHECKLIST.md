@@ -325,4 +325,5 @@ session.
 - [x] `/agenda` es EL link para compartir: próximo show → mapa → shows destacados → lista completa → contratar. `/eventos` y `/shows/realizados` redirigen ahí (308 permanente, next.config.ts). `/shows` queda como la página para contratar un show y enlaza a /agenda.
 - [x] Mapa interactivo (src/components/shows/ShowsMap.tsx): filtros que son la leyenda, buscador sin tildes, lista de municipios que vuela al pin, mapa Oscuro/Calles, pantalla completa, "Abrir en Google Maps" en cada pin (sin API key).
 - [x] /admin/actividad: la actividad del día persona por persona.
+- [x] Menú: "Mapa y agenda" (antes "Eventos"); el mapa va primero en /agenda y también está en /shows. Mapa claro tipo Google por defecto, zoom hasta nivel calle, nombres de los municipios visibles al acercarse.
 - [ ] Cuando haya fecha confirmada, agregarla a src/config/upcomingShows.ts — aparece primero en /agenda con pin dorado.

@@ -9,6 +9,7 @@ import { agendaHref, goLinks } from "@/config/site";
 import { pastShows } from "@/config/pastShows";
 import { circusCountLabel } from "@/config/tourStops";
 import { PastShowCard } from "@/components/shows/PastShowCard";
+import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
 
 /**
  * Real photos from Cristian's own shows (2026-08-28) — confirmed with
@@ -176,6 +177,11 @@ export default function ShowsPage() {
             >
               Ver la agenda y el mapa
             </TrackedLink>
+          </div>
+          {/* The interactive map here too (2026-10-07: Cristian wants it
+              visible next to "contratar shows", not only on /agenda). */}
+          <div className="mt-8">
+            <ShowsMapLazy />
           </div>
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
             {pastShows.map((show) => (

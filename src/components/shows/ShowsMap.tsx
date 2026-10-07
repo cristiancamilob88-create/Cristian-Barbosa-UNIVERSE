@@ -44,16 +44,23 @@ const DOT_CLASS: Record<PlaceKind, string> = {
   home: "bg-chalk",
 };
 
+// "Mapa" first and by default (Cristian, 2026-10-07: "como el mapa de
+// Google Maps, que se vean los municipios"): CARTO Voyager reads like
+// Google's road map — towns, roads, rivers, names at every zoom.
 const BASE_LAYERS = {
+  streets: {
+    label: "Mapa",
+    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+  },
   dark: {
     label: "Oscuro",
     url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
   },
-  streets: {
-    label: "Calles",
-    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-  },
 } as const;
+
+const MAX_ZOOM = 19;
+/** From this zoom in, every pin shows its town name, like Google Maps' labels. */
+const LABELS_FROM_ZOOM = 9;
 type BaseLayer = keyof typeof BASE_LAYERS;
 
 const ATTRIBUTION =
@@ -110,7 +117,7 @@ export function ShowsMap() {
 
   const [filter, setFilter] = useState<MapFilter>("all");
   const [query, setQuery] = useState("");
-  const [base, setBase] = useState<BaseLayer>("dark");
+  const [base, setBase] = useState<BaseLayer>("streets");
   const [fullscreen, setFullscreen] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -136,7 +143,12 @@ export function ShowsMap() {
       if (disposed || !host.current) return;
       leaflet.current = L;
 
-      const m = L.map(host.current, { scrollWheelZoom: false, zoomControl: true, attributionControl: true });
+      const m = L.map(host.current, {
+        scrollWheelZoom: false,
+        zoomControl: true,
+        attributionControl: true,
+        maxZoom: MAX_ZOOM,
+      });
       map.current = m;
       // Google-Maps-like: wheel zoom once the visitor engages with the map.
       m.on("click", () => m.scrollWheelZoom.enable());
@@ -158,6 +170,24 @@ export function ShowsMap() {
           .bindTooltip(place.town, { direction: "top", offset: [0, -10], className: "cb-map-tooltip" });
         markerStore.set(place.id, marker);
       }
+
+      // Zoomed in, every town name stays visible; zoomed out, names only
+      // on hover so 27 labels don't pile on top of each other.
+      let labelsShown = false;
+      m.on("zoomend", () => {
+        const show = m.getZoom() >= LABELS_FROM_ZOOM;
+        if (show === labelsShown) return;
+        labelsShown = show;
+        for (const [id, marker] of markerStore) {
+          const town = places.find((p) => p.id === id)?.town ?? "";
+          marker.unbindTooltip().bindTooltip(town, {
+            direction: "top",
+            offset: [0, -10],
+            className: "cb-map-tooltip",
+            permanent: show,
+          });
+        }
+      });
       setReady(true);
     })();
 
@@ -175,7 +205,7 @@ export function ShowsMap() {
     const m = map.current;
     if (!ready || !L || !m) return;
     tiles.current?.remove();
-    tiles.current = L.tileLayer(BASE_LAYERS[base].url, { subdomains: "abcd", maxZoom: 18, attribution: ATTRIBUTION }).addTo(m);
+    tiles.current = L.tileLayer(BASE_LAYERS[base].url, { subdomains: "abcd", maxZoom: MAX_ZOOM, attribution: ATTRIBUTION }).addTo(m);
   }, [ready, base]);
 
   // Show only the filtered/searched pins, and frame them.
@@ -339,7 +369,7 @@ export function ShowsMap() {
         </div>
       </div>
       {!fullscreen && (
-        <p className="text-xs text-steel-dim">Toca un pin o un municipio de la lista para ver qué pasó ahí. Haz clic en el mapa para hacer zoom con la rueda del ratón.</p>
+        <p className="text-xs text-steel-dim">Toca un pin o un municipio de la lista para ver qué pasó ahí. Acércate con dos dedos (o con + / −) para ver cada municipio; en computador, haz clic en el mapa y usa la rueda del ratón.</p>
       )}
     </div>
   );

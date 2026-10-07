@@ -6,6 +6,7 @@ import { TrackedLink } from "@/components/ui/TrackedLink";
 import { GoLink } from "@/components/ui/GoLink";
 import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
 import { UpcomingShows } from "@/components/shows/UpcomingShows";
+import { getUpcomingShows } from "@/config/upcomingShows";
 import { PastShowCard } from "@/components/shows/PastShowCard";
 import { buildMetadata } from "@/lib/seo";
 import { agendaHref, goLinks } from "@/config/site";
@@ -34,6 +35,14 @@ export const revalidate = 86400;
  */
 export default function AgendaPage() {
   const institutionStops = tourStops.filter((stop) => stop.kind === "instituciones");
+  const hasUpcoming = getUpcomingShows().length > 0;
+  const upcomingSection = (
+      <section className="border-t border-steel-dim/40 py-12">
+        <Container>
+          <UpcomingShows topic="agenda" />
+        </Container>
+      </section>
+  );
   return (
     <>
       <PageHero
@@ -42,15 +51,13 @@ export default function AgendaPage() {
         description={`El próximo show de Cristian Barbosa y todos los lugares donde ya se ha presentado: ${circusCountLabel()} municipios de Antioquia y Chocó, colegios y alcaldías.`}
       />
 
-      {/* 1. Próximo show */}
-      <section className="py-12">
-        <Container>
-          <UpcomingShows topic="agenda" />
-        </Container>
-      </section>
+      {/* 1. With a confirmed date, the next show leads; without one, the
+          map does (2026-10-07: "quiero ver ese mapa") and the "no dates
+          yet — book one" card follows it. */}
+      {hasUpcoming && upcomingSection}
 
       {/* 2. Dónde ha estado: mapa + cifras */}
-      <section id="donde-ha-estado" className="scroll-mt-24 border-t border-steel-dim/40 py-12">
+      <section id="mapa" className="scroll-mt-20 border-t border-steel-dim/40 py-12">
         <Container className="flex flex-col gap-3">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Dónde ha estado</p>
           <h2 className="font-display text-3xl font-black uppercase tracking-tight text-chalk">El mapa de la gira</h2>
@@ -67,6 +74,8 @@ export default function AgendaPage() {
           </div>
         </Container>
       </section>
+
+      {!hasUpcoming && upcomingSection}
 
       {/* 3. Shows con su propia página (fotos e historia) */}
       <section className="border-t border-steel-dim/40 py-12">

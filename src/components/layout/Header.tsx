@@ -14,7 +14,7 @@ export function Header() {
             square-cropped emblem (same source as favicon/icon.png),
             not the full poster art (cristian-logo-01.png), which is
             far too wide/detailed for a 64px-tall nav bar. */}
-        <Link href="/" className="group flex items-center gap-2.5">
+        <Link href="/" className="group flex shrink-0 items-center gap-2.5">
           <Image
             src="/icon.png"
             alt=""
@@ -29,19 +29,19 @@ export function Header() {
           </span>
         </Link>
 
-        <nav aria-label="Principal" className="hidden items-center gap-6 lg:flex">
+        <nav aria-label="Principal" className="ml-6 hidden items-center gap-4 xl:flex 2xl:gap-6">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="font-mono text-xs uppercase tracking-wider text-steel transition-colors hover:text-ember"
+              className="whitespace-nowrap font-mono text-xs uppercase tracking-wider text-steel transition-colors hover:text-ember"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-4 lg:flex">
+        <div className="ml-6 hidden shrink-0 items-center gap-4 xl:flex">
           {secondaryNavItems.map((item) => (
             <Link
               key={item.href}
