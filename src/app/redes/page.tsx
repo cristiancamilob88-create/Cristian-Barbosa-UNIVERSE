@@ -101,7 +101,7 @@ export default async function RedesPage() {
         <h1 className="mt-5 font-display text-4xl font-black uppercase leading-none tracking-tight text-chalk">
           Cristian Barbosa
         </h1>
-        <p className="mt-3 text-base text-chalk">🏆 4 veces Campeón Nacional de Calistenia 🇨🇴</p>
+        <p className="mt-3 text-base text-chalk">🏆 4 veces Campeón Nacional de Calistenia en Colombia</p>
         <p className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-steel">
           Clases · Shows · Música · Embajador Club Nativos
         </p>
