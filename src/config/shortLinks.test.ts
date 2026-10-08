@@ -15,6 +15,6 @@ describe("shortLinks", () => {
 
   it("land on the page with network, placement and campaign tagged", () => {
     const ig = shortLinks.find((l) => l.path === "/ig")!;
-    expect(shortLinkDestination(ig)).toBe("/?utm_source=instagram&utm_medium=bio&utm_campaign=perfil");
+    expect(shortLinkDestination(ig)).toBe("/redes?utm_source=instagram&utm_medium=bio&utm_campaign=perfil");
   });
 });

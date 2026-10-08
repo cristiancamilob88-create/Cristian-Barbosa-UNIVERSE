@@ -766,6 +766,6 @@ negocios, dejó sus datos). The day summary adds "Lo que más les
 interesó". All derived client-side in `src/lib/adminActivity.ts` from
 the same feed — no new query.
 
-Short bio links (`/ig`, `/tt`, `/fb`, `/yt`, `/wa`) live in
+Short bio links (`/ig`, `/tt`, `/fb`, `/yt`, `/wa`, all landing on /redes, the link-in-bio page) live in
 `src/config/shortLinks.ts`: temporary redirects (next.config.ts) to the
 page with its UTM tags, so the proxy attributes them like the long link.
