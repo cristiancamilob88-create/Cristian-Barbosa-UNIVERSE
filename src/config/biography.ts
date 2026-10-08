@@ -62,6 +62,13 @@ export const timeline: TimelineEntry[] = [
       "Ve el cambio físico de su primo Michael y decide intentarlo. Era muy delgado y lo molestaban por eso. Su primer día fue una rutina full body con un trote de 5 km y un ejercicio en cada parada: terminó agotado, pero enamorado de entrenar.",
   },
   {
+    // Cristian's own account, 2026-10-08.
+    when: "12 a 18 años",
+    title: "Fusagasugá",
+    detail:
+      "Vive en Fusagasugá desde los 12 hasta los 18 años, en varias casas: con la familia de su amigo Sebastián Montaño, que también hace calistenia, y con su tía Miriam Pachón, en cuya casa pasa toda la pandemia, de 2020 a 2021. Es la etapa antes de Medellín y del circo.",
+  },
+  {
     when: "13–14 años",
     title: "Patrocinio y primeros estudios",
     detail:
