@@ -6,7 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { InstagramEmbed } from "@/components/ui/InstagramEmbed";
 import { ParticleBody } from "@/components/ui/ParticleBody";
 import Link from "next/link";
-import { agendaHref, goLinks, primaryNavItems, siteConfig } from "@/config/site";
+import { agendaHref, collabVideos, goLinks, primaryNavItems, siteConfig } from "@/config/site";
 import { GoLink } from "@/components/ui/GoLink";
 import { blogIndexPath, blogPostPath, blogPosts } from "@/content/blog";
 import { circusCountLabel } from "@/config/tourStops";
@@ -215,10 +215,7 @@ export default async function HomePage() {
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
           </Reveal>
           <Reveal delay={0.1}>
-            <InstagramEmbed
-              url="https://www.instagram.com/reel/DU6rtrckrID/"
-              title="Cristian Barbosa con Westcol"
-            />
+            <InstagramEmbed url={collabVideos[0].url} title={`Cristian Barbosa con ${collabVideos[0].creator}`} />
           </Reveal>
         </Container>
       </section>

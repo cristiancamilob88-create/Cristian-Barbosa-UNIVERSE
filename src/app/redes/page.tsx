@@ -5,7 +5,8 @@ import { Container } from "@/components/ui/Container";
 import { GoLink } from "@/components/ui/GoLink";
 import { LinkIcon } from "@/components/ui/LinkIcon";
 import { TrackedLink } from "@/components/ui/TrackedLink";
-import { ambassadorships, goLinks, navItems } from "@/config/site";
+import { ambassadorships, collabVideos, goLinks, navItems } from "@/config/site";
+import { InstagramEmbed } from "@/components/ui/InstagramEmbed";
 import { buildMetadata } from "@/lib/seo";
 import { getPool } from "@/server/db/pool";
 import { listActiveSocialProfiles } from "@/server/db/repositories/socialProfile";
@@ -173,6 +174,22 @@ export default async function RedesPage() {
           <CardBody icon="music" title="Mi música" detail="Lanzamientos y la historia detrás de cada canción" />
         </TrackedLink>
       </Section>
+
+      {/* Collab reels (2026-10-11): social proof right after the main
+          buttons, never above them — the iframes are lazy and sit below
+          the fold, so the buttons load first in Instagram's browser. */}
+      {collabVideos.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">
+            Con {collabVideos.map((video) => video.creator).join(" y ")}
+          </h2>
+          <div className={`mt-3 grid gap-4 ${collabVideos.length > 1 ? "sm:grid-cols-2" : ""}`}>
+            {collabVideos.map((video) => (
+              <InstagramEmbed key={video.url} url={video.url} title={`Cristian Barbosa con ${video.creator}`} />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="mt-10">
         <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Conoce mi universo</h2>

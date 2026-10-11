@@ -80,6 +80,17 @@ export const ambassadorships = [
   },
 ] as const;
 
+/**
+ * Real collab videos with big creators (Instagram reels Cristian shared
+ * himself; Westcol confirmed real and consented, 2026-08-28). Shown on
+ * the homepage and on /redes (2026-10-11: "eso pega bastante"). Add the
+ * Yeferson Cossio reel here once Cristian sends its link — never a
+ * guessed URL.
+ */
+export const collabVideos: { creator: string; url: string }[] = [
+  { creator: "Westcol", url: "https://www.instagram.com/reel/DU6rtrckrID/" },
+];
+
 export interface NavItem {
   /** Short mono-space tag used as the visual/identifier label, e.g. "ENTRENAR". */
   tag: string;
