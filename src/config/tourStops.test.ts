@@ -4,7 +4,7 @@ import { pastShows } from "./pastShows";
 
 describe("tourStops", () => {
   it("never overstates the circus count", () => {
-    expect(circusMunicipalityCount).toBe(22);
+    expect(circusMunicipalityCount).toBe(23); // + Sopetrán, 2026-10-14
     expect(circusCountLabel()).toBe("más de 20");
   });
 

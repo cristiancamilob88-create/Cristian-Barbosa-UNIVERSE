@@ -61,6 +61,8 @@ export const tourStops: TourStop[] = [
   { town: "Frontino", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.776, lng: -76.131 } },
   { town: "Santa Fe de Antioquia", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.557, lng: -75.828 } },
   { town: "Ebéjico", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.326, lng: -75.768 }, corregimientos: ["Sevilla"], corregimientoGeo: { Sevilla: { lat: 6.293, lng: -75.785 } } },
+  // Cristian, 2026-10-14: invited by the circus, Saturday to Monday.
+  { town: "Sopetrán", department: "Antioquia", subregion: "Occidente", kind: "circo", geo: { lat: 6.501, lng: -75.744 }, note: "Show con el Circo Santiago de Chile, del 10 al 12 de octubre de 2026." },
 
   // Instituciones educativas, alcaldías y eventos
   { town: "Medellín", department: "Antioquia", subregion: "Valle de Aburrá", kind: "instituciones", geo: { lat: 6.244, lng: -75.581 }, note: "Pride 2022 frente a más de 80.000 personas, invitado por la Alcaldía, y presentaciones en colegios junto al artista El Oscar." },
