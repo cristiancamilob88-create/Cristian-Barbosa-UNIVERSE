@@ -25,15 +25,18 @@ export function PageHero({
   glowClassName?: string;
 }) {
   return (
-    <section className="border-b border-steel-dim/40 pb-14 pt-16 sm:pt-20">
+    // `tag` is kept in the props (every page passes one, and it names the
+    // page in code) but no longer rendered: a small mono label above the
+    // title is the "eyebrow" the taste-skill redesign removed sitewide
+    // (2026-10-16), same as the hairline under the hero.
+    <section data-page-tag={tag} className="pb-14 pt-16 sm:pt-20">
       <Container>
-        <p className={`font-mono text-xs uppercase tracking-[0.2em] text-ember ${glowClassName ?? ""}`}>{tag}</p>
         <h1
-          className={`mt-4 max-w-2xl font-display text-4xl font-black uppercase leading-[0.95] tracking-tight text-chalk sm:text-6xl ${glowClassName ?? ""}`}
+          className={`max-w-2xl font-display text-4xl font-black uppercase leading-[0.95] tracking-tight text-chalk sm:text-6xl ${glowClassName ?? ""}`}
         >
           {title}
         </h1>
-        <p className={`mt-6 max-w-xl text-lg text-steel ${glowClassName ?? ""}`}>{description}</p>
+        <p className={`mt-6 max-w-xl text-lg text-chalk ${glowClassName ?? ""}`}>{description}</p>
         {children}
       </Container>
     </section>

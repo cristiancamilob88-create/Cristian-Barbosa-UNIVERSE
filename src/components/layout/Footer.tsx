@@ -1,112 +1,87 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Container } from "@/components/ui/Container";
 import { GoLink } from "@/components/ui/GoLink";
 import { navItems, secondaryNavItems, siteConfig, goLinks } from "@/config/site";
 import { legalEntity, legalLinks } from "@/config/legal";
 
+/**
+ * Footer, redesigned 2026-10-16 (taste-skill, "Name first, places under
+ * it"): the name opens the close at full width, cropped by the field's
+ * bottom edge, then the ways to reach Cristian large in the accent, then
+ * small link columns and the legal row. Inverse field (chalk on ink
+ * pages). Keeps everything the old footer carried: the universe links,
+ * channels, donate links, legal links, the city and the admin login.
+ */
 export function Footer() {
+  const allPages = [...navItems, ...secondaryNavItems];
   return (
-    <footer className="mt-24 border-t border-steel-dim/40">
-      <Container className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <Image src="/icon.png" alt="" aria-hidden="true" width={32} height={32} className="rounded-sm" />
-            <p className="font-display text-2xl font-black uppercase tracking-tight text-chalk">
-              {siteConfig.name}
-            </p>
-          </div>
-          <p className="mt-3 max-w-xs text-sm text-steel">{siteConfig.tagline}</p>
-        </div>
+    <footer className="mt-24 bg-chalk text-ink">
+      <div className="overflow-hidden pt-8">
+        <p
+          aria-hidden="true"
+          className="-mb-[0.12em] whitespace-nowrap px-2 text-center font-display text-[16.5vw] font-black uppercase leading-[0.8] tracking-[-0.04em]"
+        >
+          {siteConfig.name}
+        </p>
+      </div>
 
-        <nav aria-label="Universo" className="flex flex-col gap-2">
-          <p className="font-mono text-xs uppercase tracking-wider text-steel-dim">Universo</p>
-          {[...navItems, ...secondaryNavItems].map((item) => (
-            <Link key={item.href} href={item.href} className="text-sm text-steel hover:text-chalk">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex flex-col gap-2">
-          <p className="font-mono text-xs uppercase tracking-wider text-steel-dim">Conecta</p>
-          <GoLink slug={goLinks.whatsappCommunity} className="text-sm text-steel hover:text-ember">
+      <div className="mx-auto grid max-w-[1400px] gap-12 px-5 pb-10 pt-[72px] sm:px-8 lg:grid-cols-12">
+        <nav aria-label="Escríbeme" className="flex flex-col gap-1 lg:col-span-5">
+          <GoLink slug={goLinks.whatsappCommercial} className="font-display text-[26px] font-black uppercase leading-tight text-ember hover:text-ink sm:text-[34px]">
             WhatsApp
           </GoLink>
-          <GoLink slug={goLinks.instagram} className="text-sm text-steel hover:text-ember">
+          <GoLink slug={goLinks.instagram} className="font-display text-[26px] font-black uppercase leading-tight text-ember hover:text-ink sm:text-[34px]">
             Instagram
           </GoLink>
-          <GoLink slug={goLinks.tiktok} className="text-sm text-steel hover:text-ember">
+          <GoLink slug={goLinks.tiktok} className="font-display text-[26px] font-black uppercase leading-tight text-ember hover:text-ink sm:text-[34px]">
             TikTok
           </GoLink>
-          <GoLink slug={goLinks.youtube} className="text-sm text-steel hover:text-ember">
+          <GoLink slug={goLinks.youtube} className="font-display text-[26px] font-black uppercase leading-tight text-ember hover:text-ink sm:text-[34px]">
             YouTube
           </GoLink>
-          <GoLink slug={goLinks.x} className="text-sm text-steel hover:text-ember">
-            X (Twitter)
-          </GoLink>
-          <GoLink slug={goLinks.linkedin} className="text-sm text-steel hover:text-ember">
-            LinkedIn
-          </GoLink>
-        </div>
+          <p className="mt-3 text-[15px]">{legalEntity.city}</p>
+        </nav>
 
-        {/*
-          Support/donate block, added 2026-08-28 at Cristian's request,
-          promoted from a tiny link in the bottom bar (his own words:
-          "está muy escondido") into its own labeled column here — same
-          visual tier as Universo/Conecta, not just a footnote. Still
-          deliberately NOT on /shows or any commercial page (his earlier
-          framing: it shouldn't compete with "hire me" CTAs) — the
-          Footer is the one place it's guaranteed to show up on every
-          page without getting in front of a real commercial CTA.
-          Ember-colored (not the muted steel the other columns use) so
-          it actually stands out, per his "más relevante" ask.
-        */}
-        <div className="flex flex-col gap-2">
-          <p className="font-mono text-xs uppercase tracking-wider text-steel-dim">Apóyame</p>
-          <GoLink slug={goLinks.paypalDonate} className="text-sm font-semibold text-ember hover:text-chalk">
-            PayPal
-          </GoLink>
-          <GoLink slug={goLinks.nequiDonate} className="text-sm font-semibold text-ember hover:text-chalk">
-            Nequi
-          </GoLink>
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-6 lg:col-start-7">
+          <nav aria-label="Universo" className="flex flex-col gap-2 text-[15px]">
+            <p className="font-semibold">El sitio</p>
+            {allPages.map((item) => (
+              <Link key={item.href} href={item.href} className="hover:text-ember">
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <nav aria-label="Más redes" className="flex flex-col gap-2 text-[15px]">
+            <p className="font-semibold">Más redes</p>
+            <GoLink slug={goLinks.whatsappCommunity} className="hover:text-ember">Comunidad de WhatsApp</GoLink>
+            <GoLink slug={goLinks.x} className="hover:text-ember">X (Twitter)</GoLink>
+            <GoLink slug={goLinks.linkedin} className="hover:text-ember">LinkedIn</GoLink>
+          </nav>
+          {/* Donate links: Cristian asked (2026-08-28) for them to stand
+              out — kept in the accent, never on a commercial page. */}
+          <nav aria-label="Apóyame" className="flex flex-col gap-2 text-[15px]">
+            <p className="font-semibold">Apóyame</p>
+            <GoLink slug={goLinks.paypalDonate} className="font-semibold text-ember hover:text-ink">PayPal</GoLink>
+            <GoLink slug={goLinks.nequiDonate} className="font-semibold text-ember hover:text-ink">Nequi</GoLink>
+          </nav>
         </div>
-      </Container>
+      </div>
 
-      <Container className="flex flex-wrap items-center justify-between gap-2 border-t border-steel-dim/40 py-6">
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-end justify-between gap-4 px-5 pb-8 pt-16 text-[13px] sm:px-8">
         <div className="flex flex-col gap-1">
-          <p className="text-xs text-steel-dim">
-            © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
-          </p>
-          {/* Name and C.C./RUT live on /privacidad and /terminos, linked
-              right here — removed from the footer at Cristian's request
-              (2026-10-04); he asked to keep the city. */}
-          <p className="text-xs text-steel-dim">{legalEntity.city}</p>
+          <p>© {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.</p>
           <nav aria-label="Legal" className="flex flex-wrap gap-4">
             {legalLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="text-xs text-steel-dim hover:text-steel">
+              <Link key={link.href} href={link.href} className="hover:text-ember">
                 {link.label}
               </Link>
             ))}
           </nav>
         </div>
-        {/*
-          Admin login link, added 2026-08-25 at Cristian's own request —
-          he needs a findable way back into /admin without remembering
-          the URL, now that it's the real day-to-day Command Center.
-          Deliberately NOT a navItems/secondaryNavItems entry (those
-          drive the homepage pillar grid and require a commercial
-          `intent` phrase — a login link isn't a customer-facing
-          intention) and deliberately NOT a TrackedLink (that's for
-          commercial CTAs; /admin traffic is excluded from analytics on
-          purpose — see PageViewTracker.tsx, "Why /admin isn't
-          tracked"). A plain, muted Link, same tier as the copyright
-          line above — visible, but not competing with any real CTA.
-        */}
-        <Link href="/admin/login" className="text-xs text-steel-dim hover:text-steel">
+        {/* Admin login: Cristian's way back into /admin (2026-08-25). */}
+        <Link href="/admin/login" className="hover:text-ember">
           Login administrador
         </Link>
-      </Container>
+      </div>
     </footer>
   );
 }

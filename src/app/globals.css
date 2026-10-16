@@ -220,3 +220,30 @@ body {
 .cb-shows-map--dark .leaflet-tile-pane {
   filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.6);
 }
+
+/* ── Homepage (taste-skill redesign, 2026-10-16) ───────────────────── */
+/* Signature move: one edge-to-edge marquee of real words. */
+@keyframes cb-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.cb-marquee-track { animation: cb-marquee 38s linear infinite; }
+.cb-marquee:hover .cb-marquee-track { animation-play-state: paused; }
+
+/* Show band: unequal panels; the hovered one widens (desktop only). */
+@media (min-width: 1024px) {
+  .cb-band-panel { flex: var(--grow) 1 0%; transition: flex-grow 500ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .cb-band:hover .cb-band-panel:hover { flex-grow: 6; }
+}
+
+/* The one moving picture: a slow drift on the hero photograph. */
+@keyframes cb-slow-drift {
+  from { transform: scale(1.04) translate3d(0, 0, 0); }
+  to { transform: scale(1.1) translate3d(-1.5%, -1%, 0); }
+}
+.cb-slow-drift { animation: cb-slow-drift 18s ease-in-out infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cb-marquee-track, .cb-slow-drift { animation: none; }
+  .cb-band-panel { transition: none; }
+}

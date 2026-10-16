@@ -7,7 +7,7 @@ import { MoreMenu } from "@/components/layout/MoreMenu";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-40 border-b border-steel-dim/40 bg-ink/90 backdrop-blur">
+    <header className="sticky top-0 z-40 bg-ink">
       <Container className="flex h-16 items-center justify-between">
         {/* Real logo mark (public/brand — docs/ASSETS_AND_BRAND.md
             categoría 2), added here 2026-08-28 at Cristian's request
@@ -37,7 +37,7 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap font-mono text-xs uppercase tracking-wider text-steel transition-colors hover:text-ember"
+              className="whitespace-nowrap text-[15px] font-semibold text-chalk transition-colors hover:text-ember"
             >
               {item.label}
             </Link>
@@ -48,7 +48,7 @@ export function Header() {
         <div className="ml-6 hidden shrink-0 items-center lg:flex">
           <Link
             href={contactNavItem.href}
-            className="whitespace-nowrap border border-ember px-4 py-2 font-mono text-xs uppercase tracking-wider text-ember transition-colors hover:bg-ember hover:text-ink"
+            className="whitespace-nowrap bg-ember px-4 py-2 text-[15px] font-bold text-ink transition-colors hover:bg-chalk"
           >
             {contactNavItem.label}
           </Link>

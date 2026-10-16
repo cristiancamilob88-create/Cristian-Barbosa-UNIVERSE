@@ -321,7 +321,7 @@ export function ParticleBody({ children }: { children?: React.ReactNode }) {
 
   if (fallback) {
     return (
-      <section className="relative flex flex-col items-center gap-8 border-y border-steel-dim/40 py-16">
+      <section className="relative flex flex-col items-center gap-8 py-16">
         <Image src={IMAGE_SRC} alt="Cristian Barbosa" width={374} height={450} className="h-auto w-64" />
         {children}
       </section>
@@ -329,7 +329,7 @@ export function ParticleBody({ children }: { children?: React.ReactNode }) {
   }
 
   return (
-    <section ref={sectionRef} className="relative h-[220vh] border-b border-steel-dim/40" aria-label="Cristian Barbosa">
+    <section ref={sectionRef} className="relative h-[220vh]" aria-label="Cristian Barbosa">
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
         <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full touch-pan-y" />
         <div

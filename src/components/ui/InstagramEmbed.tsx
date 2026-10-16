@@ -14,7 +14,7 @@ export function InstagramEmbed({ url, title }: { url: string; title: string }) {
   const embedSrc = `${url.split("?")[0].replace(/\/$/, "")}/embed`;
 
   return (
-    <div className="mx-auto aspect-[9/16] w-full max-w-sm overflow-hidden border border-steel-dim/40 bg-ink-raised">
+    <div className="mx-auto aspect-[9/16] w-full max-w-sm overflow-hidden bg-ink-raised">
       <iframe
         src={embedSrc}
         title={title}

@@ -96,6 +96,10 @@ export function MagicClick() {
         });
       }
       if (frame === null) {
+        // Shown only while a burst plays (2026-10-16): an idle
+        // full-screen overlay sat on top of every headline, which the
+        // design inspector (and screen magnifiers) read as covered text.
+        if (canvas) canvas.style.display = "block";
         lastTime = performance.now();
         frame = requestAnimationFrame(tick);
       }
@@ -193,6 +197,7 @@ export function MagicClick() {
         frame = requestAnimationFrame(tick);
       } else {
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if (canvas) canvas.style.display = "none";
         frame = null;
       }
     }
@@ -216,6 +221,7 @@ export function MagicClick() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
+      style={{ display: "none" }}
       className="pointer-events-none fixed inset-0 z-[100] h-full w-full"
     />
   );

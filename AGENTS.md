@@ -73,3 +73,9 @@ settled without a stated reason.
   new private route; extend `requireAdminSession()`/`requireAnalyticsAuth()`
   instead, and read docs/COMMAND_CENTER.md §2 before changing the
   session/login mechanism.
+- Visual design follows the taste-skill house rules (`.claude/skills/taste-skill`,
+  MIT, vendored 2026-10-16; the homepage direction is saved in
+  `.taste-skill/direction.json`): no eyebrow labels, no monospace outside
+  code, no hairline borders, no gradients, no shadows at rest, headlines
+  two lines max. Run its `scripts/lint.mjs` on changed components and
+  `scripts/inspect.mjs` on a changed page before shipping.

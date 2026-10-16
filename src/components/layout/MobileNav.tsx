@@ -54,7 +54,7 @@ export function MobileNav() {
           <div id="mobile-nav-panel" className="fixed inset-0 z-30 overflow-y-auto bg-ink pt-16">
             {/* 2026-10-07: the 4 paths + the map big, the rest under "Más". */}
             <nav aria-label="Principal (mobile)" className="flex flex-col px-4 pb-10">
-              <div className="flex flex-col divide-y divide-steel-dim/30">
+              <div className="flex flex-col">
                 {primaryNavItems.map((item) => (
                   <Link
                     key={item.href}
@@ -70,11 +70,11 @@ export function MobileNav() {
               <Link
                 href={contactNavItem.href}
                 onClick={() => setOpen(false)}
-                className="mt-4 border border-ember px-4 py-3 text-center font-mono text-sm uppercase tracking-wider text-ember"
+                className="mt-4 bg-ember px-4 py-3 text-center text-base font-bold text-ink"
               >
                 {contactNavItem.label}
               </Link>
-              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-steel-dim">Más</p>
+              <p className="mt-8 text-base font-semibold text-steel">Más</p>
               <div className="mt-2 grid grid-cols-2 gap-x-4">
                 {moreNavItems.map((item) => (
                   <Link

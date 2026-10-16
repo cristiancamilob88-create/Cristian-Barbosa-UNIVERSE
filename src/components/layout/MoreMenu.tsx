@@ -41,12 +41,12 @@ export function MoreMenu() {
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((v) => !v)}
-        className="whitespace-nowrap font-mono text-xs uppercase tracking-wider text-steel transition-colors hover:text-ember"
+        className="whitespace-nowrap text-[15px] font-semibold text-chalk transition-colors hover:text-ember"
       >
         Más {open ? "▴" : "▾"}
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-3 w-64 border border-steel-dim/50 bg-ink-raised py-2 shadow-xl">
+        <div className="absolute right-0 top-full mt-3 w-64 bg-ink-raised py-2 shadow-xl" /* taste-skill-ignore: a real floating menu */>
           {moreNavItems.map((item) => (
             <Link
               key={item.href}
@@ -54,7 +54,7 @@ export function MoreMenu() {
               className="block px-4 py-2.5 transition-colors hover:bg-ink"
             >
               <span className="block text-sm font-semibold text-chalk">{item.label}</span>
-              <span className="block text-xs text-steel">{item.description}</span>
+              <span className="block text-[13px] text-steel">{item.description}</span>
             </Link>
           ))}
         </div>
