@@ -329,8 +329,8 @@ export function ParticleBody({ children }: { children?: React.ReactNode }) {
   }
 
   return (
-    <section ref={sectionRef} className="relative h-[220vh]" aria-label="Cristian Barbosa">
-      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
+    <section ref={sectionRef} className="relative h-[170vh] lg:h-[220vh]" aria-label="Cristian Barbosa">
+      <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden">
         <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full touch-pan-y" />
         <div
           ref={overlayRef}

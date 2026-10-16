@@ -56,26 +56,50 @@ async function loadSameAs(): Promise<string[]> {
 
 const DIAMANTE_RELEASE = "2026-10-15";
 
-const heroLinks = [
-  { href: "/musica", label: "Música", cta: "intent_music" },
-  { href: "/shows", label: "Shows", cta: "intent_shows" },
-  { href: "/agenda", label: "Mapa y agenda", cta: "intent_events" },
-  { href: "/entrenar", label: "Entrenar", cta: "intent_training" },
-] as const;
-
 const photoClass = "object-cover";
+
+/*
+ * 2026-10-17 simplification (Cristian on his phone: "mucho desorden
+ * visual… quiero que sea sencillo, que se entienda"): the name-band hero
+ * with link tiles and colour rails became one photograph with the name
+ * on it, one sentence and two buttons; then three clear doors (show,
+ * training, music). Same brand, same house rules, far fewer things on
+ * each screen.
+ */
+const doors = [
+  {
+    href: "/shows",
+    cta: "intent_shows",
+    title: "Contratar un show",
+    line: "Calistenia, fuego y música para tu evento, colegio o municipio.",
+    src: "/brand/show-crowd-01.jpg",
+    alt: "Cristian Barbosa con el público después de un show",
+    pos: "50% 30%",
+  },
+  {
+    href: "/entrenar",
+    cta: "intent_training",
+    title: "Entrenar conmigo",
+    line: "Sesión 1:1 de 70 minutos por $80.000, a tu nivel.",
+    src: "/brand/cristian-mountain-flex.jpg",
+    alt: "Cristian Barbosa entrenando en la montaña",
+    pos: "50% 30%",
+  },
+  {
+    href: "/musica",
+    cta: "intent_music",
+    title: "Escuchar mi música",
+    line: "El Diamante, mi primera canción de rap.",
+    src: "/brand/cristian-brand-art-01.png",
+    alt: "Arte de El Diamante",
+    pos: "50% 25%",
+  },
+] as const;
 
 export default async function HomePage() {
   const sameAs = await loadSameAs();
   const released = colombiaToday() >= DIAMANTE_RELEASE;
   const press = pressCoverage.find((item) => item.url);
-
-  const rail = [
-    { text: "4 veces campeón nacional de calistenia", tone: "bg-chalk text-ink" },
-    { text: `${circusMunicipalityCount} municipios con el circo`, tone: "bg-steel text-ink" },
-    { text: "80.000 personas en el Pride de Medellín", tone: "bg-[#3a3f3b] text-chalk" },
-    { text: released ? "El Diamante, ya disponible" : "El Diamante, 15 de octubre", tone: "bg-ink-raised text-chalk" },
-  ];
 
   return (
     <>
@@ -86,130 +110,116 @@ export default async function HomePage() {
         />
       )}
 
-      {/* ── Hero: name band and rails ─────────────────────────────── */}
-      <section aria-label="Cristian Barbosa" className="grid gap-2 p-2 lg:h-[calc(100svh-4rem)] lg:min-h-[680px] lg:grid-rows-[170px_64px_1fr]">
-        <div className="flex h-[110px] items-center justify-center overflow-hidden bg-ink-raised lg:h-auto">
-          <h1 className="whitespace-nowrap font-display text-[26vw] font-black uppercase leading-[0.85] tracking-[-0.04em] text-chalk lg:text-[clamp(140px,14.4vw,220px)]">
-            Cristian Barbosa
+      {/* ── Hero: one photograph, the name, one sentence, two actions ── */}
+      <section aria-label="Cristian Barbosa" className="relative flex h-[calc(100svh-4rem)] min-h-[560px] flex-col justify-end overflow-hidden">
+        <Image
+          src="/brand/cristian-jose-globo-muerte.jpg"
+          alt="Cristian Barbosa junto al globo de la muerte, en pleno show"
+          fill
+          priority
+          sizes="100vw"
+          className={`${photoClass} object-[50%_8%] cb-slow-drift`}
+        />
+        {/* Neutral scrim under the text (the one gradient the house rules allow). */}
+        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,rgba(11,13,12,0.95)_0%,rgba(11,13,12,0.55)_45%,rgba(11,13,12,0)_75%)]" /* taste-skill-ignore: neutral scrim under text on a photo */ />
+        <div className="relative px-5 pb-10 sm:px-8 lg:pb-14">
+          <h1 className="font-display text-[23vw] font-black uppercase leading-[0.82] tracking-[-0.04em] text-chalk lg:text-[13vw]">
+            Cristian
+            <br />
+            Barbosa
           </h1>
-        </div>
-
-        <nav aria-label="Lo esencial" className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-          {heroLinks.map((link) => (
-            <TrackedLink
-              key={link.href}
-              href={link.href}
-              event={{ name: "cta_click", cta: link.cta, topic: "home_hero" }}
-              className="flex h-16 items-start bg-ink-raised p-4 text-base font-semibold text-chalk transition-colors hover:bg-chalk hover:text-ink focus-visible:bg-chalk focus-visible:text-ink"
-            >
-              {link.label}
-            </TrackedLink>
-          ))}
-        </nav>
-
-        <div className="grid min-h-0 gap-2 lg:grid-cols-12">
-          {/* Left rail: portrait + five facts */}
-          <div className="hidden min-h-0 gap-2 lg:col-span-2 lg:grid lg:grid-rows-[1.3fr_1fr]">
-            <div className="relative min-h-0 overflow-hidden bg-ink-raised">
-              <Image src="/brand/cristian-hero-02.jpg" alt="Cristian Barbosa en las montañas de Antioquia" fill sizes="16vw" priority className={`${photoClass} object-[50%_20%]`} />
-            </div>
-            <ul className="flex flex-col justify-end gap-1.5 bg-ink-raised p-4 text-sm text-chalk">
-              <li>22 años</li>
-              <li>Envigado, Antioquia</li>
-              <li>Entrena desde los 11</li>
-              <li>Circo Santiago de Chile</li>
-              <li>Rapero: El Diamante</li>
-            </ul>
-          </div>
-
-          {/* Centre: the show */}
-          <div className="relative aspect-[4/3] overflow-hidden bg-ink-raised lg:col-span-8 lg:aspect-auto lg:min-h-0">
-            <Image
-              src="/brand/show-fan-lift-01.jpg"
-              alt="Cristian Barbosa cargando a una asistente durante un show"
-              fill
-              priority
-              sizes="(min-width: 1024px) 66vw, 100vw"
-              className={`${photoClass} object-[50%_35%] cb-slow-drift`}
-            />
-            <p className="absolute inset-x-0 bottom-0 hidden bg-ink p-6 text-[clamp(24px,2.4vw,36px)] font-semibold leading-tight text-chalk lg:block lg:w-2/3">
-              Calistenia, fuego y música en vivo.
-            </p>
-          </div>
-          <p className="bg-ink p-4 text-[6vw] font-semibold leading-tight text-chalk lg:hidden">
-            Calistenia, fuego y música en vivo.
+          <p className="mt-5 max-w-md text-lg leading-snug text-chalk sm:text-xl">
+            4 veces campeón nacional de calistenia. Shows de fuego, calistenia y música en vivo.
           </p>
-
-          {/* Right rail: light-to-dark facts, the action at the bottom */}
-          <div className="grid grid-cols-2 gap-2 lg:col-span-2 lg:grid-cols-1 lg:grid-rows-5">
-            {rail.map((tile) => (
-              <p key={tile.text} className={`flex min-h-[88px] items-end p-3 text-[15px] font-semibold leading-snug ${tile.tone}`}>
-                {tile.text}
-              </p>
-            ))}
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <TrackedLink
               href="/contacto?topic=shows"
               event={{ name: "cta_click", cta: "intent_shows", topic: "home_hero" }}
-              className="col-span-2 flex min-h-[72px] items-end bg-ember p-3 text-base font-bold text-ink transition-colors hover:bg-chalk focus-visible:bg-chalk lg:col-span-1"
+              className="bg-ember px-6 py-4 text-center text-base font-bold text-ink transition-colors hover:bg-chalk focus-visible:bg-chalk"
             >
-              Contratar un show →
+              Contratar un show
+            </TrackedLink>
+            <TrackedLink
+              href="/entrenar#sesion"
+              event={{ name: "cta_click", cta: "intent_training", topic: "home_hero" }}
+              className="bg-chalk px-6 py-4 text-center text-base font-bold text-ink transition-colors hover:bg-ember focus-visible:bg-ember"
+            >
+              Entrenar conmigo · $80.000
             </TrackedLink>
           </div>
         </div>
       </section>
 
-      {/* ── Signature move: the name and the claim, edge to edge ────── */}
-      <div aria-hidden="true" className="cb-marquee mt-24 overflow-hidden bg-ember py-3 text-ink lg:mt-[150px]">
-        <div className="cb-marquee-track flex w-max gap-12 whitespace-nowrap font-display text-[clamp(56px,9vw,140px)] font-black uppercase leading-[1.1] tracking-[-0.03em]">
-          {[0, 1].map((copy) => (
-            <span key={copy} className="flex gap-12">
-              <span>Cristian Barbosa</span>
-              <span>4 veces campeón nacional</span>
-              <span>{circusMunicipalityCount} municipios</span>
-              <span>El Diamante</span>
-            </span>
+      {/* ── Three doors: what you can do here ───────────────────────── */}
+      <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8">
+        <Reveal>
+          <h2 className="font-display text-4xl font-black uppercase tracking-tight text-chalk sm:text-5xl">¿Qué buscas?</h2>
+        </Reveal>
+        <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:gap-6">
+          {doors.map((door, i) => (
+            <Reveal
+              key={door.href}
+              delay={i * 0.08}
+              className={i === 0 ? "lg:col-span-7 lg:row-span-2" : "lg:col-span-5"}
+            >
+              <TrackedLink
+                href={door.href}
+                event={{ name: "cta_click", cta: door.cta, topic: "home_doors" }}
+                className="group block"
+              >
+                <span className={`relative block overflow-hidden ${i === 0 ?"aspect-[4/3] lg:aspect-[4/4.6]" : "aspect-[16/9]"}`}>
+                  <Image
+                    src={door.src}
+                    alt={door.alt}
+                    fill
+                    sizes={i === 0 ? "(min-width: 1024px) 58vw, 100vw" : "(min-width: 1024px) 42vw, 100vw"}
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                    style={{ objectPosition: door.pos }}
+                  />
+                </span>
+                <span className="mt-4 flex items-baseline justify-between gap-4">
+                  <span className="font-display text-3xl font-black uppercase tracking-tight text-chalk group-hover:text-ember sm:text-4xl">
+                    {door.title}
+                  </span>
+                  <span aria-hidden="true" className="font-display text-3xl font-black text-ember transition-transform group-hover:translate-x-1">→</span>
+                </span>
+                <span className="mt-1 block text-base text-chalk">
+                  {door.cta === "intent_music"
+                    ? released
+                      ? "El Diamante, mi primera canción de rap, ya está disponible."
+                      : "El Diamante, mi primera canción de rap, sale el 15 de octubre."
+                    : door.line}
+                </span>
+              </TrackedLink>
+            </Reveal>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* ── Stats: quiet figure lines ─────────────────────────────── */}
-      <section className="mx-auto grid max-w-[1400px] gap-12 px-5 py-[18vh] sm:px-8 lg:grid-cols-12">
-        <div className="lg:col-span-6 lg:col-start-2">
-          <Reveal>
-            <h2 className="font-display text-3xl font-black uppercase tracking-tight text-chalk sm:ml-[156px]">En cifras</h2>
-          </Reveal>
-          <dl className="mt-14 flex flex-col gap-7">
-            {[
-              ["4", "títulos nacionales de calistenia: dos en Rionegro, uno en Envigado y Expofitness 2025."],
-              ["2", "subcampeonatos nacionales, en Bucaramanga y en Cartago."],
-              [String(circusMunicipalityCount), "municipios de Antioquia y Chocó con el Circo Santiago de Chile, desde junio de 2024."],
-              ["80.000", "personas lo vieron en el Pride de Medellín, en julio de 2022."],
-              ["11", "años tenía cuando empezó a entrenar, en Fusagasugá."],
-            ].map(([figure, line], i) => (
-              <Reveal key={figure + line} delay={i * 0.07}>
-                <div className="grid grid-cols-[88px_1fr] items-baseline gap-6 sm:grid-cols-[132px_1fr]">
-                  <dt className="text-right font-display text-2xl font-black tabular-nums text-chalk sm:text-[32px]">{figure}</dt>
-                  <dd className="max-w-[40ch] text-base text-chalk sm:text-[17px]">{line}</dd>
-                </div>
-              </Reveal>
-            ))}
-          </dl>
-        </div>
-        <Reveal delay={0.2} className="relative aspect-square w-[56%] justify-self-end lg:col-span-3 lg:col-start-9 lg:mt-20 lg:w-full">
-          <Image src="/brand/cristian-mountain-flex.jpg" alt="Cristian Barbosa en la montaña" fill sizes="(min-width: 1024px) 25vw, 56vw" className={photoClass} />
-        </Reveal>
+      {/* ── Three figures ───────────────────────────────────────────── */}
+      <section className="bg-ink-raised">
+        <dl className="mx-auto grid max-w-[1400px] gap-10 px-5 py-20 sm:grid-cols-3 sm:px-8">
+          {[
+            ["4", "títulos nacionales de calistenia"],
+            [String(circusMunicipalityCount), "municipios recorridos con el Circo Santiago de Chile"],
+            ["80.000", "personas lo vieron en el Pride de Medellín 2022"],
+          ].map(([figure, line], i) => (
+            <Reveal key={line} delay={i * 0.08}>
+              <dt className="font-display text-6xl font-black tabular-nums text-ember sm:text-7xl">{figure}</dt>
+              <dd className="mt-2 max-w-[28ch] text-base text-chalk">{line}</dd>
+            </Reveal>
+          ))}
+        </dl>
       </section>
 
       {/* ── Live thing: has he been to your town? ─────────────────── */}
-      <section className="bg-ink-raised">
-        <div className="mx-auto grid max-w-[1400px] gap-10 px-5 py-24 sm:px-8 lg:grid-cols-12">
-          <Reveal className="lg:col-span-4">
-            <h2 className="font-display text-3xl font-black uppercase tracking-tight text-chalk sm:text-4xl">¿Ya estuvo en tu pueblo?</h2>
-          </Reveal>
-          <Reveal delay={0.08} className="lg:col-span-7 lg:col-start-6">
-            <TownCheck />
-          </Reveal>
-        </div>
+      <section className="mx-auto grid max-w-[1400px] gap-8 px-5 py-24 sm:px-8 lg:grid-cols-12">
+        <Reveal className="lg:col-span-4">
+          <h2 className="font-display text-4xl font-black uppercase tracking-tight text-chalk">¿Ya estuvo en tu pueblo?</h2>
+        </Reveal>
+        <Reveal delay={0.08} className="lg:col-span-7 lg:col-start-6">
+          <TownCheck />
+        </Reveal>
       </section>
 
       {/* ── Showcase: band of unequal panels ──────────────────────── */}
@@ -263,18 +273,6 @@ export default async function HomePage() {
             alt="Cristian Barbosa en la montaña"
             line="De flaco y con burlas a cuatro veces campeón nacional."
           />
-          <Story
-            className="w-[68%] justify-self-end lg:col-span-4 lg:col-start-9 lg:-mt-[80px] lg:w-full"
-            ratio="aspect-[4/5]"
-            name="Música"
-            href="/musica"
-            src="/brand/cristian-brand-art-01.png"
-            alt="Arte de El Diamante"
-            line={released ? "El Diamante ya está disponible: escúchala." : "El Diamante sale el 15 de octubre."}
-          />
-          <p className="text-xl text-chalk lg:col-span-4 lg:col-start-2 lg:self-center">
-            Grabó su primera canción en un estudio dentro de un refugio de perros, en Caldas.
-          </p>
           {press?.url && (
             <Story
               className="w-[82%] lg:col-span-7 lg:col-start-3 lg:w-full"
