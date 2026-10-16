@@ -123,9 +123,8 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
               : "object-cover object-[52%_30%] lg:object-contain"
           }
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(11,13,12,0.95)_0%,rgba(11,13,12,0.4)_50%,rgba(11,13,12,0)_80%)]" /* taste-skill-ignore: neutral scrim under text on a photo */ />
         <div className="relative flex h-full flex-col justify-end px-6 pb-10 sm:px-8">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Cristian Barbosa</p>
           <h1 className="mt-3 max-w-xl font-display text-3xl font-black uppercase leading-[0.95] tracking-tight text-chalk sm:text-5xl">
             La calistenia es la belleza de la fortaleza
           </h1>
@@ -144,11 +143,11 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           same-visual-weight exit link here competes with "Unirme a la
           comunidad" further down — this is "looks intentional" without
           being "looks equally important." */}
-      <div className="border-b border-steel-dim/40 bg-ink py-4 text-center">
+      <div className="bg-ink py-4 text-center">
         <TrackedLink
           href="/"
           event={{ name: "cta_click", cta: "ver_universo_completo_hero", topic: "general" }}
-          className="inline-flex items-center gap-2 border border-ember/60 bg-ink-raised px-4 py-2 text-xs font-bold uppercase tracking-wide text-ember transition-colors hover:border-ember hover:bg-ember hover:text-ink"
+          className="inline-flex items-center gap-2 bg-ink-raised px-4 py-2 text-base font-bold text-ember transition-colors hover:bg-ember hover:text-ink"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
             <line x1="3" y1="6" x2="21" y2="6" />
@@ -182,9 +181,9 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           event actually is. Only renders when the campaign has one set;
           every other /bienvenida/[slug] page is unaffected. */}
       {landing.eventDescription && (
-        <section className="border-b border-steel-dim/40 bg-ink-raised py-8">
+        <section className="bg-ink-raised py-8">
           <Container className="text-center">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Hoy</p>
+            <p className="text-base text-ember">Hoy</p>
             <p className="mt-2 text-lg text-chalk">{landing.eventDescription}</p>
           </Container>
         </section>
@@ -194,9 +193,9 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           a verifiable link beats asking a visitor to go search Google
           themselves. Only renders when the campaign has one set. */}
       {landing.pressUrl && (
-        <section className="border-b border-steel-dim/40 py-6">
+        <section className="py-6">
           <Container className="flex flex-col items-center gap-3 text-center">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">En los medios</p>
+            <p className="text-base text-tide">En los medios</p>
             {/* Real photo of the coverage (0012), when the campaign has
                 one — a verifiable clipping reads stronger than the link
                 alone. The link/label stays too either way. */}
@@ -205,7 +204,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
                 href={landing.pressUrl}
                 external
                 event={{ name: "cta_click", cta: "press_link_image", topic: "press" }}
-                className="block w-full max-w-xs overflow-hidden border border-steel-dim/40"
+                className="block w-full max-w-xs overflow-hidden bg-ink-raised"
               >
                 <Image
                   src={landing.pressImageUrl}
@@ -220,7 +219,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
               href={landing.pressUrl}
               external
               event={{ name: "cta_click", cta: "press_link_text", topic: "press" }}
-              className="inline-block text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
+              className="inline-block text-base text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
             >
               {landing.pressLabel ?? "Leer la entrevista"} →
             </TrackedLink>
@@ -235,11 +234,11 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
           own fields — crediting a real co-performer, not press coverage.
           Only renders when the campaign has one set. */}
       {landing.collaboratorName && (
-        <section className="border-b border-steel-dim/40 py-6">
+        <section className="py-6">
           <Container className="flex flex-col items-center gap-3 text-center">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Con la colaboración de</p>
+            <p className="text-base text-tide">Con la colaboración de</p>
             {landing.collaboratorImageUrl && (
-              <div className="block w-full max-w-xs overflow-hidden border border-steel-dim/40">
+              <div className="block w-full max-w-xs overflow-hidden bg-ink-raised">
                 <Image
                   src={landing.collaboratorImageUrl}
                   alt={`Cristian Barbosa con ${landing.collaboratorName}`}
@@ -249,7 +248,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
                 />
               </div>
             )}
-            <p className="text-sm text-chalk">
+            <p className="text-base text-chalk">
               {landing.collaboratorName}
               {landing.collaboratorRole ? ` — ${landing.collaboratorRole}` : null}
             </p>
@@ -258,7 +257,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
                 href={landing.collaboratorUrl}
                 external
                 event={{ name: "cta_click", cta: "collaborator_link", topic: "collaborator" }}
-                className="inline-block text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
+                className="inline-block text-base text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
               >
                 Síguelo →
               </TrackedLink>
@@ -267,7 +266,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
         </section>
       )}
 
-      <section className="border-b border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container className="flex flex-col items-center gap-6 text-center">
           {/* WhatsApp CTA(s) above the video, not below (Cristian's
               correction, 2026-08-28: "la gente, pum, presione ahí" —
@@ -300,7 +299,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
               {landing.secondaryWhatsappSlug && (
                 <GoLink
                   slug={landing.secondaryWhatsappSlug}
-                  className="inline-flex items-center border border-ember px-5 py-2 text-xs font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+                  className="inline-flex items-center px-5 py-2 text-base font-bold text-ink transition-colors bg-ember hover:bg-chalk focus-visible:bg-chalk"
                 >
                   Unirme — {landing.secondaryWhatsappLabel ?? "grupo exclusivo"}
                 </GoLink>
@@ -311,13 +310,13 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
               <TrackedLink
                 href="/redes"
                 event={{ name: "cta_click", cta: "intent_social", topic: "network" }}
-                className="inline-flex items-center border border-chalk px-5 py-2 text-xs font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+                className="inline-flex items-center px-5 py-2 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
               >
                 Seguir en redes
               </TrackedLink>
             </div>
           </div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Mira de qué se trata</p>
+          <p className="text-base text-tide">Mira de qué se trata</p>
           <InstagramEmbed
             url={landing.instagramReelUrl ?? "https://www.instagram.com/reel/DQcWOQMCUuN/"}
             title="Presentación de Cristian Barbosa"
@@ -331,7 +330,7 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
             <h2 className="font-display text-xl font-black uppercase tracking-tight text-chalk">
               Regístrate
             </h2>
-            <p className="mt-2 text-sm text-steel">
+            <p className="mt-2 text-base text-steel">
               Así podemos avisarte de entrenamientos, retos y contenido nuevo.
             </p>
             <div className="mt-6">
@@ -339,18 +338,18 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
             </div>
           </div>
 
-          <div className="flex flex-col gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40">
-            <div className="flex flex-col gap-4 bg-ink p-6 ring-1 ring-inset ring-tide/40">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4 bg-ink-raised p-6">
               <div>
-                <p className="font-mono text-xs uppercase tracking-widest text-tide">Empieza aquí · Gratis</p>
+                <p className="text-base text-tide">Empieza aquí · Gratis</p>
                 <h3 className="mt-2 font-display text-lg font-black uppercase tracking-tight text-chalk">
                   Comunidad WhatsApp
                 </h3>
-                <p className="mt-2 text-sm text-steel">Conexión directa, noticias y retos.</p>
+                <p className="mt-2 text-base text-steel">Conexión directa, noticias y retos.</p>
               </div>
               <GoLink
                 slug={goLinks.whatsappCommunity}
-                className="inline-flex w-fit items-center border border-tide px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
+                className="inline-flex w-fit items-center px-5 py-2.5 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
               >
                 Unirme por WhatsApp
               </GoLink>
@@ -362,56 +361,56 @@ export default async function BienvenidaPage({ params }: { params: Promise<{ slu
                 general community group above. Only renders when a
                 campaign actually has one configured. */}
             {landing.secondaryWhatsappSlug && (
-              <div className="flex flex-col gap-4 bg-ink p-6 ring-1 ring-inset ring-ember/40">
+              <div className="flex flex-col gap-4 bg-ink-raised p-6">
                 <div>
-                  <p className="font-mono text-xs uppercase tracking-widest text-ember">Grupo exclusivo</p>
+                  <p className="text-base text-ember">Grupo exclusivo</p>
                   <h3 className="mt-2 font-display text-lg font-black uppercase tracking-tight text-chalk">
                     {landing.secondaryWhatsappLabel ?? "Grupo de WhatsApp"}
                   </h3>
-                  <p className="mt-2 text-sm text-steel">Solo para quienes escanearon aquí.</p>
+                  <p className="mt-2 text-base text-steel">Solo para quienes escanearon aquí.</p>
                 </div>
                 <GoLink
                   slug={landing.secondaryWhatsappSlug}
-                  className="inline-flex w-fit items-center border border-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+                  className="inline-flex w-fit items-center px-5 py-2.5 text-base font-bold text-ink transition-colors bg-ember hover:bg-chalk focus-visible:bg-chalk"
                 >
                   Unirme por WhatsApp
                 </GoLink>
               </div>
             )}
 
-            <div className="flex flex-col gap-4 bg-ink p-6">
+            <div className="flex flex-col gap-4 bg-ink-raised p-6">
               <div>
-                <p className="font-mono text-xs uppercase tracking-widest text-ember">Suscripción</p>
+                <p className="text-base text-ember">Suscripción</p>
                 <h3 className="mt-2 font-display text-lg font-black uppercase tracking-tight text-chalk">
                   Entrena con Cristian Barbosa
                 </h3>
-                <p className="mt-2 text-sm text-steel">Entrenamiento semanal y contenido exclusivo.</p>
-                <p className="mt-2 font-mono text-sm uppercase tracking-widest text-chalk">
+                <p className="mt-2 text-base text-steel">Entrenamiento semanal y contenido exclusivo.</p>
+                <p className="mt-2 text-base uppercase tracking-widest text-chalk">
                   {formatCents(2_990_000)} <span className="text-steel-dim">/ mes</span>
                 </p>
               </div>
               <CheckoutLink
                 offerSlug="facebook-subscription-standard"
-                className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+                className="inline-flex w-fit items-center px-5 py-2.5 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
               >
                 Suscribirme por Facebook
               </CheckoutLink>
             </div>
 
-            <div className="flex flex-col gap-4 bg-ink p-6">
+            <div className="flex flex-col gap-4 bg-ink-raised p-6">
               <div>
-                <p className="font-mono text-xs uppercase tracking-widest text-ember">Hay más</p>
+                <p className="text-base text-ember">Hay más</p>
                 <h3 className="mt-2 font-display text-lg font-black uppercase tracking-tight text-chalk">
                   ¿Qué está construyendo Cristian?
                 </h3>
-                <p className="mt-2 text-sm text-steel">
+                <p className="mt-2 text-base text-steel">
                   Música, shows, marcas, productos — el entrenamiento es solo la puerta de entrada.
                 </p>
               </div>
               <TrackedLink
                 event={{ name: "cta_click", cta: "ver_universo_completo_bottom", topic: "general" }}
                 href="/"
-                className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+                className="inline-flex w-fit items-center px-5 py-2.5 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
               >
                 Ver todo el universo
               </TrackedLink>

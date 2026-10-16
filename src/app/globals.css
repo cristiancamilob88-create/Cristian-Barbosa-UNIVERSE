@@ -243,7 +243,17 @@ body {
 }
 .cb-slow-drift { animation: cb-slow-drift 18s ease-in-out infinite alternate; }
 
+/* Page-hero entrance (premium pass, 2026-10-16): title, sentence and
+   actions rise in one after another. Transform + opacity only. */
+@keyframes cb-rise {
+  from { opacity: 0; transform: translate3d(0, 24px, 0); }
+  to { opacity: 1; transform: none; }
+}
+.cb-rise { animation: cb-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.cb-rise-2 { animation-delay: 0.12s; }
+.cb-rise-3 { animation-delay: 0.24s; }
+
 @media (prefers-reduced-motion: reduce) {
-  .cb-marquee-track, .cb-slow-drift { animation: none; }
+  .cb-marquee-track, .cb-slow-drift, .cb-rise { animation: none; }
   .cb-band-panel { transition: none; }
 }

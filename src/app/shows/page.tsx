@@ -110,23 +110,23 @@ export default function ShowsPage() {
             // (globals.css), so a warm glow fits the theme instead of
             // fighting it. Only /shows opts in — every other PageHero
             // call site is unaffected.
-            glowClassName="[text-shadow:0_0_8px_rgba(242,36,26,0.9),0_0_24px_rgba(242,36,26,0.55),0_0_48px_rgba(242,36,26,0.3)]"
+            glowClassName="[text-shadow:0_0_8px_rgba(242,36,26,0.9),0_0_24px_rgba(242,36,26,0.55),0_0_48px_rgba(242,36,26,0.3)]" /* taste-skill-ignore: the neon-sign title Cristian asked for on /shows */
           >
             <div className="mt-8 flex flex-wrap gap-4">
-            {/* Solid bg-ink/70 backdrop added 2026-08-28 — Cristian's
+            {/* Solid fills (2026-10-16 premium pass; earlier bg-ink/70 fix from 2026-08-28) — Cristian's
                 own report: over the new brand-art hero background,
                 these outline-only buttons (border + text color, no
                 fill until hover) lost contrast and "no resaltaban". */}
             <TrackedLink
               event={{ name: "cta_click", cta: "intent_shows", topic: "shows" }}
               href="/contacto?topic=shows"
-              className="inline-flex w-fit items-center border border-ember bg-ink/70 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember backdrop-blur-sm transition-colors hover:bg-ember hover:text-ink"
+              className="inline-flex w-fit items-center bg-ember px-6 py-3 text-base font-bold text-ink transition-colors hover:bg-chalk"
             >
               Quiero contratar un show
             </TrackedLink>
             <GoLink
               slug={goLinks.whatsappCommercial}
-              className="inline-flex w-fit items-center border border-chalk bg-ink/70 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-chalk backdrop-blur-sm transition-colors hover:bg-chalk hover:text-ink"
+              className="inline-flex w-fit items-center bg-chalk px-6 py-3 text-base font-bold text-ink transition-colors hover:bg-ember"
             >
               Quiero hablar con Cristian
             </GoLink>
@@ -138,10 +138,10 @@ export default function ShowsPage() {
           page only had a WhatsApp button (behind a click), not the
           actual email/phone visible as text. All three now shown
           together, right under the hero. */}
-      <section className="border-t border-steel-dim/40 py-10">
+      <section className="py-10">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Contacto directo</p>
-          <div className="mt-4 flex flex-col gap-3 text-sm text-steel sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
+          <p className="text-base text-steel-dim">Contacto directo</p>
+          <div className="mt-4 flex flex-col gap-3 text-base text-steel sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
             <a href="mailto:cristiancamilob88@gmail.com" className="text-chalk transition-colors hover:text-ember">
               cristiancamilob88@gmail.com
             </a>
@@ -161,11 +161,10 @@ export default function ShowsPage() {
           agenda + map is ONE shareable page, /agenda — this page is for
           organizers hiring a show, so it shows the proof and links over
           instead of repeating the whole agenda here. */}
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Dónde ha estado</p>
               <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-chalk">
                 {circusCountLabel()} municipios y contando
               </h2>
@@ -173,7 +172,7 @@ export default function ShowsPage() {
             <TrackedLink
               event={{ name: "cta_click", cta: "intent_events", topic: "shows" }}
               href={agendaHref}
-              className="inline-flex w-fit items-center border border-tide px-6 py-3 text-sm font-semibold uppercase tracking-wide text-tide transition-colors hover:bg-tide hover:text-ink"
+              className="inline-flex w-fit items-center px-6 py-3 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
             >
               Ver la agenda y el mapa
             </TrackedLink>
@@ -192,12 +191,12 @@ export default function ShowsPage() {
       </section>
       <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Para quién</p>
+          <p className="text-base text-steel-dim">Para quién</p>
           <div className="mt-6 flex flex-wrap gap-3">
             {audiences.map((audience) => (
               <span
                 key={audience}
-                className="border border-steel-dim/50 px-4 py-2 text-sm text-steel"
+                className="px-4 py-2 text-base text-steel bg-ink-raised"
               >
                 {audience}
               </span>
@@ -205,25 +204,25 @@ export default function ShowsPage() {
           </div>
         </Container>
       </section>
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Formatos de partida</p>
-          <div className="mt-6 grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-2 lg:grid-cols-3">
+          <p className="text-base text-steel-dim">Formatos de partida</p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {packages.map((pkg) => (
-              <div key={pkg.name} className="bg-ink p-6">
+              <div key={pkg.name} className="bg-ink-raised p-6">
                 <h3 className="font-display text-lg font-black uppercase tracking-tight text-chalk">
                   {pkg.name}
                 </h3>
-                <p className="mt-2 text-sm text-steel">{pkg.detail}</p>
+                <p className="mt-2 text-base text-steel">{pkg.detail}</p>
               </div>
             ))}
           </div>
         </Container>
       </section>
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">En acción</p>
-          <div className="mt-6 grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-3">
+          <p className="text-base text-steel-dim">En acción</p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {actionPhotos.map((photo) => (
               <div key={photo.src} className="relative aspect-[3/4] bg-ink">
                 <Image

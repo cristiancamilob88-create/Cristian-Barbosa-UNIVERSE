@@ -38,7 +38,7 @@ export default function AgendaPage() {
   const institutionStops = tourStops.filter((stop) => stop.kind === "instituciones");
   const hasUpcoming = getUpcomingShows().length > 0;
   const upcomingSection = (
-      <section className="border-t border-steel-dim/40 py-12">
+      <section className="py-12">
         <Container>
           <UpcomingShows topic="agenda" />
         </Container>
@@ -54,6 +54,7 @@ export default function AgendaPage() {
       />
       <PageHero
         tag="AGENDA"
+        image={{ src: "/brand/show-crowd-02.jpg", alt: "Cristian Barbosa con una familia junto a la moto del globo", position: "object-[50%_35%]" }}
         title="Agenda"
         description={`El próximo show de Cristian Barbosa y todos los lugares donde ya se ha presentado: ${circusCountLabel()} municipios de Antioquia y Chocó, colegios y alcaldías.`}
       />
@@ -64,19 +65,18 @@ export default function AgendaPage() {
       {hasUpcoming && upcomingSection}
 
       {/* 2. Dónde ha estado: mapa + cifras */}
-      <section id="mapa" className="scroll-mt-20 border-t border-steel-dim/40 py-12">
+      <section id="mapa" className="scroll-mt-20 py-12">
         <Container className="flex flex-col gap-3">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Dónde ha estado</p>
           <h2 className="font-display text-3xl font-black uppercase tracking-tight text-chalk">El mapa de la gira</h2>
           <ShowsMapLazy />
-          <div className="mt-6 grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 sm:grid-cols-2">
-            <div className="bg-ink p-6">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="bg-ink-raised p-6">
               <p className="font-display text-4xl font-black text-ember">{circusCountLabel()}</p>
-              <p className="mt-1 text-sm text-steel">municipios con el Circo Santiago de Chile, desde junio de 2024</p>
+              <p className="mt-1 text-base text-steel">municipios con el Circo Santiago de Chile, desde junio de 2024</p>
             </div>
-            <div className="bg-ink p-6">
+            <div className="bg-ink-raised p-6">
               <p className="font-display text-4xl font-black text-tide">{institutionStops.length}</p>
-              <p className="mt-1 text-sm text-steel">ciudades con shows en colegios, alcaldías y eventos — incluido el Pride de Medellín 2022</p>
+              <p className="mt-1 text-base text-steel">ciudades con shows en colegios, alcaldías y eventos — incluido el Pride de Medellín 2022</p>
             </div>
           </div>
         </Container>
@@ -85,7 +85,7 @@ export default function AgendaPage() {
       {!hasUpcoming && upcomingSection}
 
       {/* 3. Shows con su propia página (fotos e historia) */}
-      <section className="border-t border-steel-dim/40 py-12">
+      <section className="py-12">
         <Container>
           <h2 className="font-display text-3xl font-black uppercase tracking-tight text-chalk">Shows destacados</h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2">
@@ -97,22 +97,22 @@ export default function AgendaPage() {
       </section>
 
       {/* 4. La lista completa como texto — lo que Google lee. */}
-      <section className="border-t border-steel-dim/40 py-12">
+      <section className="py-12">
         <Container className="grid gap-12 lg:grid-cols-2">
           <div>
             <h2 className="font-display text-2xl font-black uppercase tracking-tight text-chalk">
               Gira con el Circo Santiago de Chile
             </h2>
-            <p className="mt-2 text-sm text-steel">
+            <p className="mt-2 text-base text-steel">
               {circusCountLabel()} municipios desde junio de 2024, cuatro noches por municipio en el coliseo cubierto.
             </p>
             <div className="mt-6 flex flex-col gap-6">
               {groupBySubregion(circusStops).map((group) => (
                 <div key={group.subregion}>
-                  <h3 className="font-mono text-xs uppercase tracking-widest text-ember">{group.subregion}</h3>
+                  <h3 className="text-base text-ember">{group.subregion}</h3>
                   <ul className="mt-2 flex flex-wrap gap-2">
                     {group.stops.map((stop) => (
-                      <li key={stop.town} className="border border-steel-dim/50 px-3 py-1 text-sm text-chalk">
+                      <li key={stop.town} className="px-3 py-1 text-base text-chalk bg-ink-raised">
                         {stop.showSlug ? (
                           <Link href={pastShowPath(stop.showSlug)} className="underline decoration-ember underline-offset-4 hover:text-ember">
                             {stop.town}
@@ -138,9 +138,9 @@ export default function AgendaPage() {
               {institutionStops.map((stop) => (
                 <li key={stop.town} className="border-l-2 border-tide pl-4">
                   <p className="font-display text-lg font-black uppercase tracking-tight text-chalk">
-                    {stop.town} <span className="font-mono text-xs font-normal text-steel-dim">{stop.department}</span>
+                    {stop.town} <span className="text-xs font-normal text-steel-dim">{stop.department}</span>
                   </p>
-                  {stop.note && <p className="mt-1 text-sm text-steel">{stop.note}</p>}
+                  {stop.note && <p className="mt-1 text-base text-steel">{stop.note}</p>}
                 </li>
               ))}
             </ul>
@@ -149,20 +149,20 @@ export default function AgendaPage() {
       </section>
 
       {/* 5. ¿El próximo en tu municipio? */}
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
           <p className="max-w-xl text-lg text-chalk">¿Quieres que el próximo show sea en tu municipio, empresa, colegio o evento?</p>
           <div className="mt-6 flex flex-wrap gap-4">
             <TrackedLink
               event={{ name: "cta_click", cta: "intent_shows", topic: "agenda" }}
               href="/contacto?topic=shows"
-              className="inline-flex w-fit items-center bg-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-chalk"
+              className="inline-flex w-fit items-center bg-ember px-6 py-3 text-base font-bold text-ink transition-colors hover:bg-chalk"
             >
               Quiero contratar un show
             </TrackedLink>
             <GoLink
               slug={goLinks.whatsappCommercial}
-              className="inline-flex w-fit items-center border border-chalk px-6 py-3 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+              className="inline-flex w-fit items-center px-6 py-3 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
             >
               Escribir por WhatsApp
             </GoLink>

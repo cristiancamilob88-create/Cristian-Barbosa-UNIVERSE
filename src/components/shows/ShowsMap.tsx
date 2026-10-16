@@ -322,6 +322,7 @@ export function ShowsMap() {
   return (
     <div
       ref={shell}
+      data-ui
       className={
         fullscreen
           ? "fixed inset-0 z-[60] flex flex-col gap-3 bg-ink p-3 sm:p-4"
@@ -342,7 +343,7 @@ export function ShowsMap() {
           >
             {chip.dot && <span className={`h-2.5 w-2.5 rounded-full ${DOT_CLASS[chip.dot]}`} aria-hidden="true" />}
             {chip.label}
-            <span className="font-mono opacity-70">{counts[chip.value]}</span>
+            <span className="opacity-70">{counts[chip.value]}</span>
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
@@ -364,7 +365,7 @@ export function ShowsMap() {
             onClick={() => setFullscreen((v) => !v)}
             className="rounded-full border border-steel-dim/50 px-3 py-1.5 text-xs font-semibold text-steel transition-colors hover:text-chalk"
           >
-            {fullscreen ? "Cerrar ✕" : "Pantalla completa ⤢"}
+            {fullscreen ? "Cerrar" : "Pantalla completa"}
           </button>
         </div>
       </div>
@@ -388,24 +389,24 @@ export function ShowsMap() {
           <button
             type="button"
             onClick={showAll}
-            className="absolute right-3 top-3 z-[500] rounded-full border border-steel-dim/50 bg-ink/90 px-3 py-1.5 text-xs font-semibold text-chalk shadow-lg hover:text-ember"
+            className="absolute right-3 top-3 z-[500] rounded-full border border-steel-dim/50 bg-ink/90 px-3 py-1.5 text-xs font-semibold text-chalk hover:text-ember"
           >
             Ver toda la gira
           </button>
         </div>
 
         <div className={`flex min-h-0 flex-col border border-steel-dim/40 bg-ink-raised ${fullscreen ? "max-h-[35vh] lg:max-h-none" : "lg:h-[520px]"}`}>
-          <label className="border-b border-steel-dim/40 p-3">
+          <label className="p-3">
             <span className="sr-only">Buscar un municipio</span>
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar municipio…"
-              className="w-full bg-ink px-3 py-2 text-sm text-chalk placeholder:text-steel-dim focus:outline focus:outline-1 focus:outline-ember"
+              className="w-full bg-ink px-3 py-2 text-base text-chalk placeholder:text-steel-dim focus:outline focus:outline-1 focus:outline-ember"
             />
           </label>
-          <p className="px-3 pt-2 font-mono text-[0.65rem] uppercase tracking-widest text-steel-dim">
+          <p className="px-3 pt-2 text-[0.65rem] uppercase tracking-widest text-steel-dim">
             {visible.length} {visible.length === 1 ? "lugar" : "lugares"}
           </p>
           <ul className={`min-h-0 flex-1 overflow-y-auto p-2 ${fullscreen ? "" : "max-h-64 lg:max-h-none"}`}>
@@ -418,13 +419,13 @@ export function ShowsMap() {
                 >
                   <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${DOT_CLASS[place.kind]}`} aria-hidden="true" />
                   <span className="flex flex-col">
-                    <span className="text-sm font-semibold text-chalk">{place.town}</span>
+                    <span className="text-base font-semibold text-chalk">{place.town}</span>
                     <span className="text-xs text-steel">{place.when ?? place.region}</span>
                   </span>
                 </button>
               </li>
             ))}
-            {visible.length === 0 && <li className="px-2 py-4 text-sm text-steel">Ningún lugar coincide con la búsqueda.</li>}
+            {visible.length === 0 && <li className="px-2 py-4 text-base text-steel">Ningún lugar coincide con la búsqueda.</li>}
           </ul>
         </div>
       </div>

@@ -34,6 +34,7 @@ export default function MarcasPage() {
     <>
       <PageHero
         tag="MARCAS"
+        image={{ src: "/brand/show-crowd-01.jpg", alt: "Cristian Barbosa con el público después de un show", position: "object-[50%_30%]" }}
         title="Marcas"
         description="Audiencia real, formatos flexibles de colaboración — desde contenido puntual hasta partnerships de largo plazo."
       >
@@ -41,13 +42,13 @@ export default function MarcasPage() {
           <TrackedLink
             event={{ name: "cta_click", cta: "intent_brands", topic: "marcas" }}
             href="/contacto?topic=marcas"
-            className="inline-flex w-fit items-center border border-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+            className="inline-flex w-fit items-center px-6 py-3 text-base font-bold text-ink transition-colors bg-ember hover:bg-chalk focus-visible:bg-chalk"
           >
             Quiero trabajar con Cristian
           </TrackedLink>
           <GoLink
             slug={goLinks.whatsappCommercial}
-            className="inline-flex w-fit items-center border border-chalk px-6 py-3 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+            className="inline-flex w-fit items-center px-6 py-3 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
           >
             Escribir por WhatsApp
           </GoLink>
@@ -55,24 +56,24 @@ export default function MarcasPage() {
       </PageHero>
       <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Formatos de colaboración</p>
+          <p className="text-base text-steel-dim">Formatos de colaboración</p>
           <div className="mt-6 flex flex-wrap gap-3">
             {offerings.map((offering) => (
-              <span key={offering} className="border border-steel-dim/50 px-4 py-2 text-sm text-steel">
+              <span key={offering} className="px-4 py-2 text-base text-steel bg-ink-raised">
                 {offering}
               </span>
             ))}
           </div>
         </Container>
       </section>
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Embajador de</p>
+          <p className="text-base text-steel-dim">Embajador de</p>
           <div className="mt-6 flex flex-wrap gap-3">
             {ambassadorships.map((brand) => (
               <span
                 key={brand}
-                className="border border-ember/50 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-ember"
+                className="px-4 py-2 text-base font-semibold text-ember bg-ink-raised"
               >
                 {brand}
               </span>

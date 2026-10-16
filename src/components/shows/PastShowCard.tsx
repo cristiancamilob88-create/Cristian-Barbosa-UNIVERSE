@@ -7,7 +7,7 @@ export function PastShowCard({ show }: { show: PastShow }) {
   return (
     <Link
       href={pastShowPath(show.slug)}
-      className="group flex flex-col overflow-hidden border border-steel-dim/40 bg-ink transition-colors hover:border-ember"
+      className="group flex flex-col overflow-hidden bg-ink-raised transition-colors"
     >
       {show.image && (
         <div className="relative aspect-[4/3] overflow-hidden">
@@ -21,14 +21,14 @@ export function PastShowCard({ show }: { show: PastShow }) {
         </div>
       )}
       <div className="flex flex-1 flex-col gap-2 p-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-tide">
+        <p className="text-base text-tide">
           {show.town}, {show.region} · {show.whenLabel}
         </p>
         <h3 className="font-display text-xl font-black uppercase tracking-tight text-chalk group-hover:text-ember">
           {show.title}
         </h3>
-        <p className="text-sm text-steel">{show.summary}</p>
-        <p className="mt-auto pt-2 text-sm font-semibold uppercase tracking-wide text-ember">Ver el show →</p>
+        <p className="text-base text-steel">{show.summary}</p>
+        <p className="mt-auto pt-2 text-base font-bold text-ember">Ver el show →</p>
       </div>
     </Link>
   );

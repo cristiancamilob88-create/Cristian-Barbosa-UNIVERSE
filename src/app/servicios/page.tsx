@@ -90,8 +90,8 @@ const services: Service[] = [
 ];
 
 const primaryClass =
-  "inline-flex w-fit items-center bg-ember px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-chalk";
-const secondaryClass = "text-sm text-steel underline underline-offset-4 hover:text-chalk";
+  "inline-flex w-fit items-center bg-ember px-5 py-2.5 text-base font-bold text-ink transition-colors hover:bg-chalk";
+const secondaryClass = "text-base text-steel underline underline-offset-4 hover:text-chalk";
 
 function ActionLink({ action, className }: { action: Action; className: string }) {
   if (action.kind === "checkout") {
@@ -128,12 +128,12 @@ export default function ServiciosPage() {
           {services.map((service) => (
             <div
               key={service.title}
-              className={`flex flex-col gap-4 border p-8 ${service.featured ? "border-ember/60 bg-ink-raised" : "border-steel-dim/40 bg-ink"}`}
+              className="flex flex-col gap-4 bg-ink-raised p-8"
             >
-              <p className="font-mono text-xs uppercase tracking-widest text-ember">{service.tag}</p>
+              <p className="text-base text-ember">{service.tag}</p>
               <h2 className="font-display text-2xl font-black uppercase tracking-tight text-chalk">{service.title}</h2>
-              <p className="font-mono text-sm text-chalk">{service.price}</p>
-              <p className="text-sm leading-relaxed text-steel">{service.detail}</p>
+              <p className="text-base text-chalk">{service.price}</p>
+              <p className="text-base leading-relaxed text-steel">{service.detail}</p>
               <div className="mt-auto flex flex-wrap items-center gap-4 pt-2">
                 <ActionLink action={service.primary} className={primaryClass} />
                 {service.secondary && <ActionLink action={service.secondary} className={secondaryClass} />}

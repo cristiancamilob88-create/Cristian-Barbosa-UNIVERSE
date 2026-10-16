@@ -68,7 +68,7 @@ export default async function PastShowPage({ params }: { params: Promise<{ slug:
       <section className="py-16">
         <Container className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {show.image ? (
-            <div className="overflow-hidden border border-steel-dim/40">
+            <div className="overflow-hidden bg-ink-raised">
               <Image
                 src={show.image.src}
                 alt={show.image.alt}
@@ -82,26 +82,26 @@ export default async function PastShowPage({ params }: { params: Promise<{ slug:
           ) : null}
           <div className="flex flex-col gap-6">
             <p className="text-lg text-chalk">{show.summary}</p>
-            <ul className="flex flex-col gap-3 border-t border-steel-dim/40 pt-6">
+            <ul className="flex flex-col gap-3 pt-6">
               {show.details.map((detail) => (
-                <li key={detail} className="flex gap-3 text-sm text-steel">
+                <li key={detail} className="flex gap-3 text-base text-steel">
                   <span className="text-ember">◆</span>
                   {detail}
                 </li>
               ))}
             </ul>
-            <dl className="grid grid-cols-2 gap-4 border-t border-steel-dim/40 pt-6 text-sm">
+            <dl className="grid grid-cols-2 gap-4 pt-6 text-base">
               <div>
-                <dt className="font-mono text-xs uppercase tracking-widest text-steel-dim">Lugar</dt>
+                <dt className="text-base text-steel-dim">Lugar</dt>
                 <dd className="mt-1 text-chalk">{show.venue ?? show.town}</dd>
               </div>
               <div>
-                <dt className="font-mono text-xs uppercase tracking-widest text-steel-dim">Municipio</dt>
+                <dt className="text-base text-steel-dim">Municipio</dt>
                 <dd className="mt-1 text-chalk">{show.town}, {show.region}</dd>
               </div>
               {show.collaborator && (
                 <div>
-                  <dt className="font-mono text-xs uppercase tracking-widest text-steel-dim">Junto a</dt>
+                  <dt className="text-base text-steel-dim">Junto a</dt>
                   <dd className="mt-1 text-chalk">
                     {show.collaborator.name} · {show.collaborator.role}
                   </dd>
@@ -112,18 +112,18 @@ export default async function PastShowPage({ params }: { params: Promise<{ slug:
               <TrackedLink
                 event={{ name: "cta_click", cta: "intent_shows", topic: `show_${show.slug}` }}
                 href="/contacto?topic=shows"
-                className="inline-flex w-fit items-center bg-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-chalk"
+                className="inline-flex w-fit items-center bg-ember px-6 py-3 text-base font-bold text-ink transition-colors hover:bg-chalk"
               >
                 Quiero un show así
               </TrackedLink>
               <GoLink
                 slug={goLinks.whatsappCommercial}
-                className="inline-flex w-fit items-center border border-chalk px-6 py-3 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+                className="inline-flex w-fit items-center px-6 py-3 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
               >
                 Escribir por WhatsApp
               </GoLink>
             </div>
-            <Link href={agendaHref} className="text-sm text-steel underline underline-offset-4 hover:text-chalk">
+            <Link href={agendaHref} className="text-base text-steel underline underline-offset-4 hover:text-chalk">
               ← Ver la agenda y todos los shows
             </Link>
           </div>

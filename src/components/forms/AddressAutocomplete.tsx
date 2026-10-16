@@ -23,7 +23,7 @@ import { toEventAddress, type EventAddress } from "@/lib/eventAddress";
 const inputClass =
   "w-full border border-steel-dim/50 bg-transparent px-4 py-3 text-chalk placeholder:text-steel-dim focus:border-ember focus:outline-none";
 const readOnlyClass = "w-full border border-steel-dim/30 bg-ink-raised px-4 py-3 text-sm text-steel";
-const labelClass = "font-mono text-xs uppercase tracking-widest text-steel";
+const labelClass = "text-sm text-steel";
 
 // Envigado — where Cristian is based; the map's starting view.
 const DEFAULT_CENTER = { lat: 6.1759, lng: -75.5917 };
@@ -161,10 +161,10 @@ export function AddressAutocomplete({ onChange }: { onChange: (address: EventAdd
             Busca la dirección o el lugar del evento
           </label>
           <div ref={autocompleteHost} className="min-h-[46px] border border-steel-dim/50 focus-within:border-ember">
-            {mode === "loading" && <p className="px-4 py-3 text-sm text-steel-dim">Cargando buscador de direcciones…</p>}
+            {mode === "loading" && <p className="px-4 py-3 text-base text-steel-dim">Cargando buscador de direcciones…</p>}
           </div>
           {notFound && (
-            <p role="alert" className="text-sm text-ember">
+            <p role="alert" className="text-base text-ember">
               No encontramos ese lugar en el mapa. Prueba con otra dirección o el nombre del sitio.
             </p>
           )}

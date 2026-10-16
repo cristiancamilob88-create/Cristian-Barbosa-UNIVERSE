@@ -52,9 +52,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   return (
     <article>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
-      <header className="border-b border-steel-dim/40 pb-10 pt-16">
+      <header className="pb-10 pt-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-ember">
+          <p className="text-base text-ember">
             {post.category} · {formatPostDate(post.publishedAt)}
           </p>
           <h1 className="mt-4 max-w-3xl font-display text-4xl font-black uppercase leading-[0.95] tracking-tight text-chalk sm:text-6xl">
@@ -64,7 +64,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </Container>
       </header>
       <Container className="py-12">
-        <div className="relative mb-12 aspect-[16/9] max-w-3xl overflow-hidden border border-steel-dim/40">
+        <div className="relative mb-12 aspect-[16/9] max-w-3xl overflow-hidden bg-ink-raised">
           <Image src={post.cover.src} alt={post.cover.alt} fill priority sizes="(min-width: 768px) 768px, 100vw" className="object-cover" />
         </div>
         <div className="flex max-w-2xl flex-col gap-8">
@@ -81,15 +81,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </section>
           ))}
         </div>
-        <div className="mt-12 flex max-w-2xl flex-wrap items-center gap-6 border-t border-steel-dim/40 pt-8">
+        <div className="mt-12 flex max-w-2xl flex-wrap items-center gap-6 pt-8">
           <TrackedLink
             event={{ name: "cta_click", cta: step.cta, topic: `blog_${post.slug}` }}
             href={step.href}
-            className="inline-flex w-fit items-center bg-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-chalk"
+            className="inline-flex w-fit items-center bg-ember px-6 py-3 text-base font-bold text-ink transition-colors hover:bg-chalk"
           >
             {step.label}
           </TrackedLink>
-          <Link href={blogIndexPath} className="text-sm text-steel underline underline-offset-4 hover:text-chalk">
+          <Link href={blogIndexPath} className="text-base text-steel underline underline-offset-4 hover:text-chalk">
             ← Más historias
           </Link>
         </div>

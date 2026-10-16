@@ -99,7 +99,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
         <p className="font-display text-xl font-black uppercase tracking-tight text-ember">
           Mensaje enviado
         </p>
-        <p className="mt-2 text-sm text-steel">
+        <p className="mt-2 text-base text-steel">
           Gracias — el equipo de Cristian Barbosa te responderá pronto.
         </p>
       </div>
@@ -109,7 +109,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
       <div className="flex flex-col gap-2">
-        <label htmlFor="name" className="font-mono text-xs uppercase tracking-widest text-steel">
+        <label htmlFor="name" className="text-base text-steel">
           Nombre
         </label>
         <input
@@ -124,7 +124,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="email" className="font-mono text-xs uppercase tracking-widest text-steel">
+        <label htmlFor="email" className="text-base text-steel">
           Correo
         </label>
         <input
@@ -138,7 +138,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="phone" className="font-mono text-xs uppercase tracking-widest text-steel">
+        <label htmlFor="phone" className="text-base text-steel">
           Celular (WhatsApp)
         </label>
         <input
@@ -155,7 +155,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="topic" className="font-mono text-xs uppercase tracking-widest text-steel">
+        <label htmlFor="topic" className="text-base text-steel">
           Motivo
         </label>
         <select
@@ -176,7 +176,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
       {topic === "shows" && <AddressAutocomplete onChange={setEventAddress} />}
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="message" className="font-mono text-xs uppercase tracking-widest text-steel">
+        <label htmlFor="message" className="text-base text-steel">
           Mensaje (opcional)
         </label>
         <textarea
@@ -199,7 +199,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
           required
           className="mt-1 h-4 w-4 shrink-0 accent-ember"
         />
-        <label htmlFor="consent" className="text-sm text-steel">
+        <label htmlFor="consent" className="text-base text-steel">
           Autorizo a {legalEntity.name} a tratar mis datos personales para
           responder mi solicitud y enviarme información relacionada, según la{" "}
           <Link href="/privacidad" target="_blank" className="text-chalk underline underline-offset-4 hover:text-ember">
@@ -220,7 +220,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
       />
 
       {status === "error" && errorMessage && (
-        <p role="alert" className="text-sm text-ember">
+        <p role="alert" className="text-base text-ember">
           {errorMessage}
         </p>
       )}
@@ -228,7 +228,7 @@ export function ContactForm({ initialTopic }: { initialTopic: string }) {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="inline-flex w-fit items-center border border-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink disabled:opacity-50"
+        className="inline-flex w-fit items-center border border-ember px-6 py-3 text-base font-bold text-ember transition-colors hover:bg-ember hover:text-ink disabled:opacity-50"
       >
         {status === "submitting" ? "Enviando..." : "Enviar mensaje"}
       </button>

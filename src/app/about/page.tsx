@@ -34,9 +34,9 @@ export const revalidate = 86400;
 const DIAMANTE_RELEASE = "2026-10-15";
 
 const buttonPrimary =
-  "inline-flex w-fit items-center bg-ember px-5 py-3 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-chalk";
+  "inline-flex w-fit items-center bg-ember px-5 py-3 text-sm font-bold text-ink transition-colors hover:bg-chalk";
 const buttonSecondary =
-  "inline-flex w-fit items-center border border-chalk px-5 py-3 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink";
+  "inline-flex w-fit items-center bg-chalk px-5 py-3 text-base font-bold text-ink transition-colors hover:bg-ember";
 
 export default function AboutPage() {
   const released = colombiaToday() >= DIAMANTE_RELEASE;
@@ -54,7 +54,7 @@ export default function AboutPage() {
           sizes="100vw"
           className="object-cover object-[50%_48%]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(11,13,12,0.95)_0%,rgba(11,13,12,0.4)_50%,rgba(11,13,12,0)_80%)]" /* taste-skill-ignore: neutral scrim under text on a photo */ />
       </section>
       <PageHero
         tag="HISTORIA"
@@ -123,29 +123,29 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Logros</p>
-          <div className="mt-6 grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 md:grid-cols-3">
-            <div className="bg-ink p-6">
+          <p className="text-base text-tide">Logros</p>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            <div className="bg-ink-raised p-6">
               <h2 className="font-display text-lg font-black uppercase tracking-tight text-ember">4 veces campeón nacional</h2>
-              <ul className="mt-3 flex flex-col gap-2 text-sm text-steel">
+              <ul className="mt-3 flex flex-col gap-2 text-base text-steel">
                 {achievements.titles.map((item) => (
                   <li key={item.label}>{item.label.replace("Campeón nacional de calistenia — ", "")}</li>
                 ))}
               </ul>
             </div>
-            <div className="bg-ink p-6">
+            <div className="bg-ink-raised p-6">
               <h2 className="font-display text-lg font-black uppercase tracking-tight text-chalk">Subcampeón nacional</h2>
-              <ul className="mt-3 flex flex-col gap-2 text-sm text-steel">
+              <ul className="mt-3 flex flex-col gap-2 text-base text-steel">
                 {achievements.runnerUp.map((item) => (
                   <li key={item.label}>{item.label.replace("Subcampeón nacional — ", "")}</li>
                 ))}
               </ul>
             </div>
-            <div className="bg-ink p-6">
+            <div className="bg-ink-raised p-6">
               <h2 className="font-display text-lg font-black uppercase tracking-tight text-chalk">Embajador y artista</h2>
-              <ul className="mt-3 flex flex-col gap-2 text-sm text-steel">
+              <ul className="mt-3 flex flex-col gap-2 text-base text-steel">
                 {achievements.roles.map((item) => (
                   <li key={item.label}>{item.label}</li>
                 ))}
@@ -153,7 +153,7 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-4">
-            <p className="text-sm text-steel">Entrena con un campeón nacional:</p>
+            <p className="text-base text-steel">Entrena con un campeón nacional:</p>
             <TrackedLink event={{ name: "cta_click", cta: "intent_training", topic: "about_logros" }} href="/entrenar#sesion" className={buttonSecondary}>
               Sesión 1:1 · $80.000
             </TrackedLink>
@@ -161,16 +161,16 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">El camino</p>
+          <p className="text-base text-tide">El camino</p>
           <ol className="mt-8 flex max-w-3xl flex-col">
             {timeline.map((entry) => (
-              <li key={entry.title} className="relative border-l border-steel-dim/50 pb-10 pl-8 last:pb-0">
+              <li key={entry.title} className="relative pb-10 pl-8 last:pb-0">
                 <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-ember" aria-hidden="true" />
-                <p className="font-mono text-xs uppercase tracking-widest text-steel-dim">{entry.when}</p>
+                <p className="text-base text-steel-dim">{entry.when}</p>
                 <h3 className="mt-1 font-display text-xl font-black uppercase tracking-tight text-chalk">{entry.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-steel">{entry.detail}</p>
+                <p className="mt-2 text-base leading-relaxed text-steel">{entry.detail}</p>
               </li>
             ))}
           </ol>
@@ -185,21 +185,21 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="border-t border-steel-dim/40 py-16">
-        <Container className="grid gap-px overflow-hidden border border-steel-dim/40 bg-steel-dim/40 md:grid-cols-3">
-          <div className="bg-ink p-6">
-            <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Misión</h2>
-            <p className="mt-3 text-sm leading-relaxed text-steel">{purpose.mission}</p>
+      <section className="py-16">
+        <Container className="grid gap-3 md:grid-cols-3">
+          <div className="bg-ink-raised p-6">
+            <h2 className="text-base text-ember">Misión</h2>
+            <p className="mt-3 text-base leading-relaxed text-steel">{purpose.mission}</p>
           </div>
-          <div className="bg-ink p-6">
-            <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Visión</h2>
-            <p className="mt-3 text-sm leading-relaxed text-steel">{purpose.vision}</p>
+          <div className="bg-ink-raised p-6">
+            <h2 className="text-base text-ember">Visión</h2>
+            <p className="mt-3 text-base leading-relaxed text-steel">{purpose.vision}</p>
           </div>
-          <div className="bg-ink p-6">
-            <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Valores</h2>
+          <div className="bg-ink-raised p-6">
+            <h2 className="text-base text-ember">Valores</h2>
             <ul className="mt-3 flex flex-wrap gap-2">
               {purpose.values.map((value) => (
-                <li key={value} className="border border-steel-dim/50 px-3 py-1 text-sm text-chalk">
+                <li key={value} className="px-3 py-1 text-base text-chalk bg-ink-raised">
                   {value}
                 </li>
               ))}
@@ -208,9 +208,9 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Prensa y entrevistas</p>
+          <p className="text-base text-tide">Prensa y entrevistas</p>
           <div className="mt-6 flex flex-wrap gap-8">
             {pressCoverage.map((item) => (
               <div key={item.label} className="flex w-full max-w-xs flex-col gap-3">
@@ -219,7 +219,7 @@ export default function AboutPage() {
                     href={item.url}
                     external
                     event={{ name: "cta_click", cta: "press_link_image", topic: "about" }}
-                    className="block overflow-hidden border border-steel-dim/40"
+                    className="block overflow-hidden bg-ink-raised"
                   >
                     <Image
                       src={item.image}
@@ -230,7 +230,7 @@ export default function AboutPage() {
                     />
                   </TrackedLink>
                 )}
-                <p className="font-mono text-xs uppercase tracking-widest text-steel-dim">
+                <p className="text-base text-steel-dim">
                   {item.outlet} · {item.year}
                 </p>
                 {item.url ? (
@@ -238,21 +238,21 @@ export default function AboutPage() {
                     href={item.url}
                     external
                     event={{ name: "cta_click", cta: "press_link_text", topic: "about" }}
-                    className="text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
+                    className="text-base text-chalk underline decoration-tide underline-offset-4 hover:text-tide"
                   >
                     {item.label} →
                   </TrackedLink>
                 ) : (
-                  <p className="text-sm text-chalk">{item.label}</p>
+                  <p className="text-base text-chalk">{item.label}</p>
                 )}
               </div>
             ))}
           </div>
         </Container>
       </section>
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">Su historia, por capítulos</p>
+          <p className="text-base text-tide">Su historia, por capítulos</p>
           <ul className="mt-6 flex flex-col gap-4">
             {blogPosts.map((post) => (
               <li key={post.slug}>
@@ -267,16 +267,16 @@ export default function AboutPage() {
           </ul>
         </Container>
       </section>
-      <section className="border-t border-steel-dim/40 py-16">
+      <section className="py-16">
         <Container>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-steel-dim">Sigue explorando</p>
+          <p className="text-base text-steel-dim">Sigue explorando</p>
           <div className="mt-6 flex flex-wrap gap-4">
             {bridgeItems.map((item) => (
               <TrackedLink
                 key={item.href}
                 href={item.href}
                 event={{ name: "cta_click", cta: item.intentId, topic: "about" }}
-                className="border border-steel-dim/50 px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:border-ember hover:text-ember"
+                className="px-5 py-2.5 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
               >
                 {item.intent}
               </TrackedLink>

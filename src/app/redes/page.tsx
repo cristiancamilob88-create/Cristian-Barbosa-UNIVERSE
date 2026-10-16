@@ -43,7 +43,7 @@ function route(intentId: string) {
 }
 
 const cardClass =
-  "group flex items-center gap-4 border border-steel-dim/40 bg-ink-raised p-4 transition-colors hover:border-ember";
+  "group flex items-center gap-4 bg-ink-raised p-4 transition-colors hover:bg-steel-dim/30";
 
 function CardBody({ icon, title, detail }: { icon: string; title: string; detail: string }) {
   return (
@@ -55,7 +55,7 @@ function CardBody({ icon, title, detail }: { icon: string; title: string; detail
         <span className="block font-display text-lg font-black uppercase leading-tight tracking-tight text-chalk">
           {title}
         </span>
-        <span className="block text-sm text-steel">{detail}</span>
+        <span className="block text-base text-steel">{detail}</span>
       </span>
     </>
   );
@@ -64,7 +64,7 @@ function CardBody({ icon, title, detail }: { icon: string; title: string; detail
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">{title}</h2>
+      <h2 className="text-base text-ember">{title}</h2>
       <div className="mt-3 grid gap-3">{children}</div>
     </section>
   );
@@ -102,16 +102,16 @@ export default async function RedesPage() {
           width={112}
           height={112}
           priority
-          className="h-28 w-28 rounded-full border-2 border-ember object-cover"
+          className="h-28 w-28 rounded-full object-cover bg-ink-raised"
         />
         <h1 className="mt-5 font-display text-4xl font-black uppercase leading-none tracking-tight text-chalk">
           Cristian Barbosa
         </h1>
-        <p className="mt-3 text-base text-chalk">🏆 4 veces Campeón Nacional de Calistenia en Colombia</p>
-        <p className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-steel">
+        <p className="mt-3 text-base text-chalk">4 veces Campeón Nacional de Calistenia en Colombia</p>
+        <p className="mt-1 text-base text-steel">
           Clases · Shows · Música · Embajador Club Nativos
         </p>
-        <p className="mt-4 max-w-sm text-sm text-steel">
+        <p className="mt-4 max-w-sm text-base text-steel">
           Bienvenido a mi sitio web oficial. Aquí encuentras mis redes y cómo contactarme si te interesa algún
           servicio.
         </p>
@@ -127,7 +127,7 @@ export default async function RedesPage() {
             <span className="block font-display text-xl font-black uppercase leading-tight tracking-tight">
               Escríbeme por WhatsApp
             </span>
-            <span className="block text-sm font-medium">Valoración gratis · clases, shows o dudas</span>
+            <span className="block text-base font-medium">Valoración gratis · clases, shows o dudas</span>
           </span>
         </GoLink>
       ) : null}
@@ -180,7 +180,7 @@ export default async function RedesPage() {
           the fold, so the buttons load first in Instagram's browser. */}
       {collabVideos.length > 0 ? (
         <section className="mt-10">
-          <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">
+          <h2 className="text-base text-ember">
             Con {collabVideos.map((video) => video.creator).join(" y ")}
           </h2>
           <div className={`mt-3 grid gap-4 ${collabVideos.length > 1 ? "sm:grid-cols-2" : ""}`}>
@@ -192,7 +192,7 @@ export default async function RedesPage() {
       ) : null}
 
       <section className="mt-10">
-        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Conoce mi universo</h2>
+        <h2 className="text-base text-ember">Conoce mi universo</h2>
         <TrackedLink
           event={{ name: "cta_click", cta: "redes_home", topic: TOPIC }}
           href="/"
@@ -210,7 +210,7 @@ export default async function RedesPage() {
               <TrackedLink
                 event={{ name: "cta_click", cta: item.intentId, topic: TOPIC }}
                 href={item.href}
-                className="flex h-full items-center justify-center border border-steel-dim/40 bg-ink-raised p-3 text-center font-display text-base font-black uppercase tracking-tight text-chalk transition-colors hover:border-ember hover:text-ember"
+                className="flex h-full items-center justify-center bg-ink-raised p-3 text-center font-display text-base font-black uppercase tracking-tight text-chalk transition-colors hover:text-ember"
               >
                 {item.label}
               </TrackedLink>
@@ -249,16 +249,16 @@ export default async function RedesPage() {
 
       {socials.length > 0 ? (
         <section className="mt-10">
-          <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ember">Sígueme</h2>
+          <h2 className="text-base text-ember">Sígueme</h2>
           <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {socials.map((profile) => (
               <li key={profile.id}>
                 <GoLink
                   slug={profile.slug}
-                  className="group flex h-full flex-col items-center gap-2 border border-steel-dim/40 bg-ink-raised p-4 text-center transition-colors hover:border-ember"
+                  className="group flex h-full flex-col items-center gap-2 bg-ink-raised p-4 text-center transition-colors"
                 >
                   <LinkIcon name={profile.platform} className="h-7 w-7 text-chalk group-hover:text-ember" />
-                  <span className="text-sm text-chalk">{profile.label}</span>
+                  <span className="text-base text-chalk">{profile.label}</span>
                 </GoLink>
               </li>
             ))}

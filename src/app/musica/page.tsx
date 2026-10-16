@@ -19,13 +19,14 @@ export default function MusicaPage() {
     <>
       <PageHero
         tag="MÚSICA"
+        image={{ src: "/brand/cristian-brand-art-01.png", alt: "Arte de Cristian Barbosa en escenario", position: "object-[50%_20%]" }}
         title="Música"
         description="La historia detrás de cada canción, el backstage, y el acceso anticipado antes de que llegue a las plataformas."
       >
         <TrackedLink
           event={{ name: "cta_click", cta: "intent_music_early_access", topic: "musica" }}
           href="/contacto?topic=musica"
-          className="mt-8 inline-flex w-fit items-center border border-ember px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember hover:text-ink"
+          className="mt-8 inline-flex w-fit items-center px-6 py-3 text-base font-bold text-ink transition-colors bg-ember hover:bg-chalk focus-visible:bg-chalk"
         >
           Quiero escucharla antes que nadie
         </TrackedLink>
@@ -33,14 +34,13 @@ export default function MusicaPage() {
       {/* First real release (Cristian, 2026-10-03). */}
       <section className="pt-16">
         <Container>
-          <div className="flex flex-col gap-4 border border-ember/60 bg-ink-raised p-8">
-            <p className="font-mono text-xs uppercase tracking-widest text-ember">Lanzamiento · 15 de octubre de 2026</p>
+          <div className="flex flex-col gap-4 bg-ink-raised p-8">
             <h2 className="font-display text-4xl font-black uppercase tracking-tight text-chalk sm:text-5xl">El Diamante</h2>
-            <p className="max-w-2xl text-sm leading-relaxed text-steel">
-              Su primer rap con equipo profesional: una idea escrita a mano que se volvió canción, grabada en un
+            <p className="max-w-2xl text-lg leading-relaxed text-chalk">
+              Salió el 15 de octubre de 2026. Su primer rap con equipo profesional: una idea escrita a mano que se volvió canción, grabada en un
               estudio en la vereda La Miel de Caldas, Antioquia, con el productor Cristian Alvia.
             </p>
-            <Link href="/blog/el-diamante-cancion" className="w-fit text-sm text-chalk underline decoration-tide underline-offset-4 hover:text-tide">
+            <Link href="/blog/el-diamante-cancion" className="w-fit text-base text-chalk underline decoration-tide underline-offset-4 hover:text-tide">
               La historia detrás de la canción →
             </Link>
           </div>
@@ -61,11 +61,11 @@ export default function MusicaPage() {
          * inventing the song. This section states the confirmed
          * business model without pretending a purchase flow exists.
          */}
-        <Container className="border border-steel-dim/40 bg-ink p-8">
-          <p className="font-mono text-xs uppercase tracking-widest text-ember">Próximamente</p>
-          <p className="mt-3 max-w-2xl text-sm text-steel">
+        <Container className="bg-ink-raised p-8">
+          <p className="text-base text-ember">Próximamente</p>
+          <p className="mt-3 max-w-2xl text-base text-steel">
             Cada canción se venderá individualmente por{" "}
-            <span className="font-mono text-chalk">{formatCents(1_000_000)}</span>. El
+            <span className="text-chalk">{formatCents(1_000_000)}</span>. El
             acceso privado a las canciones compradas queda ligado a una compra confirmada —
             por ahora, deja tu contacto arriba para ser de los primeros en enterarte cuando
             el catálogo se active.
@@ -75,7 +75,7 @@ export default function MusicaPage() {
           <TrackedLink
             event={{ name: "cta_click", cta: "intent_social", topic: "musica" }}
             href="/redes"
-            className="inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+            className="inline-flex w-fit items-center px-5 py-2.5 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
           >
             Quiero seguir a Cristian
           </TrackedLink>

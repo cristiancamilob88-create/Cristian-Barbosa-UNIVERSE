@@ -46,10 +46,10 @@ export function PaymentReturnNotice({ whatNext }: { whatNext: string }) {
   return (
     <div role="status" className={`border bg-ink-raised p-6 ${copy.tone}`}>
       <p className="font-display text-xl font-black uppercase tracking-tight">{copy.title}</p>
-      <p className="mt-2 text-sm text-steel">{copy.body}</p>
+      <p className="mt-2 text-base text-steel">{copy.body}</p>
       <GoLink
         slug={goLinks.whatsappCommercial}
-        className="mt-4 inline-flex w-fit items-center border border-chalk px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-chalk transition-colors hover:bg-chalk hover:text-ink"
+        className="mt-4 inline-flex w-fit items-center px-5 py-2.5 text-base font-bold text-ink transition-colors bg-chalk hover:bg-ember focus-visible:bg-ember"
       >
         Escribir por WhatsApp
       </GoLink>

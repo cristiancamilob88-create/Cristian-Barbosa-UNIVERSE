@@ -18,7 +18,7 @@ export function Footer() {
       <div className="overflow-hidden pt-8">
         <p
           aria-hidden="true"
-          className="-mb-[0.12em] whitespace-nowrap px-2 text-center font-display text-[16.5vw] font-black uppercase leading-[0.8] tracking-[-0.04em]"
+          className="-mb-[0.12em] px-5 font-display text-[25vw] font-black uppercase leading-[0.82] tracking-[-0.04em] sm:px-8 lg:whitespace-nowrap lg:px-2 lg:text-center lg:text-[15.5vw]"
         >
           {siteConfig.name}
         </p>
