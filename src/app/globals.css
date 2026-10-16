@@ -138,7 +138,7 @@ body {
   flex-direction: column;
   gap: 4px;
   font-family: var(--font-inter), sans-serif;
-  font-size: 13px;
+  font-size: 15px;
 }
 .cb-shows-map .leaflet-popup-content a {
   color: var(--color-ember);
@@ -157,7 +157,7 @@ body {
   color: var(--color-ember);
 }
 .cb-shows-map .leaflet-bar {
-  border: 1px solid rgb(123 129 122 / 0.4);
+  border: 0;
 }
 .cb-shows-map.leaflet-container .leaflet-control-attribution {
   background: rgb(11 13 12 / 0.7);
@@ -173,32 +173,28 @@ body {
   gap: 3px;
 }
 .cb-shows-map .leaflet-popup-content .cb-popup-title {
-  font-size: 15px;
+  font-size: 17px;
   text-transform: uppercase;
   letter-spacing: -0.01em;
 }
 .cb-shows-map .leaflet-popup-content .cb-popup-region {
   color: var(--color-steel);
-  font-size: 12px;
+  font-size: 14px;
 }
 .cb-shows-map .leaflet-popup-content .cb-popup-when,
 .cb-shows-map .leaflet-popup-content .cb-popup-tag--next {
   color: #ffc857;
-  font-family: var(--font-mono, ui-monospace), monospace;
-  font-size: 12px;
+  font-size: 14px;
 }
 .cb-shows-map .leaflet-popup-content .cb-popup-tag {
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-size: 10px;
+  font-weight: 600;
+  font-size: 14px;
 }
 .cb-shows-map .leaflet-popup-content .cb-popup-links {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px solid rgb(123 129 122 / 0.4);
+  margin-top: 10px;
 }
 .cb-shows-map .leaflet-popup-close-button {
   color: var(--color-steel) !important;

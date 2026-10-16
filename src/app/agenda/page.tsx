@@ -138,7 +138,7 @@ export default function AgendaPage() {
               {institutionStops.map((stop) => (
                 <li key={stop.town} className="border-l-2 border-tide pl-4">
                   <p className="font-display text-lg font-black uppercase tracking-tight text-chalk">
-                    {stop.town} <span className="text-xs font-normal text-steel-dim">{stop.department}</span>
+                    {stop.town} <span className="font-sans text-base font-normal normal-case tracking-normal text-steel">{stop.department}</span>
                   </p>
                   {stop.note && <p className="mt-1 text-base text-steel">{stop.note}</p>}
                 </li>

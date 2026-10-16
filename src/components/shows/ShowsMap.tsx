@@ -337,8 +337,8 @@ export function ShowsMap() {
             type="button"
             aria-pressed={filter === chip.value}
             onClick={() => setFilter(chip.value)}
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-              filter === chip.value ? "border-chalk bg-chalk text-ink" : "border-steel-dim/50 text-steel hover:text-chalk"
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+              filter === chip.value ? "bg-chalk text-ink" : "bg-ink-raised text-chalk hover:bg-steel-dim/40"
             }`}
           >
             {chip.dot && <span className={`h-2.5 w-2.5 rounded-full ${DOT_CLASS[chip.dot]}`} aria-hidden="true" />}
@@ -347,14 +347,14 @@ export function ShowsMap() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
-          <div className="flex overflow-hidden rounded-full border border-steel-dim/50 text-xs font-semibold" role="group" aria-label="Tipo de mapa">
+          <div className="flex overflow-hidden rounded-full bg-ink-raised text-sm font-semibold" role="group" aria-label="Tipo de mapa">
             {(Object.keys(BASE_LAYERS) as BaseLayer[]).map((key) => (
               <button
                 key={key}
                 type="button"
                 aria-pressed={base === key}
                 onClick={() => setBase(key)}
-                className={`px-3 py-1.5 transition-colors ${base === key ? "bg-chalk text-ink" : "text-steel hover:text-chalk"}`}
+                className={`px-4 py-2 transition-colors ${base === key ? "bg-chalk text-ink" : "text-chalk hover:text-ember"}`}
               >
                 {BASE_LAYERS[key].label}
               </button>
@@ -363,7 +363,7 @@ export function ShowsMap() {
           <button
             type="button"
             onClick={() => setFullscreen((v) => !v)}
-            className="rounded-full border border-steel-dim/50 px-3 py-1.5 text-xs font-semibold text-steel transition-colors hover:text-chalk"
+            className="rounded-full bg-ink-raised px-4 py-2 text-sm font-semibold text-chalk transition-colors hover:text-ember"
           >
             {fullscreen ? "Cerrar" : "Pantalla completa"}
           </button>
@@ -377,25 +377,25 @@ export function ShowsMap() {
             ref={host}
             role="region"
             aria-label="Mapa interactivo de los lugares donde Cristian Barbosa se ha presentado"
-            className={`cb-shows-map ${base === "dark" ? "cb-shows-map--dark" : ""} w-full border border-steel-dim/40 bg-ink-raised ${
-              fullscreen ? "h-full" : "h-[420px] sm:h-[520px]"
+            className={`cb-shows-map ${base === "dark" ? "cb-shows-map--dark" : ""} w-full bg-ink-raised ${
+              fullscreen ? "h-full" : "h-[60svh] min-h-[380px] sm:h-[520px]"
             }`}
           />
           {tilesFailed && (
-            <p className="pointer-events-none absolute inset-x-3 bottom-10 z-[500] bg-ink/90 p-3 text-center text-xs text-steel">
+            <p className="pointer-events-none absolute inset-x-3 bottom-10 z-[500] bg-ink/90 p-3 text-center text-sm text-steel">
               No se pudo cargar el fondo del mapa (conexión o bloqueador de anuncios). Los pines y &quot;Abrir en Google Maps&quot; siguen funcionando.
             </p>
           )}
           <button
             type="button"
             onClick={showAll}
-            className="absolute right-3 top-3 z-[500] rounded-full border border-steel-dim/50 bg-ink/90 px-3 py-1.5 text-xs font-semibold text-chalk hover:text-ember"
+            className="absolute right-3 top-3 z-[500] rounded-full bg-ink/90 px-4 py-2 text-sm font-semibold text-chalk hover:text-ember"
           >
             Ver toda la gira
           </button>
         </div>
 
-        <div className={`flex min-h-0 flex-col border border-steel-dim/40 bg-ink-raised ${fullscreen ? "max-h-[35vh] lg:max-h-none" : "lg:h-[520px]"}`}>
+        <div className={`flex min-h-0 flex-col bg-ink-raised ${fullscreen ? "max-h-[35vh] lg:max-h-none" : "lg:h-[520px]"}`}>
           <label className="p-3">
             <span className="sr-only">Buscar un municipio</span>
             <input
@@ -406,7 +406,7 @@ export function ShowsMap() {
               className="w-full bg-ink px-3 py-2 text-base text-chalk placeholder:text-steel-dim focus:outline focus:outline-1 focus:outline-ember"
             />
           </label>
-          <p className="px-3 pt-2 text-[0.65rem] uppercase tracking-widest text-steel-dim">
+          <p className="px-4 pt-1 text-sm text-steel">
             {visible.length} {visible.length === 1 ? "lugar" : "lugares"}
           </p>
           <ul className={`min-h-0 flex-1 overflow-y-auto p-2 ${fullscreen ? "" : "max-h-64 lg:max-h-none"}`}>
@@ -420,7 +420,7 @@ export function ShowsMap() {
                   <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${DOT_CLASS[place.kind]}`} aria-hidden="true" />
                   <span className="flex flex-col">
                     <span className="text-base font-semibold text-chalk">{place.town}</span>
-                    <span className="text-xs text-steel">{place.when ?? place.region}</span>
+                    <span className="text-sm text-steel">{place.when ?? place.region}</span>
                   </span>
                 </button>
               </li>
@@ -430,7 +430,7 @@ export function ShowsMap() {
         </div>
       </div>
       {!fullscreen && (
-        <p className="text-xs text-steel-dim">Toca un pin o un municipio de la lista para ver qué pasó ahí. Acércate con dos dedos (o con + / −) para ver cada municipio; en computador, haz clic en el mapa y usa la rueda del ratón.</p>
+        <p className="text-base text-steel">Toca un pin o un municipio de la lista para ver qué pasó ahí.</p>
       )}
     </div>
   );
