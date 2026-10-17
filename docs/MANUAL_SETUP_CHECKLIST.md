@@ -54,6 +54,14 @@ connection string se pegó en el chat en ningún momento.
 | Primer deploy | **Cristian** (dispara automáticamente al conectar el repo) o Claude si tiene acceso a la API/CLI de Vercel |
 | Revisar logs de build/runtime en caso de error | Claude, si tiene acceso al proyecto Vercel; si no, Cristian debe compartir el log |
 
+## Plan Diciembre — área de alumnos (2026-09-30, docs/TRAINING.md)
+
+| Tarea | Quién | Estado |
+|---|---|---|
+| Aplicar migración `0017_training_program.sql` + filas de seed del Plan Diciembre en Supabase | Claude (con autorización) | ⏳ Pendiente |
+| Crear `MEMBER_SESSION_SECRET` en Vercel (`openssl rand -hex 32`) | Claude (Vercel MCP) o **Cristian** | ⏳ Pendiente |
+| Confirmar `GMAIL_USER` + `GMAIL_APP_PASSWORD` en Vercel (sin eso no llegan los códigos de acceso) | **Cristian** | ⏳ Por confirmar |
+
 ## Dominio / DNS
 
 | Tarea | Quién |

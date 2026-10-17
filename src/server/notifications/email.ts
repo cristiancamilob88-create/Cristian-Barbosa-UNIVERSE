@@ -1,7 +1,13 @@
 import "server-only";
 import nodemailer from "nodemailer";
 import { getServerEnv } from "@/server/env";
-import { WELCOME_EMAIL_TEMPLATES, isPendingTemplate, renderTemplate } from "./emailTemplates";
+import {
+  WELCOME_EMAIL_TEMPLATES,
+  isPendingTemplate,
+  renderMemberAccessEmail,
+  renderMemberLoginCodeEmail,
+  renderTemplate,
+} from "./emailTemplates";
 
 let cachedTransporter: ReturnType<typeof nodemailer.createTransport> | null = null;
 
@@ -71,5 +77,49 @@ export async function sendWelcomeEmail(input: { name: string; email: string; top
   } catch (err) {
     // Never rethrow — see this function's own doc comment.
     console.error("[notifications] Failed to send welcome email", err);
+  }
+}
+
+/**
+ * The 6-digit sign-in code for /mi-plan (docs/TRAINING.md). Unlike the
+ * welcome email this one is awaited — the student is standing on the
+ * sign-in screen waiting for it — so it reports whether it actually
+ * went out instead of swallowing the outcome. Still never throws.
+ */
+export async function sendMemberLoginCodeEmail(input: { name: string | null; email: string; code: string }): Promise<boolean> {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn("[notifications] GMAIL_USER/GMAIL_APP_PASSWORD not configured — cannot send a /mi-plan sign-in code.");
+    return false;
+  }
+  const { GMAIL_USER } = getServerEnv();
+  const { subject, body } = renderMemberLoginCodeEmail(input);
+  try {
+    await transporter.sendMail({ from: GMAIL_USER, to: input.email, subject, text: body });
+    return true;
+  } catch (err) {
+    console.error("[notifications] Failed to send /mi-plan sign-in code", err);
+    return false;
+  }
+}
+
+/**
+ * "Your spot is confirmed" — sent when Cristian approves an enrollment
+ * in /admin/alumnos, pointing at the sign-in page. Fire-and-forget like
+ * the welcome email: the approval is saved either way, and /admin also
+ * offers a WhatsApp invite to copy.
+ */
+export async function sendMemberAccessEmail(input: { name: string | null; email: string; startDate: string }): Promise<void> {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn("[notifications] GMAIL_USER/GMAIL_APP_PASSWORD not configured — skipping /mi-plan access email.");
+    return;
+  }
+  const { GMAIL_USER } = getServerEnv();
+  const { subject, body } = renderMemberAccessEmail(input);
+  try {
+    await transporter.sendMail({ from: GMAIL_USER, to: input.email, subject, text: body });
+  } catch (err) {
+    console.error("[notifications] Failed to send /mi-plan access email", err);
   }
 }

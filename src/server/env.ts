@@ -48,6 +48,14 @@ const serverEnvSchema = z.object({
   // Signs/verifies the admin session cookie (HMAC-SHA256, src/server/auth/session.ts).
   // Generate with `openssl rand -hex 32`.
   ADMIN_SESSION_SECRET: z.string().min(32).optional(),
+  // Student sign-in for training programs (/mi-plan, 2026-09-30):
+  // signs the member session cookie and keys the HMAC of each emailed
+  // login code (src/server/auth/memberSession.ts, src/server/db/repositories/memberLoginCode.ts).
+  // Deliberately NOT ADMIN_SESSION_SECRET — separate secrets mean a
+  // student token can never verify as an admin one, and rotating one
+  // never logs out the other. Optional: unset means /mi-plan sign-in
+  // reports "not configured" (fail closed). `openssl rand -hex 32`.
+  MEMBER_SESSION_SECRET: z.string().min(32).optional(),
   // Welcome-email automation (2026-08-25, Cristian's own request — see
   // docs/AUTOMATIONS.md), sent via Gmail SMTP: no domain purchase
   // needed to start (Resend/similar require a verified domain to email
@@ -100,6 +108,7 @@ export function getServerEnv() {
     ANALYTICS_API_TOKEN: process.env.ANALYTICS_API_TOKEN || undefined,
     ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH || undefined,
     ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET || undefined,
+    MEMBER_SESSION_SECRET: process.env.MEMBER_SESSION_SECRET || undefined,
     GMAIL_USER: process.env.GMAIL_USER || undefined,
     GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD || undefined,
     META_WHATSAPP_ACCESS_TOKEN: process.env.META_WHATSAPP_ACCESS_TOKEN || undefined,

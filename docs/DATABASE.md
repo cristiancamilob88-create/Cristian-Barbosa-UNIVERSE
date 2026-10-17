@@ -81,6 +81,9 @@ alongside this doc) and in docs/DATA_MODEL.md for *why* each table exists.
 | `orders` / `order_items` | Named plural — `order` is a reserved SQL keyword. No payment processing yet. |
 | `subscription` | External subscription state (e.g. Facebook Subscription) — never reimplements the provider. |
 | `b2b_opportunity` | Lightweight pipeline for shows/brands/sponsors. |
+| `entitlement` | Contact ↔ product access (0007). Also the access gate for training programs. |
+| `training_enrollment` / `routine_template` / `training_week_routine` / `training_log` / `training_measurement` | Personalized training programs (Plan Diciembre, 0017) — see docs/TRAINING.md. |
+| `member_login_code` | Hashed, expiring 6-digit sign-in codes for students (0017) — docs/TRAINING.md, "Sign-in". |
 
 ### Why `interaction` instead of separate INTERACTION + JOURNEY_EVENT tables
 

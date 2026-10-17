@@ -119,6 +119,32 @@ export default function EntrenarPage() {
               </GoLink>
             </div>
           </div>
+
+          {/* Plan Diciembre (2026-09-30): Cristian's 12-week 1:1 program —
+              its own landing with the sign-up form; once approved, the
+              student's plan lives in /mi-plan (docs/TRAINING.md). */}
+          <div id="plan-diciembre" className="flex scroll-mt-24 flex-col gap-6 border border-tide/50 bg-ink-raised p-8 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest text-tide">12 semanas · 10 cupos</p>
+              <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-chalk sm:text-4xl">
+                Plan Diciembre
+              </h2>
+              <p className="mt-3 max-w-xl text-sm text-steel">
+                Entrenamiento 1:1 a domicilio, dos clases por semana, con un plan hecho solo para ti y tu app para
+                seguir tu rutina y tu progreso hasta diciembre.
+              </p>
+              <p className="mt-4 font-mono text-2xl text-chalk">
+                {formatCents(100_000_000)} <span className="text-sm text-steel-dim">· plan completo</span>
+              </p>
+            </div>
+            <TrackedLink
+              event={{ name: "cta_click", cta: "intent_plan_diciembre", topic: "entrenar" }}
+              href="/entrenar/plan-diciembre"
+              className="inline-flex w-fit items-center bg-tide px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-chalk"
+            >
+              Quiero mi cupo
+            </TrackedLink>
+          </div>
         </Container>
       </section>
       <section className="py-16">
