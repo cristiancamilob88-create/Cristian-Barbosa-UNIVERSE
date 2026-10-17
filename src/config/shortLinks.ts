@@ -31,8 +31,16 @@ export const shortLinks: ShortLink[] = [
   { path: "/ig", destination: "/redes", source: "instagram", medium: "bio", campaign: "perfil", use: "Bio de Instagram" },
   { path: "/tt", destination: "/redes", source: "tiktok", medium: "bio", campaign: "perfil", use: "Bio de TikTok" },
   { path: "/fb", destination: "/redes", source: "facebook", medium: "bio", campaign: "perfil", use: "Perfil de Facebook" },
-  { path: "/yt", destination: "/redes", source: "youtube", medium: "descripcion", campaign: "perfil", use: "Canal y descripciones de YouTube" },
+  { path: "/yt", destination: "/redes", source: "youtube", medium: "descripcion", campaign: "perfil", use: "Descripciones de videos de YouTube" },
   { path: "/wa", destination: "/redes", source: "whatsapp", medium: "directo", campaign: "perfil", use: "Estado y mensajes de WhatsApp" },
+  // One link per placement (Cristian, 2026-10-17: "cada link con su
+  // respectiva etiqueta… biografía, historias, descripciones"), so the
+  // panel tells a story visit from a bio visit on the same network.
+  { path: "/igh", destination: "/redes", source: "instagram", medium: "historia", campaign: "perfil", use: "Historias de Instagram" },
+  { path: "/fbh", destination: "/redes", source: "facebook", medium: "historia", campaign: "perfil", use: "Historias de Facebook" },
+  { path: "/ytc", destination: "/redes", source: "youtube", medium: "bio", campaign: "perfil", use: "Descripción del canal de YouTube" },
+  { path: "/in", destination: "/redes", source: "linkedin", medium: "bio", campaign: "perfil", use: "Perfil de LinkedIn" },
+  { path: "/inp", destination: "/redes", source: "linkedin", medium: "post", campaign: "perfil", use: "Publicaciones de LinkedIn" },
 ];
 
 export function shortLinkDestination(link: ShortLink): string {

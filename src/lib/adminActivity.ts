@@ -178,6 +178,7 @@ const SOURCE_LABELS: Record<string, string> = {
   tiktok: "TikTok",
   whatsapp: "WhatsApp",
   youtube: "YouTube",
+  linkedin: "LinkedIn",
   google: "Google",
   qr: "Código QR",
 };

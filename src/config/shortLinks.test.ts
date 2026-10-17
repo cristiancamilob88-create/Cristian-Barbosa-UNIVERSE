@@ -17,4 +17,9 @@ describe("shortLinks", () => {
     const ig = shortLinks.find((l) => l.path === "/ig")!;
     expect(shortLinkDestination(ig)).toBe("/redes?utm_source=instagram&utm_medium=bio&utm_campaign=perfil");
   });
+
+  it("tell a story visit from a bio visit on the same network", () => {
+    const igh = shortLinks.find((l) => l.path === "/igh")!;
+    expect(shortLinkDestination(igh)).toBe("/redes?utm_source=instagram&utm_medium=historia&utm_campaign=perfil");
+  });
 });
