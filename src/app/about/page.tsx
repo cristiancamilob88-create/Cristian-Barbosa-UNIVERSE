@@ -117,7 +117,7 @@ export default function AboutPage() {
           <p>
             Hoy vive en Envigado. Desde {bioFacts.joinedCircus} es artista del {bioFacts.circusName}, con el
             que se ha presentado en {bioFacts.municipalitiesCount} municipios de Antioquia y Chocó. Crea
-            contenido, entrena a otros y el 15 de octubre de 2026 lanza su canción &quot;El Diamante&quot;. Su
+            contenido, entrena a otros y el 15 de octubre de 2026 {released ? "lanzó" : "lanza"} su canción &quot;El Diamante&quot;. Su
             meta: unir calistenia, música y espectáculo en los escenarios más grandes.
           </p>
         </Container>
