@@ -314,3 +314,43 @@ insert into offer (product_id, slug, name, currency, landing_path, purchase_type
 select id, 'sesion-1a1-70min', 'Sesión 1:1 con Cristian Barbosa (70 min)', 'COP', '/entrenar', 'one_time', 8000000, 'mercadopago', 'Reservar mi sesión'
 from product where slug = 'sesion-1a1'
 on conflict (slug) do nothing;
+
+-- Plan Diciembre (2026-09-30), Cristian's own offer from his sales
+-- script: 12 weeks, 1:1, two classes a week at home or nearby, 10 spots
+-- (Envigado, Las Palmas, Sabaneta, Llanogrande), 1.000.000 COP for the
+-- whole plan (payable in two), 400.000 COP/month as the anchor price.
+-- Closes by conversation and is paid outside the site (Nequi/transfer),
+-- so purchase_type 'quote', no checkout provider — the site's job is
+-- the sign-up (/entrenar/plan-diciembre) and, once Cristian approves a
+-- student, the training area itself (/mi-plan). Migration 0017.
+insert into product (slug, name, kind, description, base_price_cents) values
+  ('plan-diciembre', 'Plan Diciembre — 12 semanas con Cristian Barbosa', 'coaching',
+   'Entrenamiento 1:1 a domicilio, dos clases por semana, con plan personalizado y seguimiento en la app.', 100000000)
+on conflict (slug) do nothing;
+
+insert into offer (product_id, slug, name, currency, landing_path, purchase_type, price_cents, cta_label)
+select id, 'plan-diciembre-completo', 'Plan Diciembre — plan completo', 'COP', '/entrenar/plan-diciembre', 'quote', 100000000, 'Quiero mi cupo'
+from product where slug = 'plan-diciembre'
+on conflict (slug) do nothing;
+
+-- The beginner routine from the Plan Diciembre demo — every new student
+-- starts here and Cristian adjusts from there.
+insert into routine_template (slug, name, days) values ('principiante', 'Principiante', $json$
+[
+  {"title": "Clase 1 · Empuje y core", "kind": "Clase con Cristian", "exercises": [
+    {"name": "Flexiones inclinadas", "dose": "3 × 8–10", "cue": "Codos a 45°, cuerpo en tabla"},
+    {"name": "Fondos en banco", "dose": "3 × 8", "cue": "Baja hasta 90° de codo"},
+    {"name": "Plancha", "dose": "3 × 30 s", "cue": "Glúteo apretado, sin hundir la cadera"},
+    {"name": "Hollow hold", "dose": "3 × 20 s", "cue": "Lumbar pegada al piso"}]},
+  {"title": "Clase 2 · Tracción y piernas", "kind": "Clase con Cristian", "exercises": [
+    {"name": "Remo australiano", "dose": "3 × 8–10", "cue": "Pecho a la barra"},
+    {"name": "Colgado activo", "dose": "3 × 20 s", "cue": "Escápulas abajo"},
+    {"name": "Negativas de dominada", "dose": "3 × 3–5", "cue": "Bajada de 4 segundos"},
+    {"name": "Sentadilla", "dose": "3 × 15", "cue": "Talones en el piso"}]},
+  {"title": "Tarea en casa", "kind": "Por tu cuenta", "exercises": [
+    {"name": "Flexiones", "dose": "2 × al máximo", "cue": "Anota cuántas hiciste"},
+    {"name": "Zancadas", "dose": "3 × 10 c/pierna", "cue": "Rodilla de atrás casi al piso"},
+    {"name": "Estiramiento de hombros y cadera", "dose": "10 min", "cue": "Respira lento"}]}
+]
+$json$::jsonb)
+on conflict (slug) do nothing;

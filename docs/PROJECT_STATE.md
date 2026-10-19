@@ -8,6 +8,20 @@ narrative, then those two for the itemized state, then
 
 ## Where we are
 
+**Plan Diciembre student area — 2026-09-30, branch
+`feat/plan-diciembre-alumnos`** (Cristian's own request, outside the
+numbered blocks): sign-up at `/entrenar/plan-diciembre`, approval in
+`/admin/alumnos`, student sign-in by emailed 6-digit code, and the
+installable `/mi-plan` area (Mi semana with check-offs + notes, Mi plan
+with the 12 weeks). Migration `0017_training_program.sql` + seed rows
+(product `plan-diciembre`, offer `plan-diciembre-completo`, template
+`principiante`). First multi-user sign-in in this app — its own cookie
+and secret, not the admin one. Full record: **docs/TRAINING.md**.
+Production still needs: migration 0017 + those seed rows applied to
+Supabase, `MEMBER_SESSION_SECRET` set in Vercel, and Gmail SMTP
+credentials confirmed there (sign-in codes go by email). Phases 2
+(routine editor, measurements/Mi progreso) and 3 (AI adjustment) pending.
+
 **Blocks 01–07 complete** (foundation through the Universe-wide real
 destinations/prices — see `docs/MASTER_ROADMAP.md` for the full list).
 Migrations `0001`–`0006` and the real commercial data are live and

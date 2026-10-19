@@ -1,5 +1,5 @@
 import "server-only";
-import type { PoolClient } from "pg";
+import type { Pool, PoolClient } from "pg";
 import type { VisitorRow } from "./visitor";
 
 export interface ContactRow {
@@ -135,4 +135,60 @@ export async function assignInterest(
      on conflict do nothing`,
     [contactId, interestId],
   );
+}
+
+/** A single contact by id — name/email for the signed-in student's own header, nothing more. */
+export async function getContactById(
+  db: Pool | PoolClient,
+  contactId: string,
+): Promise<ContactRow | null> {
+  const result = await db.query<ContactRow>("select id, name, email, phone, status from contact where id = $1", [
+    contactId,
+  ]);
+  return result.rows[0] ?? null;
+}
+
+/**
+ * Find-or-create for a person Cristian adds by hand in /admin (e.g. a
+ * student who signed up in person after a free class) — there's no
+ * visit behind it, so unlike findOrCreateContact() no attribution is
+ * copied: first/last touch stay empty rather than invented. Same
+ * matching (email, then phone); an existing contact only gets blanks
+ * filled, never overwritten. No consent is recorded here — that person
+ * never saw the form's checkbox; /mi-plan asks for it on first sign-in.
+ */
+export async function findOrCreateContactDirect(
+  client: PoolClient,
+  input: { name: string; email: string; phone: string | null },
+): Promise<{ contact: ContactRow; created: boolean }> {
+  const email = input.email.trim();
+  const phone = input.phone?.trim() || null;
+
+  let existing = (
+    await client.query<ContactRow>("select id, name, email, phone, status from contact where email = $1", [email])
+  ).rows[0];
+  if (!existing && phone) {
+    existing = (
+      await client.query<ContactRow>("select id, name, email, phone, status from contact where phone = $1", [phone])
+    ).rows[0];
+  }
+
+  if (existing) {
+    const updated = await client.query<ContactRow>(
+      `update contact set
+         name = coalesce(contact.name, $2),
+         email = coalesce(contact.email, $3),
+         phone = coalesce(contact.phone, $4)
+       where id = $1
+       returning id, name, email, phone, status`,
+      [existing.id, input.name, email, phone],
+    );
+    return { contact: updated.rows[0], created: false };
+  }
+
+  const created = await client.query<ContactRow>(
+    "insert into contact (name, email, phone) values ($1, $2, $3) returning id, name, email, phone, status",
+    [input.name, email, phone],
+  );
+  return { contact: created.rows[0], created: true };
 }
