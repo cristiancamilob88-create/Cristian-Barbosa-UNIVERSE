@@ -27,6 +27,15 @@ migrated in `0003_analytics_engine.sql`:
 | `offer_view` | **New, reserved.** Same as above, for a specific offer | — | `entity: {type:'offer', id}` | Same. |
 | `checkout_started` / `purchase` / `subscription_started` / `subscription_cancelled` | Reserved — no checkout in this block | — | — | Funnel/revenue, once Block 04 wires commerce. |
 | `event_registration` | Reserved — no RSVP flow yet | — | — | Future events feature. |
+| `map_interaction` | **New (0020, 2026-10-19).** A town searched, a pin tapped or a town tapped in the list on the tour map (`ShowsMap`), or a town typed in the homepage's "¿Ya estuvo en tu pueblo?" (`TownCheck`) | `lib/analytics.ts` (client) → `/api/track` | `{action: search\|pin\|list\|town_check, town, query?, found?}` | Which towns visitors look for, and which ones they search that aren't on the tour yet (demand for the next show). |
+
+**`map_interaction` is not a `cta_click`**: a `cta_click` is a button
+with an `intent_*` id that takes the visitor somewhere (the CTAs report
+ranks them). A pin or a search is exploration, not a call to action, and
+its payload is a town, not an intent — folding it into `cta_click` would
+flood the CTA ranking with 30-odd town names. Searches are debounced and
+fire only once the visitor stops typing, so a search is one row, not one
+per keystroke.
 
 **`LEAD_CREATED` was considered and deliberately not added** — it would
 be a pure synonym for `lead_submitted` (same trigger, same moment, no

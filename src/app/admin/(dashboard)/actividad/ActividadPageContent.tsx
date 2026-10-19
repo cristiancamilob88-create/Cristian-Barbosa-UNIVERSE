@@ -106,6 +106,18 @@ function ActivityBody({ visitors, truncated }: { visitors: ActivityVisitor[]; tr
             {summary.byInterest.map(([area, n]) => `${area} (${n})`).join(" · ")}
           </p>
         )}
+        {summary.townsSeen.length > 0 && (
+          <p className="mt-2 text-sm text-chalk">
+            <span className="text-steel">Pueblos que miraron en el mapa: </span>
+            {summary.townsSeen.map(([town, n]) => `${town} (${n})`).join(" · ")}
+          </p>
+        )}
+        {summary.townsMissing.length > 0 && (
+          <p className="mt-2 text-sm text-chalk">
+            <span className="text-steel">Buscaron y todavía no has ido: </span>
+            <strong className="text-[#ffc857]">{summary.townsMissing.map(([town, n]) => `${town} (${n})`).join(" · ")}</strong>
+          </p>
+        )}
         {summary.wins > 0 && (
           <p className="mt-2 text-sm font-semibold text-[#ffc857]">
             {summary.wins} {summary.wins === 1 ? "persona dejó sus datos o compró" : "personas dejaron sus datos o compraron"} — revisa Registros e Ingresos.

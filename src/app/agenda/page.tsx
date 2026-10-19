@@ -5,6 +5,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { GoLink } from "@/components/ui/GoLink";
 import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
+import { MapHireBand } from "@/components/shows/MapHireBand";
 import { UpcomingShows } from "@/components/shows/UpcomingShows";
 import { getUpcomingShows } from "@/config/upcomingShows";
 import { PastShowCard } from "@/components/shows/PastShowCard";
@@ -69,6 +70,7 @@ export default function AgendaPage() {
         <Container className="flex flex-col gap-3">
           <h2 className="font-display text-3xl font-black uppercase tracking-tight text-chalk">El mapa de la gira</h2>
           <ShowsMapLazy />
+          <MapHireBand topic="agenda_mapa" />
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <div className="bg-ink-raised p-6">
               <p className="font-display text-4xl font-black text-ember">{circusCountLabel()}</p>

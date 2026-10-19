@@ -10,6 +10,7 @@ import { pastShows } from "@/config/pastShows";
 import { circusCountLabel } from "@/config/tourStops";
 import { PastShowCard } from "@/components/shows/PastShowCard";
 import { ShowsMapLazy } from "@/components/shows/ShowsMapLazy";
+import { MapHireBand } from "@/components/shows/MapHireBand";
 
 /**
  * Real photos from Cristian's own shows (2026-08-28) — confirmed with
@@ -181,6 +182,7 @@ export default function ShowsPage() {
               visible next to "contratar shows", not only on /agenda). */}
           <div className="mt-8">
             <ShowsMapLazy />
+            <MapHireBand topic="shows_mapa" />
           </div>
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
             {pastShows.map((show) => (

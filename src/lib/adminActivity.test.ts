@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { bogotaDayRange, describeStep, originLabel, summarizeActivity, type ActivityStep } from "./adminActivity";
+import { bogotaDayRange, describeStep, mapTowns, originLabel, summarizeActivity, type ActivityStep } from "./adminActivity";
 
 const step = (overrides: Partial<ActivityStep>): ActivityStep => ({
   at: "2026-10-07T06:00:00Z",
@@ -84,5 +84,31 @@ describe("visitor conclusions", () => {
     expect(visitDurationLabel(visitor)).toBe("Estuvo unos 3 min");
     expect(visitDurationLabel({ ...visitor, steps: [visitor.steps[0]] })).toBe("Vio una sola página y se fue");
     expect(originLabel(visitor)).toBe("Instagram, desde una historia · lanzamiento-web");
+  });
+});
+
+describe("map interactions", () => {
+  const map = (overrides: Partial<ActivityStep>) => step({ eventName: "map_interaction", route: "/agenda", ...overrides });
+
+  it("reads pins, list taps and searches in plain Spanish", () => {
+    expect(describeStep(map({ mapAction: "pin", town: "Sopetrán" })).text).toBe("Tocó el pin de Sopetrán en el mapa");
+    expect(describeStep(map({ mapAction: "list", town: "Támesis" })).text).toBe("Tocó Támesis en la lista del mapa");
+    expect(describeStep(map({ mapAction: "search", town: "Támesis", query: "tamesis", found: true })).text).toBe(
+      'Buscó "tamesis" en el mapa: sí está (Támesis)',
+    );
+    expect(describeStep(map({ mapAction: "town_check", town: "Jericó", query: "Jericó", found: false })).text).toBe(
+      'Escribió "Jericó" en ¿Ya estuvo en tu pueblo?: no está en la gira',
+    );
+  });
+
+  it("splits towns looked at from towns searched that aren't on the tour", () => {
+    const result = mapTowns([
+      map({ mapAction: "pin", town: "Sopetrán" }),
+      map({ mapAction: "search", town: "Sopetrán", query: "sopetran", found: true }),
+      map({ mapAction: "search", town: "Jericó", query: "Jericó", found: false }),
+      step({ route: "/agenda" }),
+    ]);
+    expect(result.townsSeen).toEqual([["Sopetrán", 2]]);
+    expect(result.townsMissing).toEqual([["Jericó", 1]]);
   });
 });

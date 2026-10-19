@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { buildMapPlaces, matchesSearch, type MapPlace } from "@/components/shows/mapPlaces";
 import { agendaHref } from "@/config/site";
+import { track } from "@/lib/analytics";
 
 /**
  * "¿Ya estuvo en tu pueblo?" — the homepage's one live thing (taste-skill
@@ -11,6 +12,8 @@ import { agendaHref } from "@/config/site";
  * answer from the tour list (src/config/tourStops.ts): yes, with what
  * happened there, or not yet, with the button to bring the show. The
  * whole tour list stays one link away on /agenda for anyone without JS.
+ * What they typed is recorded as a `map_interaction` (town_check) once
+ * they stop typing, same as the map's own search.
  */
 function fold(text: string): string {
   return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
@@ -25,6 +28,18 @@ export function TownCheck() {
   if (q.length >= 3) {
     match = places.find((place) => fold(place.town) === q) ?? places.find((place) => matchesSearch(place, query));
   }
+
+  const lastRecorded = useRef("");
+  const typed = query.trim().slice(0, 60);
+  const matchedTown = match?.town;
+  useEffect(() => {
+    if (typed.length < 3 || typed === lastRecorded.current) return;
+    const timer = setTimeout(() => {
+      lastRecorded.current = typed;
+      track({ name: "map_interaction", action: "town_check", town: matchedTown ?? typed, query: typed, found: Boolean(matchedTown) });
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [typed, matchedTown]);
 
   return (
     <div className="flex flex-col gap-6">

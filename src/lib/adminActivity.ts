@@ -23,6 +23,11 @@ export interface ActivityStep {
   cta: string | null;
   slug: string | null;
   offerSlug: string | null;
+  /** map_interaction only (see src/server/analytics/activity.ts). */
+  mapAction?: string | null;
+  town?: string | null;
+  query?: string | null;
+  found?: boolean | null;
 }
 
 export interface ActivityVisitor {
@@ -164,6 +169,8 @@ export function describeStep(step: ActivityStep): { text: string; tone: StepTone
       return { text: "Se suscribió", tone: "win" };
     case "event_registration":
       return { text: "Se inscribió a un evento", tone: "win" };
+    case "map_interaction":
+      return { text: describeMapStep(step), tone: "click" };
     case "product_view":
     case "offer_view":
       return { text: `Vio un producto en ${routeLabel(step.route)}`, tone: "view" };
@@ -195,6 +202,24 @@ const MEDIUM_LABELS: Record<string, string> = {
   directo: "un mensaje directo",
   qr: "el código QR",
 };
+
+function describeMapStep(step: ActivityStep): string {
+  const town = step.town ?? "un pueblo";
+  const typed = step.query ?? town;
+  const answer = step.found === false ? "no está en la gira" : `sí está (${town})`;
+  switch (step.mapAction) {
+    case "pin":
+      return `Tocó el pin de ${town} en el mapa`;
+    case "list":
+      return `Tocó ${town} en la lista del mapa`;
+    case "search":
+      return `Buscó "${typed}" en el mapa: ${answer}`;
+    case "town_check":
+      return `Escribió "${typed}" en ¿Ya estuvo en tu pueblo?: ${answer}`;
+    default:
+      return `Miró ${town} en el mapa`;
+  }
+}
 
 /** "De dónde vino", in words: network · where on it · campaign. */
 export function originLabel(visitor: Pick<ActivityVisitor, "source" | "campaign" | "qr"> & { medium?: string | null }): string {
@@ -265,6 +290,9 @@ export function visitorInterest(visitor: Pick<ActivityVisitor, "steps" | "isCont
       case "landing_view":
         add(areaOfRoute(step.route), 1);
         break;
+      case "map_interaction":
+        add("Shows", 1);
+        break;
       case "cta_click":
         add(areaOfCta(step.cta), 2);
         if (step.cta === "intent_shows") signals.push("Tocó contratar un show");
@@ -294,6 +322,24 @@ export function visitorInterest(visitor: Pick<ActivityVisitor, "steps" | "isCont
   return { area: ranked[0]?.[0] ?? null, signals: [...new Set(signals)] };
 }
 
+/**
+ * The towns looked at on the map (pins, list, searches that matched) and
+ * the ones searched that aren't on the tour — the second list is where
+ * people want the next show. Most-mentioned first.
+ */
+export function mapTowns(steps: ActivityStep[]): { townsSeen: [string, number][]; townsMissing: [string, number][] } {
+  const seen: Record<string, number> = {};
+  const missing: Record<string, number> = {};
+  for (const step of steps) {
+    if (step.eventName !== "map_interaction" || !step.town) continue;
+    const bucket = step.found === false ? missing : seen;
+    const key = step.found === false ? (step.query ?? step.town) : step.town;
+    bucket[key] = (bucket[key] ?? 0) + 1;
+  }
+  const ranked = (counts: Record<string, number>) => Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  return { townsSeen: ranked(seen), townsMissing: ranked(missing) };
+}
+
 /** The day's headline counts, computed from the same feed. */
 export function summarizeActivity(visitors: ActivityVisitor[]) {
   const steps = visitors.flatMap((v) => v.steps);
@@ -313,6 +359,7 @@ export function summarizeActivity(visitors: ActivityVisitor[]) {
         return acc;
       }, {}),
     ).sort((x, y) => y[1] - x[1]),
+    ...mapTowns(steps),
     bySource: Object.entries(
       visitors.reduce<Record<string, number>>((acc, v) => {
         const key = v.source ? (SOURCE_LABELS[v.source] ?? v.source) : v.qr ? "Código QR" : "Sin origen";

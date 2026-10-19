@@ -28,6 +28,13 @@ export interface ActivityStep {
   slug: string | null;
   /** checkout_started's offer. */
   offerSlug: string | null;
+  /** map_interaction: search | pin | list | town_check. */
+  mapAction: string | null;
+  /** map_interaction: the town looked at (or the text searched, when nothing matched). */
+  town: string | null;
+  /** map_interaction searches: what was typed, and whether it's on the tour. */
+  query: string | null;
+  found: boolean | null;
 }
 
 export interface ActivityVisitor {
@@ -61,6 +68,11 @@ export interface ActivityRow {
 function metaString(metadata: Record<string, unknown> | null, key: string): string | null {
   const value = metadata?.[key];
   return typeof value === "string" ? value : null;
+}
+
+function metaBoolean(metadata: Record<string, unknown> | null, key: string): boolean | null {
+  const value = metadata?.[key];
+  return typeof value === "boolean" ? value : null;
 }
 
 /**
@@ -102,6 +114,10 @@ export function groupActivity(rows: ActivityRow[]): ActivityVisitor[] {
       cta: metaString(row.metadata, "cta"),
       slug: metaString(row.metadata, "slug"),
       offerSlug: metaString(row.metadata, "offerSlug"),
+      mapAction: metaString(row.metadata, "action"),
+      town: metaString(row.metadata, "town"),
+      query: metaString(row.metadata, "query"),
+      found: metaBoolean(row.metadata, "found"),
     });
   }
 

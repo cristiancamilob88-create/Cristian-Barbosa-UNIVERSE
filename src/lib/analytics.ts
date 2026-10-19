@@ -32,15 +32,24 @@ export type AnalyticsEvent =
   | { name: "page_view"; path: string }
   | { name: "landing_view"; path: string }
   | { name: "cta_click"; cta: string; topic: string }
+  | { name: "map_interaction"; action: MapAction; town: string; query?: string; found?: boolean }
   | { name: "lead_submit"; topic: string }
   | { name: "checkout_start"; productId: string }
   | { name: "purchase"; productId: string; amountCents: number }
   | { name: "subscription_start"; productId: string };
 
+/**
+ * What the visitor did on the tour map (Cristian, 2026-10-19: "¿qué
+ * pueblo buscaron o qué pin tocaron?"): typed a town in its search box,
+ * tapped a pin, tapped a town in its list, or typed one in the
+ * homepage's "¿Ya estuvo en tu pueblo?" box.
+ */
+export type MapAction = "search" | "pin" | "list" | "town_check";
+
 export type AnalyticsSink = (event: AnalyticsEvent) => void;
 
 /** Client events that also get persisted server-side, verbatim by name, via /api/track. */
-const PERSISTED_CLIENT_EVENTS = new Set<AnalyticsEvent["name"]>(["cta_click", "page_view", "landing_view"]);
+const PERSISTED_CLIENT_EVENTS = new Set<AnalyticsEvent["name"]>(["cta_click", "page_view", "landing_view", "map_interaction"]);
 
 const sinks: AnalyticsSink[] = [];
 
@@ -53,8 +62,13 @@ if (process.env.NODE_ENV !== "production") {
 sinks.push((event) => {
   if (!PERSISTED_CLIENT_EVENTS.has(event.name)) return;
 
-  const metadata: Record<string, string> =
-    event.name === "cta_click" ? { cta: event.cta, topic: event.topic } : {};
+  let metadata: Record<string, string | boolean> = {};
+  if (event.name === "cta_click") metadata = { cta: event.cta, topic: event.topic };
+  if (event.name === "map_interaction") {
+    metadata = { action: event.action, town: event.town };
+    if (event.query !== undefined) metadata.query = event.query;
+    if (event.found !== undefined) metadata.found = event.found;
+  }
 
   // keepalive: the click/navigation that triggers this often immediately
   // moves the page along (an internal Link, a new-tab external CTA) —

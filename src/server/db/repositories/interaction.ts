@@ -8,7 +8,8 @@ import type { ResolvedTouch } from "./reference";
  * docs/ANALYTICS_ENGINE.md, "Event taxonomy audit" for why each of the
  * Block 03 additions (contact_created, outbound_click, product_view,
  * offer_view) exists, and why LEAD_CREATED was considered and rejected
- * as a duplicate of lead_submitted.
+ * as a duplicate of lead_submitted. `map_interaction` (0020) is the
+ * tour map's own event — see the same audit for why it isn't a cta_click.
  */
 export const INTERACTION_EVENT_NAMES = [
   "page_view",
@@ -27,6 +28,7 @@ export const INTERACTION_EVENT_NAMES = [
   "subscription_started",
   "subscription_cancelled",
   "event_registration",
+  "map_interaction",
 ] as const;
 
 export type InteractionEventName = (typeof INTERACTION_EVENT_NAMES)[number];

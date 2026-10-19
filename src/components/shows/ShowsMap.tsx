@@ -11,6 +11,7 @@ import {
   type MapPlace,
   type PlaceKind,
 } from "./mapPlaces";
+import { track } from "@/lib/analytics";
 
 /**
  * The interactive "dónde ha estado / dónde va a estar" map (Cristian,
@@ -28,6 +29,11 @@ import {
  *
  * Scroll-wheel zoom only turns on after the visitor clicks the map, so
  * scrolling the page past it never gets hijacked.
+ *
+ * Every pin tap, list tap and finished search is recorded as a
+ * `map_interaction` (Cristian, 2026-10-19), so /admin/actividad can say
+ * which towns people looked at — and which ones they searched that
+ * aren't on the tour yet.
  */
 
 const PIN_CLASS: Record<PlaceKind, string> = {
@@ -84,6 +90,10 @@ const BASE_LAYERS: Record<"streets" | "dark", { label: string }> = {
 const FAILOVER_AFTER_ERRORS = 3;
 
 const MAX_ZOOM = 19;
+/** A search is recorded once the visitor has stopped typing this long. */
+const SEARCH_SETTLE_MS = 1500;
+/** Searches shorter than this are still being typed, not a town. */
+const MIN_SEARCH_LENGTH = 3;
 /** From this zoom in, every pin shows its town name, like Google Maps' labels. */
 const LABELS_FROM_ZOOM = 9;
 type BaseLayer = keyof typeof BASE_LAYERS;
@@ -190,6 +200,7 @@ export function ShowsMap() {
           zIndexOffset: place.kind === "next" ? 1000 : 0,
         })
           .bindPopup(() => popupFor(place), { maxWidth: 260 })
+          .on("click", () => track({ name: "map_interaction", action: "pin", town: place.town }))
           .bindTooltip(place.town, { direction: "top", offset: [0, -10], className: "cb-map-tooltip" });
         markerStore.set(place.id, marker);
       }
@@ -282,6 +293,26 @@ export function ShowsMap() {
       maxZoom: visible.length === 1 ? 12 : 10,
     });
   }, [ready, visible, filter, query]);
+
+  // Record a search once the visitor stops typing — one row per search,
+  // not per keystroke, and not twice for the same text.
+  const lastSearch = useRef("");
+  useEffect(() => {
+    const text = query.trim().slice(0, 60);
+    if (text.length < MIN_SEARCH_LENGTH || text === lastSearch.current) return;
+    const timer = setTimeout(() => {
+      lastSearch.current = text;
+      const found = visible.length > 0;
+      track({
+        name: "map_interaction",
+        action: "search",
+        town: visible.length === 1 ? visible[0].town : text,
+        query: text,
+        found,
+      });
+    }, SEARCH_SETTLE_MS);
+    return () => clearTimeout(timer);
+  }, [query, visible]);
 
   // Full screen: a fixed overlay (works on iPhone too, unlike the
   // Fullscreen API); Leaflet must re-measure after the resize.
@@ -414,7 +445,10 @@ export function ShowsMap() {
               <li key={place.id}>
                 <button
                   type="button"
-                  onClick={() => focusPlace(place)}
+                  onClick={() => {
+                    track({ name: "map_interaction", action: "list", town: place.town });
+                    focusPlace(place);
+                  }}
                   className="flex w-full items-start gap-3 px-2 py-2 text-left transition-colors hover:bg-ink"
                 >
                   <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${DOT_CLASS[place.kind]}`} aria-hidden="true" />
